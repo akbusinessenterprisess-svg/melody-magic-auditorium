@@ -31,13 +31,15 @@ async function connectAuditorium() {
   return result.user;
 }
 
-async function registerSinger(name, song, language) {
+async function registerSinger(name, song, language, sessionId, performance) {
   const user = await connectAuditorium();
 
   await set(push(ref(db, "registrations/" + user.uid)), {
     name,
     song,
     language,
+    sessionId,
+    performance,
     status: "Waiting",
     createdAt: Date.now()
   });
