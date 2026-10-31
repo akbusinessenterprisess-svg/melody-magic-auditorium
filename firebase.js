@@ -4,6 +4,7 @@ import {
   getDatabase,
   ref,
   set,
+  push,
   onValue
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
@@ -33,7 +34,7 @@ async function connectAuditorium() {
 async function registerSinger(name, song, language) {
   const user = await connectAuditorium();
 
-  await set(ref(db, "registrations/" + user.uid), {
+  await set(push(ref(db, "registrations")), {
     name,
     song,
     language,
@@ -43,8 +44,8 @@ async function registerSinger(name, song, language) {
 
   return user.uid;
 }
-
-function listenToSingers(callback) {
+function
+ listenToSingers(callback) {
   onValue(ref(db, "registrations"), (snapshot) => {
     callback(snapshot.val() || {});
   });
