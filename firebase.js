@@ -34,7 +34,7 @@ async function connectAuditorium() {
 async function registerSinger(name, song, language) {
   const user = await connectAuditorium();
 
-  await set(push(ref(db, "registrations")), {
+  await set(push(ref(db, "registrations/" + user.uid)), {
     name,
     song,
     language,
