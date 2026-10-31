@@ -54,6 +54,7 @@ export {
   registerSinger,
   listenToSingers,
   connectAuditorium
+};
 connectAuditorium()
   .then((user) => {
     const status = document.createElement("div");
