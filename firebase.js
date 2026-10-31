@@ -56,18 +56,14 @@ export {
   connectAuditorium
 };
 connectAuditorium()
-  .then((user) => {
-    const status = document.createElement("div");
-    status.textContent =
-      "Connected to Melody Magic! User ID: " + user.uid;
+  .then(async (user) => {
+    await set(
+      ref(db, "registrations/" + user.uid + "/connectionTest"),
+      "Database working"
+    );
 
-    status.style.cssText =
-      "position:fixed;bottom:10px;left:10px;right:10px;" +
-      "background:#176b36;color:white;padding:15px;" +
-      "z-index:99999;border-radius:10px;text-align:center;";
-
-    document.body.appendChild(status);
+    alert("Success! Firebase login and database are working.");
   })
   .catch((error) => {
-    alert("Firebase connection error: " + error.message);
+    alert("Firebase error: " + error.message);
   });
