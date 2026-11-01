@@ -1,1 +1,67 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Host Registration | Melody Magic</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#f5f0df;font-family:Arial,sans-serif;padding:20px}
+main{max-width:440px;margin:25px auto;background:#171717;border:1px solid #a8863b;border-radius:15px;padding:25px}
+h1{text-align:center;color:#e5bd60;font-size:23px}
+h2{color:#e5bd60;font-size:19px}
+p{color:#c8c3b6;line-height:1.5;font-size:14px}
+label{display:block;margin-top:15px;color:#e5bd60;font-size:14px}
+input,select{width:100%;padding:13px;margin-top:7px;background:#090909;color:white;border:1px solid #66532c;border-radius:7px;font-size:15px}
+button{width:100%;padding:14px;margin-top:22px;background:#d5ad50;color:#17120a;border:0;border-radius:8px;font-weight:bold;font-size:16px}
+.note{background:#211b0e;padding:12px;border-radius:8px;margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>MELODY MAGIC</h1>
+<h2>Host Registration</h2>
+<p>Register to host your own live singing shows on Melody Magic Digital Auditorium.</p>
+
+<form id="signupForm">
+<label>Full Name</label>
+<input type="text" name="name" required>
+
+<label>Email Address</label>
+<input type="email" name="email" required>
+
+<label>Mobile Number</label>
+<input type="tel" name="mobile" pattern="[0-9]{10}" maxlength="10" required>
+
+<label>Choose Subscription Plan</label>
+<select name="plan" required>
+<option value="">Select a plan</option>
+<option value="daily">₹99 – 1 Day (24 hours)</option>
+<option value="weekly">₹499 – 7 Days</option>
+<option value="monthly">₹1,499 – 30 Days</option>
+</select>
+
+<label>Create Password</label>
+<input type="password" name="password" minlength="8" autocomplete="new-password" required>
+
+<label>Confirm Password</label>
+<input type="password" name="confirmPassword" minlength="8" autocomplete="new-password" required>
+
+<button type="submit">Submit Registration</button>
+</form>
+
+<div class="note">
+<p><strong>Approval process:</strong> Your host account will remain pending until the platform administrator verifies your subscription payment and approves your registration.</p>
+</div>
+<p style="text-align:center"><a href="host-login.html" style="color:#e5bd60">Already registered? Sign in</a></p>
+</main>
+<script>
+document.getElementById("signupForm").addEventListener("submit",function(event){
+event.preventDefault();
+alert("Registration submission is not connected yet. Please wait for the secure registration system.");
+});
+</script>
+</body>
+</html>
+
