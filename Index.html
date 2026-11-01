@@ -342,7 +342,7 @@ async function registerSinger(){
 
 try {
   const { registerSinger: saveSingerToFirebase } = await import("./firebase.js");
-  await await saveSingerToFirebase(name, song, language, sessionId, document.getElementById("performance").value);(name, song, language);
+  await saveSingerToFirebase(name, song, language, sessionId, document.getElementById("performance").value);
 } catch (error) {
   alert("Firebase save failed: " + error.message);
   return;
