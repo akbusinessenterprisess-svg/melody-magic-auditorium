@@ -1,1 +1,127 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melody Magic Digital Auditorium</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:25px 15px;
+  background:#080808;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  text-align:center
+}
+.container{max-width:850px;margin:auto}
+h1{color:#e8bd58;font-size:27px}
+.subtitle{color:#ccc;margin-bottom:30px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.plan{
+  background:#171717;
+  border:1px solid #a98235;
+  border-radius:14px;
+  padding:22px 12px
+}
+.plan h2{color:#e8bd58}
+.price{font-size:30px;font-weight:bold;margin:15px}
+.plan p{color:#ccc}
+button{
+  background:#d6aa45;
+  color:#111;
+  border:0;
+  border-radius:8px;
+  padding:12px 20px;
+  font-weight:bold;
+  cursor:pointer
+}
+.payment{
+  margin-top:30px;
+  padding:22px;
+  background:#171717;
+  border:1px solid #a98235;
+  border-radius:14px
+}
+.qr{
+  width:190px;
+  height:190px;
+  max-width:100%;
+  margin:18px auto;
+  border:2px dashed #d6aa45;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#e8bd58;
+  padding:15px
+}
+.note{color:#bbb;font-size:13px;line-height:1.6}
+#selected{color:#e8bd58;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>MELODY MAGIC</h1>
+<h2 style="color:#fff">DIGITAL AUDITORIUM</h2>
+<p class="subtitle">Your Stage. Your Voice. Your Auditorium.</p>
+
+<h2 style="color:#e8bd58">HOST SUBSCRIPTION PLANS</h2>
+
+<div class="plans">
+
+<div class="plan">
+<h2>1 DAY</h2>
+<div class="price">₹99</div>
+<p>Host access for 1 day</p>
+<button onclick="choosePlan('1 Day - ₹99')">Select Plan</button>
+</div>
+
+<div class="plan">
+<h2>7 DAYS</h2>
+<div class="price">₹499</div>
+<p>Host access for 7 days</p>
+<button onclick="choosePlan('7 Days - ₹499')">Select Plan</button>
+</div>
+
+<div class="plan">
+<h2>30 DAYS</h2>
+<div class="price">₹1,499</div>
+<p>Host access for 30 days</p>
+<button onclick="choosePlan('30 Days - ₹1,499')">Select Plan</button>
+</div>
+
+</div>
+
+<div class="payment">
+<h2 style="color:#e8bd58">UPI PAYMENT</h2>
+<p>Selected plan: <span id="selected">Please select a plan</span></p>
+
+<div class="qr">
+UPI QR CODE<br>
+WILL BE ADDED HERE
+</div>
+
+<p>Pay using the official Melody Magic UPI QR code.</p>
+<p class="note">
+After payment, submit your UTR/reference number and payment screenshot through the official payment request process.
+<br><br>
+Host access will be activated only after admin verification and approval.
+</p>
+</div>
+
+<p class="note" style="margin-top:25px">
+© Melody Magic Digital Auditorium
+</p>
+
+</div>
+
+<script>
+function choosePlan(plan){
+  document.getElementById("selected").textContent=plan;
+}
+</script>
+</body>
+</html>
+
