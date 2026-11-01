@@ -7,15 +7,18 @@
 <title>Host Registration | Melody Magic</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:#f5f0df;font-family:Arial,sans-serif;padding:20px}
-main{max-width:440px;margin:25px auto;background:#171717;border:1px solid #a8863b;border-radius:15px;padding:25px}
-h1{text-align:center;color:#e5bd60;font-size:23px}
-h2{color:#e5bd60;font-size:19px}
+body{margin:0;padding:20px;background:#090909;color:#f5f0df;font-family:Arial,sans-serif}
+main{max-width:440px;margin:25px auto;padding:25px;background:#171717;border:1px solid #a8863b;border-radius:15px}
+h1{text-align:center;color:#e5bd60;font-size:24px}
+h2{color:#e5bd60}
 p{color:#c8c3b6;line-height:1.5;font-size:14px}
 label{display:block;margin-top:15px;color:#e5bd60;font-size:14px}
 input,select{width:100%;padding:13px;margin-top:7px;background:#090909;color:white;border:1px solid #66532c;border-radius:7px;font-size:15px}
 button{width:100%;padding:14px;margin-top:22px;background:#d5ad50;color:#17120a;border:0;border-radius:8px;font-weight:bold;font-size:16px}
+button:disabled{opacity:.6}
 .note{background:#211b0e;padding:12px;border-radius:8px;margin-top:18px}
+#message{overflow-wrap:anywhere}
+a{color:#e5bd60}
 </style>
 </head>
 <body>
@@ -26,16 +29,18 @@ button{width:100%;padding:14px;margin-top:22px;background:#d5ad50;color:#17120a;
 
 <form id="signupForm">
 <label>Full Name</label>
-<input type="text" name="name" required>
+<input type="text" id="name" maxlength="80" required>
 
 <label>Email Address</label>
-<input type="email" name="email" required>
+<input type="email" id="email" required>
 
 <label>Mobile Number</label>
-<input type="tel" name="mobile" pattern="[0-9]{10}" maxlength="10" required>
+<input type="tel" id="mobile" inputmode="numeric"
+pattern="[0-9]{10}" maxlength="10"
+placeholder="10-digit mobile number" required>
 
 <label>Choose Subscription Plan</label>
-<select name="plan" required>
+<select id="plan" required>
 <option value="">Select a plan</option>
 <option value="daily">₹99 – 1 Day (24 hours)</option>
 <option value="weekly">₹499 – 7 Days</option>
@@ -43,25 +48,80 @@ button{width:100%;padding:14px;margin-top:22px;background:#d5ad50;color:#17120a;
 </select>
 
 <label>Create Password</label>
-<input type="password" name="password" minlength="8" autocomplete="new-password" required>
+<input type="password" id="password" minlength="8"
+autocomplete="new-password" required>
 
 <label>Confirm Password</label>
-<input type="password" name="confirmPassword" minlength="8" autocomplete="new-password" required>
+<input type="password" id="confirmPassword" minlength="8"
+autocomplete="new-password" required>
 
-<button type="submit">Submit Registration</button>
+<button type="submit" id="submitButton">Submit Registration</button>
 </form>
 
+<p id="message" role="status"></p>
+
 <div class="note">
-<p><strong>Approval process:</strong> Your host account will remain pending until the platform administrator verifies your subscription payment and approves your registration.</p>
+<p><strong>Approval process:</strong> Your application will remain Pending until the administrator verifies your subscription payment and approves your account. Your subscription starts only after approval.</p>
 </div>
-<p style="text-align:center"><a href="host-login.html" style="color:#e5bd60">Already registered? Sign in</a></p>
+
+<p style="text-align:center">
+<a href="host-login.html">Already registered? Sign in</a>
+</p>
 </main>
-<script>
-document.getElementById("signupForm").addEventListener("submit",function(event){
-event.preventDefault();
-alert("Registration submission is not connected yet. Please wait for the secure registration system.");
+
+<script type="module">
+import { registerHost } from "./firebase.js";
+
+const form = document.getElementById("signupForm");
+const message = document.getElementById("message");
+const button = document.getElementById("submitButton");
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const plan = document.getElementById("plan").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (password !== confirmPassword) {
+    message.textContent = "Passwords do not match.";
+    message.style.color = "#ff9999";
+    return;
+  }
+
+  if (!/^[0-9]{10}$/.test(mobile)) {
+    message.textContent = "Enter a valid 10-digit mobile number.";
+    message.style.color = "#ff9999";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  message.textContent = "";
+
+  try {
+    await registerHost(name, email, mobile, plan, password);
+
+    message.textContent =
+      "Your account has been created and your application submitted. Status: Pending administrator approval. Please sign in after approval.";
+
+    message.style.color = "#e5bd60";
+    form.reset();
+
+  } catch (error) {
+    message.textContent =
+      "Registration error: " + error.message +
+      ". If your account was created but the application was not saved, contact the administrator before trying again.";
+
+    message.style.color = "#ff9999";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit Registration";
+  }
 });
 </script>
 </body>
 </html>
-
