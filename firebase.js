@@ -81,14 +81,3 @@ export {
   hostLogout,
   checkLogin
 };
-
-    await set(
-      ref(db, "registrations/" + user.uid + "/connectionTest"),
-      "Database working"
-    );
-
-    alert("Success! Firebase login and database are working.");
-  })
-  .catch((error) => {
-    alert("Firebase error: " + error.message);
-  });
