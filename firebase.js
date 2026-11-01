@@ -10,7 +10,10 @@ import {
 
 import {
   getAuth,
-  signInAnonymously
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 // Replace these example values with your Firebase web configuration
