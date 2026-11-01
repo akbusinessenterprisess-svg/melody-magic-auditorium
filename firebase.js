@@ -81,8 +81,7 @@ export {
   hostLogout,
   checkLogin
 };
-connectAuditorium()
-  .then(async (user) => {
+
     await set(
       ref(db, "registrations/" + user.uid + "/connectionTest"),
       "Database working"
