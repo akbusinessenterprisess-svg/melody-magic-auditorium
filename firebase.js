@@ -56,10 +56,30 @@ function
   });
 }
 
+async function hostLogin(email, password) {
+  const result = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  return result.user;
+}
+
+async function hostLogout() {
+  await signOut(auth);
+}
+
+function checkLogin(callback) {
+  return onAuthStateChanged(auth, callback);
+}
+
 export {
   registerSinger,
   listenToSingers,
-  connectAuditorium
+  connectAuditorium,
+  hostLogin,
+  hostLogout,
+  checkLogin
 };
 connectAuditorium()
   .then(async (user) => {
