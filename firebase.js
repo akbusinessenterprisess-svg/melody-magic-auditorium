@@ -56,11 +56,28 @@ function
   });
 }
 
-async function hostLogin(email, password) {
-  const result = await signInWithEmailAndPassword(
+
+async function registerHost(name, email, mobile, plan, password) {
+  const result = await createUserWithEmailAndPassword(
     auth,
     email,
     password
+  );
+
+  const user = result.user;
+
+  await set(ref(db, "hostApplications/" + user.uid), {
+    name: name,
+    email: email,
+    mobile: mobile,
+    plan: plan,
+    status: "Pending",
+    createdAt: Date.now()
+  });
+
+  return user;
+}
+
   );
   return result.user;
 }
