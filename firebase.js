@@ -12,10 +12,10 @@ import {
   getAuth,
   signInAnonymously,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-
 // Replace these example values with your Firebase web configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk",
