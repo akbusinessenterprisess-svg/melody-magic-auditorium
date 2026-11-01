@@ -1,1 +1,149 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Host Dashboard | Melody Magic</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#090909;
+  color:#f5f0df;
+  font-family:Arial,sans-serif;
+}
+header{
+  padding:25px 18px;
+  text-align:center;
+  background:#15120b;
+  border-bottom:1px solid #b89542;
+}
+.brand{color:#e5bd60;font-size:23px;font-weight:bold}
+header p{color:#c9b98e;font-size:13px}
+main{max-width:850px;margin:auto;padding:20px}
+h2{color:#e5bd60}
+.notice{
+  background:#211b0e;
+  border:1px solid #9c7832;
+  border-radius:12px;
+  padding:17px;
+  line-height:1.6;
+  margin-bottom:22px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+.card{
+  background:#171717;
+  border:1px solid #51401f;
+  border-radius:12px;
+  padding:20px;
+}
+.card h3{color:#e5bd60;margin-top:0}
+.card p{color:#c8c3b6;line-height:1.5;font-size:14px}
+.status{
+  display:inline-block;
+  color:#f1cb70;
+  background:#30250e;
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:12px;
+}
+.plan{font-size:23px;color:#e5bd60;font-weight:bold}
+footer{
+  text-align:center;
+  padding:25px;
+  color:#928b7b;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">MELODY MAGIC</div>
+  <h2>Digital Auditorium</h2>
+  <p>HOST CONTROL DASHBOARD</p>
+</header>
+
+<main>
+  <h2>Welcome, Host!</h2>
+
+  <div class="notice">
+    <span class="status">HOST APPROVAL REQUIRED</span>
+    <p>
+      Your host dashboard will become active after platform
+      administrator approval and subscription verification.
+    </p>
+    <p>
+      You will then be able to create and manage your live
+      singing shows.
+    </p>
+  </div>
+
+  <h2>Host Subscription Plans</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Daily Plan</h3>
+      <div class="plan">₹99</div>
+      <p>Access for 24 hours after admin approval.</p>
+    </div>
+
+    <div class="card">
+      <h3>Weekly Plan</h3>
+      <div class="plan">₹499</div>
+      <p>Access for 7 days after admin approval.</p>
+    </div>
+
+    <div class="card">
+      <h3>Monthly Plan</h3>
+      <div class="plan">₹1,499</div>
+      <p>Access for 30 days after admin approval.</p>
+    </div>
+  </div>
+
+  <h2>Your Host Features</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Create a Show</h3>
+      <p>Create one active live singing show at a time.</p>
+    </div>
+
+    <div class="card">
+      <h3>Manage Singers</h3>
+      <p>Manage your singer registrations and performance queue.</p>
+    </div>
+
+    <div class="card">
+      <h3>Entry Fees</h3>
+      <p>Choose free or paid singer entry and collect payments directly.</p>
+    </div>
+
+    <div class="card">
+      <h3>Promotional Poster</h3>
+      <p>Generate and share a poster for every show.</p>
+    </div>
+
+    <div class="card">
+      <h3>Live Auditorium</h3>
+      <p>Host your online singing session with live audio and video.</p>
+    </div>
+
+    <div class="card">
+      <h3>UPI Collection</h3>
+      <p>Use your own UPI ID or QR code for singer entry payments.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © Melody Magic Digital Auditorium
+  <br>Created by Melody Magic Music Studio
+</footer>
+
+</body>
+</html>
+
