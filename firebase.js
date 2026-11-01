@@ -92,6 +92,7 @@ function checkLogin(callback) {
 
 export {
   registerSinger,
+  registerHost,
   listenToSingers,
   connectAuditorium,
   hostLogin,
