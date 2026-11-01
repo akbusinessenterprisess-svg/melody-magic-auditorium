@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Melody Magic Host Setup</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding: 25px;
+    }
+    input, button {
+      width: 100%;
+      max-width: 350px;
+      padding: 13px;
+      margin: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #c9a34a;
+      border: 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎤 Melody Magic Host Setup</h2>
+  <input id="email" type="email" placeholder="Host email">
+  <input id="password" type="password" placeholder="Create password">
+  <button id="create">CREATE HOST ACCOUNT</button>
+  <p id="message">Enter your host details.</p>
 
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const config = {
+      apiKey: "YOUR_EXISTING_API_KEY",
+      authDomain: "YOUR_EXISTING_AUTH_DOMAIN",
+      databaseURL: "https://melody-magic-auditorium-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "melody-magic-auditorium",
+      appId: "YOUR_EXISTING_APP_ID"
+    };
+
+    const app = initializeApp(config);
+    const auth = getAuth(app);
+
+    document.getElementById("create").onclick = async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const result = await createUserWithEmailAndPassword(
+          auth, email, password
+        );
+
+        document.getElementById("message").textContent =
+          "Account created! Host UID: " + result.user.uid;
+      } catch (error) {
+        document.getElementById("message").textContent =
+          error.message;
+      }
+    };
+  </script>
+</body>
+  </html>
