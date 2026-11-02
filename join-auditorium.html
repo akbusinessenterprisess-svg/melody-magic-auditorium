@@ -4,35 +4,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Join Melody Magic Digital Auditorium</title>
+<title>Melody Magic - Singer Registration</title>
+
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;padding:20px;
-  background:#090807;color:#fff;
+  background:#090807;color:white;
   font-family:Arial,sans-serif;
 }
-.container{max-width:600px;margin:30px auto}
+.container{max-width:600px;margin:25px auto}
 h1,h2{color:#e7bd68}
 .card{
-  background:#191510;border:1px solid #705322;
-  border-radius:12px;padding:22px;margin-top:18px;
+  background:#191510;
+  border:1px solid #705322;
+  border-radius:12px;
+  padding:22px;margin:18px 0;
 }
-label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
+label{
+  display:block;color:#e7bd68;
+  margin-top:15px;font-size:14px;
+}
 input,select{
   width:100%;padding:13px;margin-top:7px;
   background:#0d0b08;color:white;
-  border:1px solid #57452c;border-radius:6px;
-  font-size:16px;
+  border:1px solid #57452c;
+  border-radius:6px;font-size:16px;
 }
 button{
-  width:100%;padding:14px;margin-top:20px;
+  width:100%;padding:14px;margin-top:22px;
   background:#e7bd68;color:#171009;
   border:0;border-radius:7px;
-  font-size:16px;font-weight:bold;cursor:pointer;
+  font-size:16px;font-weight:bold;
+  cursor:pointer;
 }
+button:disabled{opacity:.5;cursor:wait}
 .muted{color:#c2b7a6;line-height:1.6}
-#message{margin-top:18px;line-height:1.6}
 .success{color:#8ee29a}
 .error{color:#ff9999}
 </style>
@@ -40,30 +47,34 @@ button{
 
 <body>
 <div class="container">
+
   <h1>MELODY MAGIC</h1>
-  <p class="muted">DIGITAL AUDITORIUM — SINGER REGISTRATION</p>
+  <p class="muted">DIGITAL AUDITORIUM</p>
 
   <div class="card">
-    <h2>Selected Singing Show</h2>
-    <div id="showDetails" class="muted">Loading show details...</div>
+    <h2>Selected Show</h2>
+    <div id="showDetails" class="muted">
+      Loading show details...
+    </div>
   </div>
 
   <div class="card">
-    <h2>Register as a Singer</h2>
+    <h2>Singer Registration</h2>
 
     <form id="registrationForm">
+
       <label>Full Name</label>
       <input id="singerName" type="text"
-        placeholder="Enter your full name" required>
+        placeholder="Enter your name" required>
 
       <label>Mobile Number</label>
       <input id="mobile" type="tel"
-        placeholder="Enter your mobile number"
+        placeholder="Enter mobile number"
         pattern="[0-9+ -]{8,15}" required>
 
       <label>Song Name</label>
       <input id="songName" type="text"
-        placeholder="Enter the song you want to sing" required>
+        placeholder="Which song will you sing?" required>
 
       <label>Language</label>
       <select id="language" required>
@@ -83,6 +94,7 @@ button{
       <button id="submitButton" type="submit">
         SUBMIT REGISTRATION
       </button>
+
     </form>
 
     <div id="message" aria-live="polite"></div>
@@ -90,6 +102,7 @@ button{
 </div>
 
 <script type="module">
+
 import { db, auth } from "./firebase.js";
 
 import {
@@ -100,8 +113,8 @@ import {
   signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-const params = new URLSearchParams(window.location.search);
-const showId = params.get("showId");
+const showId =
+  new URLSearchParams(window.location.search).get("showId");
 
 const showDetails = document.getElementById("showDetails");
 const message = document.getElementById("message");
@@ -110,31 +123,30 @@ const submitButton = document.getElementById("submitButton");
 
 let selectedShow = null;
 
-async function loadShow() {
-  if (!showId) {
-    showDetails.textContent = "No show selected. Please return to the homepage and choose a show.";
-    form.style.display = "none";
-    return;
-  }
+function showMessage(text, type) {
+  message.textContent = text;
+  message.className = type;
+}
 
+async function loadShow() {
   try {
+    if (!showId) {
+      throw new Error("No show ID found. Please select a show from the homepage.");
+    }
+
     const snapshot = await get(ref(db, "shows/" + showId));
 
     if (!snapshot.exists()) {
-      showDetails.textContent = "This show could not be found.";
-      form.style.display = "none";
-      return;
+      throw new Error("This show does not exist in Firebase.");
     }
 
     selectedShow = snapshot.val();
 
     if (selectedShow.status !== "Published") {
-      showDetails.textContent = "This show is not currently available.";
-      form.style.display = "none";
-      return;
+      throw new Error("This show is not currently available.");
     }
 
-    showDetails.innerHTML = "";
+    showDetails.textContent = "";
 
     const title = document.createElement("h3");
     title.textContent = selectedShow.title || "Singing Show";
@@ -146,22 +158,23 @@ async function loadShow() {
     time.textContent = "Time: " + (selectedShow.time || "To be announced");
 
     const host = document.createElement("p");
-    host.textContent = "Host: " + (selectedShow.hostName || "Melody Magic Host");
+    host.textContent = "Host: " + (selectedShow.hostName || "Host");
 
     showDetails.append(title, date, time, host);
 
   } catch (error) {
-    showDetails.textContent = "Unable to load show details. Please refresh and try again.";
-    console.error(error);
+    showDetails.textContent = error.message;
+    showDetails.className = "error";
+    form.style.display = "none";
+    console.error("Show loading error:", error);
   }
 }
 
-form.addEventListener("submit", async function(event) {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!selectedShow) {
-    message.textContent = "Please select a valid show first.";
-    message.className = "error";
+    showMessage("Show details are not available. Please refresh the page.", "error");
     return;
   }
 
@@ -172,15 +185,13 @@ form.addEventListener("submit", async function(event) {
   const performance = document.getElementById("performance").value;
 
   if (!name || !mobile || !song) {
-    message.textContent = "Please complete all required fields.";
-    message.className = "error";
+    showMessage("Please complete all fields.", "error");
     return;
   }
 
   submitButton.disabled = true;
-  submitButton.textContent = "SUBMITTING...";
-  message.textContent = "Please wait. Saving your registration...";
-  message.className = "muted";
+  submitButton.textContent = "PLEASE WAIT...";
+  showMessage("Saving your registration...", "muted");
 
   try {
     let user = auth.currentUser;
@@ -190,36 +201,38 @@ form.addEventListener("submit", async function(event) {
       user = result.user;
     }
 
-    const registrationRef = push(ref(db, "registrations/" + user.uid));
+    const registrationRef = push(
+      ref(db, "registrations/" + user.uid)
+    );
 
     await set(registrationRef, {
       singerUid: user.uid,
-      name: name,
-      mobile: mobile,
-      song: song,
-      language: language,
-      performance: performance,
-      showId: showId,
+      name,
+      mobile,
+      song,
+      language,
+      performance,
+      showId,
       showTitle: selectedShow.title || "",
       hostUid: selectedShow.hostUid || "",
       status: "Waiting",
       createdAt: Date.now()
     });
 
-    message.textContent =
-      "Registration successful! Your registration ID is: " +
-      registrationRef.key +
-      ". Please wait for the host to confirm your performance.";
+    showMessage(
+      "Registration successful! Your registration ID: " +
+      registrationRef.key,
+      "success"
+    );
 
-    message.className = "success";
     form.reset();
 
   } catch (error) {
-    console.error("Registration error:", error);
-    message.textContent =
-      "Registration failed: " + error.message +
-      ". Please contact the host if this continues.";
-    message.className = "error";
+    console.error("Firebase registration error:", error);
+    showMessage(
+      "Registration failed: " + error.message,
+      "error"
+    );
 
   } finally {
     submitButton.disabled = false;
@@ -228,6 +241,7 @@ form.addEventListener("submit", async function(event) {
 });
 
 loadShow();
+
 </script>
 </body>
 </html>
