@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTube Karaoke | Melody Magic</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#f5f0df;font-family:Arial,sans-serif}
+header{text-align:center;padding:22px;background:#15120b;border-bottom:1px solid #b89542}
+.brand{font-size:24px;font-weight:bold;color:#e5bd60}
+main{max-width:850px;margin:auto;padding:20px}
+.card{background:#171717;border:1px solid #80652e;border-radius:14px;padding:20px;margin:18px 0}
+h2,h3{color:#e5bd60}
+label{display:block;margin:14px 0 7px}
+input{width:100%;padding:13px;border:1px solid #80652e;border-radius:8px;background:#090909;color:white;font-size:16px}
+button{padding:13px 18px;margin:12px 8px 0 0;border:0;border-radius:8px;background:#d5ad50;color:#17120a;font-weight:bold;cursor:pointer}
+button.secondary{background:#333;color:white}
+#player{width:100%;aspect-ratio:16/9;background:#000;margin-top:18px}
+#player iframe{width:100%;height:100%;border:0}
+#status{color:#e5bd60;line-height:1.5}
+.note{color:#aaa;font-size:13px;line-height:1.5}
+a{color:#e5bd60}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">MELODY MAGIC</div>
+  <h2>YouTube Karaoke Controller</h2>
+  <p>HOST CONTROL PANEL</p>
+</header>
+
+<main>
+  <div class="card">
+    <h3>Assign Karaoke Video</h3>
+
+    <label for="singer">Singer name</label>
+    <input id="singer" type="text" placeholder="Enter singer name">
+
+    <label for="youtubeUrl">YouTube karaoke video link</label>
+    <input id="youtubeUrl" type="url"
+      placeholder="Paste YouTube video link here">
+
+    <button id="previewButton">Preview Video</button>
+    <button id="clearButton" class="secondary">Clear</button>
+
+    <div id="player"></div>
+    <p id="status">Paste a YouTube karaoke link to preview it.</p>
+
+    <button id="prepareButton" disabled>Prepare Selection</button>
+    <p class="note">
+      This first version previews the video on the host's device.
+      Firebase sharing with singers and audience will be added in the next step.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>YouTube Player Guidelines</h3>
+    <p class="note">
+      Videos play through the official YouTube embedded player.
+      The player and its controls must remain visible.
+      Some videos may not allow embedding or may be unavailable in your region.
+    </p>
+  </div>
+
+  <p><a href="host-dashboard.html">← Back to Host Dashboard</a></p>
+</main>
+
+<script>
+const urlInput = document.getElementById("youtubeUrl");
+const singerInput = document.getElementById("singer");
+const player = document.getElementById("player");
+const statusText = document.getElementById("status");
+const prepareButton = document.getElementById("prepareButton");
+
+let selectedVideoId = "";
+
+function extractVideoId(value) {
+  try {
+    const url = new URL(value.trim());
+    let id = "";
+
+    if (url.hostname === "youtu.be" ||
+        url.hostname === "www.youtu.be") {
+      id = url.pathname.split("/").filter(Boolean)[0] || "";
+    } else if (
+      url.hostname === "youtube.com" ||
+      url.hostname === "www.youtube.com" ||
+      url.hostname === "m.youtube.com"
+    ) {
+      if (url.pathname === "/watch") {
+        id = url.searchParams.get("v") || "";
+      } else if (
+        url.pathname.startsWith("/embed/") ||
+        url.pathname.startsWith("/shorts/")
+      ) {
+        id = url.pathname.split("/")[2] || "";
+      }
+    }
+
+    return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "";
+  } catch {
+    return "";
+  }
+}
+
+document.getElementById("previewButton").addEventListener("click", () => {
+  const videoId = extractVideoId(urlInput.value);
+
+  if (!videoId) {
+    statusText.textContent = "Please enter a valid YouTube video link.";
+    prepareButton.disabled = true;
+    return;
+  }
+
+  selectedVideoId = videoId;
+  prepareButton.disabled = false;
+
+  player.innerHTML = `
+    <iframe
+      src="https://www.youtube.com/embed/${videoId}"
+      title="YouTube Karaoke Video"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+  `;
+
+  statusText.textContent =
+    "Video loaded. Press Play inside the YouTube player to preview.";
+});
+
+prepareButton.addEventListener("click", () => {
+  const singer = singerInput.value.trim();
+
+  if (!singer) {
+    statusText.textContent = "Please enter the singer's name first.";
+    return;
+  }
+
+  if (!selectedVideoId) return;
+
+  statusText.textContent =
+    "Selection prepared for " + singer +
+    ". Video ID: " + selectedVideoId +
+    ". It is not saved or shared yet.";
+});
+
+document.getElementById("clearButton").addEventListener("click", () => {
+  urlInput.value = "";
+  singerInput.value = "";
+  selectedVideoId = "";
+  player.innerHTML = "";
+  prepareButton.disabled = true;
+  statusText.textContent = "Paste a YouTube karaoke link to preview it.";
+});
+</script>
+
+</body>
+</html>
