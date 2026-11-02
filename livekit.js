@@ -1,4 +1,5 @@
 import {
+  import { VirtualAudioEffects } from "./audio-effects.js";
   Room,
   RoomEvent,
   createLocalAudioTrack,
@@ -13,6 +14,8 @@ const TOKEN_SERVER =
 
 let room = null;
 let localMic = null;
+let audioEffects = null;
+let processedMicTrack = null;
 let localCamera = null;
 let mainSinger = null;
 const participants = new Map();
