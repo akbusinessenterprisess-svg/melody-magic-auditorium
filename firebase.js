@@ -27,6 +27,7 @@ const firebaseConfig = {
   appId: "1:458186749712:web:311ecbed0c87367022d795"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
@@ -59,12 +60,7 @@ function listenToSingers(callback) {
 }
 
 async function registerHost(name, email, mobile, plan, password) {
-  const result = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
+  const result = await createUserWithEmailAndPassword(auth, email, password);
   const user = result.user;
 
   await set(ref(db, "hostApplications/" + user.uid), {
