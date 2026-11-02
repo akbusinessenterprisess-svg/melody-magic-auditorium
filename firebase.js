@@ -18,52 +18,65 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-// Keep your original Firebase configuration values here.
+// KEEP YOUR EXISTING FIREBASE CONFIGURATION HERE.
 const firebaseConfig = {
-  apiKey: "AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk",
-  authDomain: "melody-magic-auditorium.firebaseapp.com",
-  databaseURL: "https://melody-magic-auditorium-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "melody-magic-auditorium",
-  appId: "1:458186749712:web:311ecbed0c87367022d795"
+  // AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk, melody-magic-auditorium.firebaseapp.com, https://melody-magic-auditorium-default-rtdb.asia-southeast1.firebasedatabase.app,
+  // melody-magic-auditorium and 1:458186749712:web:311ecbed0c87367022d795 values from your current firebase.js.
 };
-
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-async function connectAuditorium() {
-  const result = await signInAnonymously(auth);
-  return result.user;
-}
+// Singer registration
+async function registerSinger(name, mobile, song, language, showId, performance) {
+  let user = auth.currentUser;
 
-async function registerSinger(name, song, language, sessionId, performance) {
-  const user = await connectAuditorium();
+  if (!user) {
+    const result = await signInAnonymously(auth);
+    user = result.user;
+  }
 
-  await set(push(ref(db, "registrations/" + user.uid)), {
+  const showSnapshot = await new Promise((resolve, reject) => {
+    onValue(
+      ref(db, "shows/" + showId),
+      snapshot => resolve(snapshot),
+      reject,
+      { onlyOnce: true }
+    );
+  });
+
+  if (!showSnapshot.exists() || showSnapshot.val().status !== "Published") {
+    throw new Error("This show is not available for registration.");
+  }
+
+  const show = showSnapshot.val();
+  const registrationRef = push(ref(db, "showRegistrations/" + showId));
+
+  const registration = {
+    singerUid: user.uid,
     name,
+    mobile,
     song,
     language,
-    sessionId,
     performance,
+    showId,
+    showTitle: show.title || "",
+    hostUid: show.hostUid || "",
     status: "Waiting",
     createdAt: Date.now()
-  });
+  };
 
-  return user.uid;
+  await set(registrationRef, registration);
+
+  return registrationRef.key;
 }
 
-function listenToSingers(callback) {
-  onValue(ref(db, "registrations"), (snapshot) => {
-    callback(snapshot.val() || {});
-  });
-}
-
+// Host account functions
 async function registerHost(name, email, mobile, plan, password) {
   const result = await createUserWithEmailAndPassword(auth, email, password);
-  const user = result.user;
 
-  await set(ref(db, "hostApplications/" + user.uid), {
+  await set(ref(db, "hostApplications/" + result.user.uid), {
     name,
     email,
     mobile,
@@ -72,7 +85,7 @@ async function registerHost(name, email, mobile, plan, password) {
     createdAt: Date.now()
   });
 
-  return user;
+  return result.user;
 }
 
 async function hostLogin(email, password) {
@@ -88,14 +101,18 @@ function checkLogin(callback) {
   return onAuthStateChanged(auth, callback);
 }
 
+function connectAuditorium() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return signInAnonymously(auth).then(result => result.user);
+}
+
 export {
+  db,
+  auth,
   registerSinger,
   registerHost,
-  listenToSingers,
-  connectAuditorium,
   hostLogin,
   hostLogout,
   checkLogin,
-  db,
-  auth
+  connectAuditorium
 };
