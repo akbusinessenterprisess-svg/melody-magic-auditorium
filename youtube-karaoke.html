@@ -217,6 +217,12 @@ document.getElementById("clearButton").addEventListener("click", () => {
   prepareButton.disabled = true;
   statusText.textContent = "Paste a YouTube karaoke link to preview it.";
 });
+  onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    statusText.textContent =
+      "Please sign in through Host Login before saving a video.";
+  }
+});
 </script>
 
 </body>
