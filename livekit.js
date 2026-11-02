@@ -268,8 +268,23 @@ async function joinAuditorium() {
 
     addParticipant(room.localParticipant.identity, name);
 
-    localMic = await createLocalAudioTrack();
-    await room.localParticipant.publishTrack(localMic);
+    
+    // Open the original microphone
+    localMic = await createLocalAudioTrack({
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false
+    });
+
+    // Start virtual echo and reverb
+    audioEffects = new VirtualAudioEffects();
+
+    processedMicTrack = await audioEffects.start(
+      localMic.mediaStreamTrack
+    );
+
+    // Publish processed audio to the audience
+    await room.localParticipant.publishTrack(processedMicTrack);
 
     localCamera = await createLocalVideoTrack();
     await room.localParticipant.publishTrack(localCamera);
@@ -327,6 +342,11 @@ async function toggleCamera() {
 }
 
 async function leaveAuditorium() {
+  if (audioEffects) {
+  audioEffects.stop();
+  audioEffects = null;
+  processedMicTrack = null;
+}
   if (room) {
     await room.disconnect();
     room = null;
