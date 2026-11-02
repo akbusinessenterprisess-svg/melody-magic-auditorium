@@ -4,72 +4,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Register as Singer | Melody Magic</title>
+<title>Join Melody Magic Digital Auditorium</title>
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;background:#090807;color:white;
-  font-family:Arial,sans-serif
+  margin:0;padding:20px;
+  background:#090807;color:#fff;
+  font-family:Arial,sans-serif;
 }
-header,footer{
-  background:#15110c;text-align:center;
-  padding:20px;border-bottom:1px solid #80612d
-}
-.logo{color:#e7bd68;font-size:23px;font-weight:bold}
-.logo small{display:block;color:white;font-size:11px;letter-spacing:3px}
-main{max-width:600px;margin:25px auto;padding:15px}
+.container{max-width:600px;margin:30px auto}
+h1,h2{color:#e7bd68}
 .card{
-  background:#191510;border:1px solid #80612d;
-  border-radius:12px;padding:22px
+  background:#191510;border:1px solid #705322;
+  border-radius:12px;padding:22px;margin-top:18px;
 }
-h2{color:#e7bd68;text-align:center}
-p{text-align:center;color:#c8bda9;line-height:1.5}
 label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
 input,select{
   width:100%;padding:13px;margin-top:7px;
-  border-radius:6px;border:1px solid #57452c;
-  background:#090807;color:white;font-size:16px
+  background:#0d0b08;color:white;
+  border:1px solid #57452c;border-radius:6px;
+  font-size:16px;
 }
 button{
-  width:100%;padding:15px;margin-top:22px;
+  width:100%;padding:14px;margin-top:20px;
   background:#e7bd68;color:#171009;
-  border:0;border-radius:6px;font-weight:bold;
-  font-size:15px;cursor:pointer
+  border:0;border-radius:7px;
+  font-size:16px;font-weight:bold;cursor:pointer;
 }
-button:disabled{opacity:.5;cursor:not-allowed}
-#message{text-align:center;margin-top:18px;font-weight:bold}
-footer{margin-top:35px;border-top:1px solid #80612d}
-footer strong{color:#e7bd68}
+.muted{color:#c2b7a6;line-height:1.6}
+#message{margin-top:18px;line-height:1.6}
+.success{color:#8ee29a}
+.error{color:#ff9999}
 </style>
 </head>
+
 <body>
+<div class="container">
+  <h1>MELODY MAGIC</h1>
+  <p class="muted">DIGITAL AUDITORIUM — SINGER REGISTRATION</p>
 
-<header>
-  <div class="logo">
-    MELODY MAGIC
-    <small>DIGITAL AUDITORIUM</small>
-  </div>
-</header>
-
-<main>
   <div class="card">
-    <h2>🎤 REGISTER AS A SINGER</h2>
-    <p>Take your place on the Melody Magic stage.</p>
+    <h2>Selected Singing Show</h2>
+    <div id="showDetails" class="muted">Loading show details...</div>
+  </div>
 
-    <div id="showDetails">Loading show details...</div>
+  <div class="card">
+    <h2>Register as a Singer</h2>
 
     <form id="registrationForm">
       <label>Full Name</label>
-      <input id="singerName" required maxlength="80"
-             placeholder="Enter your full name">
+      <input id="singerName" type="text"
+        placeholder="Enter your full name" required>
 
       <label>Mobile Number</label>
-      <input id="mobile" type="tel" required
-             maxlength="15" placeholder="Enter mobile number">
+      <input id="mobile" type="tel"
+        placeholder="Enter your mobile number"
+        pattern="[0-9+ -]{8,15}" required>
 
       <label>Song Name</label>
-      <input id="songName" required maxlength="120"
-             placeholder="Enter your song name">
+      <input id="songName" type="text"
+        placeholder="Enter the song you want to sing" required>
 
       <label>Language</label>
       <select id="language" required>
@@ -79,7 +73,7 @@ footer strong{color:#e7bd68}
         <option value="Other">Other</option>
       </select>
 
-      <label>Performance</label>
+      <label>Performance Type</label>
       <select id="performance" required>
         <option value="Solo">Solo</option>
         <option value="Duet">Duet</option>
@@ -91,90 +85,83 @@ footer strong{color:#e7bd68}
       </button>
     </form>
 
-    <div id="message" role="status"></div>
+    <div id="message" aria-live="polite"></div>
   </div>
-</main>
-
-<footer>
-  <strong>MELODY MAGIC MUSIC STUDIO</strong>
-  <p>DIGITAL AUDITORIUM</p>
-  <p>Sing Together. Shine Together.</p>
-  <p>Created by Amol Kamble</p>
-  <p>© 2026 Melody Magic</p>
-</footer>
+</div>
 
 <script type="module">
-import { db, registerSinger } from "./firebase.js";
+import { db, auth } from "./firebase.js";
+
 import {
-  ref,
-  onValue
+  ref, get, push, set
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+import {
+  signInAnonymously
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 const params = new URLSearchParams(window.location.search);
 const showId = params.get("showId");
 
-const details = document.getElementById("showDetails");
-const form = document.getElementById("registrationForm");
+const showDetails = document.getElementById("showDetails");
 const message = document.getElementById("message");
-const button = document.getElementById("submitButton");
+const form = document.getElementById("registrationForm");
+const submitButton = document.getElementById("submitButton");
 
-let currentShow = null;
+let selectedShow = null;
 
-function showMessage(text, success = false) {
-  message.textContent = text;
-  message.style.color = success ? "#a8dfa5" : "#ff9999";
-}
+async function loadShow() {
+  if (!showId) {
+    showDetails.textContent = "No show selected. Please return to the homepage and choose a show.";
+    form.style.display = "none";
+    return;
+  }
 
-if (!showId) {
-  details.textContent = "No show selected. Please return to the sessions page.";
-  button.disabled = true;
-} else {
-  onValue(ref(db, "shows/" + showId), snapshot => {
+  try {
+    const snapshot = await get(ref(db, "shows/" + showId));
+
     if (!snapshot.exists()) {
-      currentShow = null;
-      details.textContent = "Show not found.";
-      button.disabled = true;
+      showDetails.textContent = "This show could not be found.";
+      form.style.display = "none";
       return;
     }
 
-    currentShow = snapshot.val();
+    selectedShow = snapshot.val();
 
-    if (currentShow.status !== "Published") {
-      details.textContent = "This show is not open for registration.";
-      button.disabled = true;
+    if (selectedShow.status !== "Published") {
+      showDetails.textContent = "This show is not currently available.";
+      form.style.display = "none";
       return;
     }
 
-    details.innerHTML = `
-      <h3 style="color:#e7bd68;text-align:center"></h3>
-      <p id="showInfo"></p>
-    `;
+    showDetails.innerHTML = "";
 
-    details.querySelector("h3").textContent =
-      currentShow.title || "Singing Session";
+    const title = document.createElement("h3");
+    title.textContent = selectedShow.title || "Singing Show";
 
-    details.querySelector("#showInfo").textContent =
-      (currentShow.hostName || "Melody Magic Host") +
-      " | " + (currentShow.date || "Date to be announced") +
-      " | " + (currentShow.time || "Time to be announced") +
-      " | Entry: " +
-      (currentShow.entryType === "paid"
-        ? "₹" + (currentShow.entryFee || 0)
-        : "Free");
+    const date = document.createElement("p");
+    date.textContent = "Date: " + (selectedShow.date || "To be announced");
 
-    button.disabled = false;
-  }, error => {
-    details.textContent = "Unable to load show details.";
-    showMessage(error.message);
-    button.disabled = true;
-  });
+    const time = document.createElement("p");
+    time.textContent = "Time: " + (selectedShow.time || "To be announced");
+
+    const host = document.createElement("p");
+    host.textContent = "Host: " + (selectedShow.hostName || "Melody Magic Host");
+
+    showDetails.append(title, date, time, host);
+
+  } catch (error) {
+    showDetails.textContent = "Unable to load show details. Please refresh and try again.";
+    console.error(error);
+  }
 }
 
-form.addEventListener("submit", async event => {
+form.addEventListener("submit", async function(event) {
   event.preventDefault();
 
-  if (!currentShow || !showId) {
-    showMessage("Please select a valid published show.");
+  if (!selectedShow) {
+    message.textContent = "Please select a valid show first.";
+    message.className = "error";
     return;
   }
 
@@ -184,33 +171,63 @@ form.addEventListener("submit", async event => {
   const language = document.getElementById("language").value;
   const performance = document.getElementById("performance").value;
 
-  if (!/^[0-9+\-\s]{8,15}$/.test(mobile)) {
-    showMessage("Please enter a valid mobile number.");
+  if (!name || !mobile || !song) {
+    message.textContent = "Please complete all required fields.";
+    message.className = "error";
     return;
   }
 
-  button.disabled = true;
-  button.textContent = "SAVING REGISTRATION...";
+  submitButton.disabled = true;
+  submitButton.textContent = "SUBMITTING...";
+  message.textContent = "Please wait. Saving your registration...";
+  message.className = "muted";
 
   try {
-    const registrationId = await registerSinger(
-      name, mobile, song, language, showId, performance
-    );
+    let user = auth.currentUser;
 
+    if (!user) {
+      const result = await signInAnonymously(auth);
+      user = result.user;
+    }
+
+    const registrationRef = push(ref(db, "registrations/" + user.uid));
+
+    await set(registrationRef, {
+      singerUid: user.uid,
+      name: name,
+      mobile: mobile,
+      song: song,
+      language: language,
+      performance: performance,
+      showId: showId,
+      showTitle: selectedShow.title || "",
+      hostUid: selectedShow.hostUid || "",
+      status: "Waiting",
+      createdAt: Date.now()
+    });
+
+    message.textContent =
+      "Registration successful! Your registration ID is: " +
+      registrationRef.key +
+      ". Please wait for the host to confirm your performance.";
+
+    message.className = "success";
     form.reset();
-    showMessage(
-      "Registration saved successfully! Reference: " + registrationId,
-      true
-    );
+
   } catch (error) {
-    console.error(error);
-    showMessage("Registration failed: " + error.message);
+    console.error("Registration error:", error);
+    message.textContent =
+      "Registration failed: " + error.message +
+      ". Please contact the host if this continues.";
+    message.className = "error";
+
   } finally {
-    button.disabled = false;
-    button.textContent = "SUBMIT REGISTRATION";
+    submitButton.disabled = false;
+    submitButton.textContent = "SUBMIT REGISTRATION";
   }
 });
-</script>
 
+loadShow();
+</script>
 </body>
 </html>
