@@ -4,434 +4,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090807">
-<title>Melody Magic Digital Auditorium</title>
-
+<title>Register as Singer | Melody Magic</title>
 <style>
-:root {
- --gold:#e7bd68;
- --bg:#090807;
- --panel:#191510;
- --muted:#b9ad9b;
-}
 *{box-sizing:border-box}
 body{
- margin:0;background:var(--bg);color:white;
- font-family:Arial,sans-serif;
+  margin:0;background:#090807;color:white;
+  font-family:Arial,sans-serif
 }
-header{
- position:sticky;top:0;z-index:10;
- display:flex;justify-content:space-between;
- align-items:center;padding:14px 17px;
- background:#100d09;border-bottom:1px solid #5c4725;
+header,footer{
+  background:#15110c;text-align:center;
+  padding:20px;border-bottom:1px solid #80612d
 }
-.logo{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:1px}
-.logo small{display:block;font-size:9px;color:white;letter-spacing:3px;margin-top:4px}
-button{border:0;border-radius:6px;padding:11px 14px;font-weight:bold;cursor:pointer}
-.gold{background:var(--gold);color:#171009}
-.dark{background:#332719;color:white}
-nav{
- display:flex;gap:8px;padding:11px;
- overflow-x:auto;background:#15110c;
-}
-nav button{white-space:nowrap}
-main{max-width:1050px;margin:auto;padding:14px}
-.page{display:none}
-.page.active{display:block}
-.hero{
- min-height:410px;border-radius:13px;overflow:hidden;
- position:relative;display:flex;align-items:flex-end;
- background:
- linear-gradient(0deg,#050403 0%,rgba(0,0,0,.15) 75%),
- url("https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1400") center/cover;
- border:1px solid #705322;
-}
-.hero-content{padding:25px;width:100%}
-.eyebrow{color:var(--gold);letter-spacing:3px;font-size:11px;font-weight:bold}
-.hero h1{font-size:clamp(36px,8vw,65px);margin:12px 0;color:white}
-.hero p{color:#eee;line-height:1.6;max-width:480px}
-.hero button{margin-top:10px}
-h2{color:var(--gold);font-size:21px;margin:28px 0 14px}
-h3{color:var(--gold)}
-.section-intro{color:var(--muted);font-size:13px;line-height:1.6}
-.gallery{
- display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
-}
-.gallery img{
- width:100%;height:155px;object-fit:cover;
- border-radius:9px;border:1px solid #4a3921;
-}
+.logo{color:#e7bd68;font-size:23px;font-weight:bold}
+.logo small{display:block;color:white;font-size:11px;letter-spacing:3px}
+main{max-width:600px;margin:25px auto;padding:15px}
 .card{
- background:var(--panel);border:1px solid #45351f;
- border-radius:10px;padding:15px;margin:12px 0;
+  background:#191510;border:1px solid #80612d;
+  border-radius:12px;padding:22px
 }
-.session-image{
- width:100%;height:155px;object-fit:cover;border-radius:7px;
+h2{color:#e7bd68;text-align:center}
+p{text-align:center;color:#c8bda9;line-height:1.5}
+label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
+input,select{
+  width:100%;padding:13px;margin-top:7px;
+  border-radius:6px;border:1px solid #57452c;
+  background:#090807;color:white;font-size:16px
 }
-input,select,textarea{
- width:100%;padding:13px;margin:7px 0 14px;
- background:#0d0b08;color:white;border:1px solid #57452c;
- border-radius:6px;font-size:15px;
+button{
+  width:100%;padding:15px;margin-top:22px;
+  background:#e7bd68;color:#171009;
+  border:0;border-radius:6px;font-weight:bold;
+  font-size:15px;cursor:pointer
 }
-label{color:var(--gold);font-size:13px;display:block}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.tile{
- background:#19140e;border:1px solid #514023;
- border-radius:9px;overflow:hidden;
-}
-.tile img{width:100%;height:135px;object-fit:cover;display:block}
-.tile div{padding:12px}
-.tile strong{color:var(--gold)}
-.small{font-size:12px;color:var(--muted)}
-.badge{
- display:inline-block;padding:5px 9px;border-radius:20px;
- background:#503b1c;color:#f5d58c;font-size:10px;
-}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row button{flex:1}
-.item{
- background:#17120d;border:1px solid #49371e;
- padding:13px;border-radius:8px;margin:9px 0;
-}
-.status{color:#a8dfa5;font-size:12px}
-.empty{text-align:center;color:#aaa;padding:20px}
-footer{
- text-align:center;padding:30px 15px;margin-top:35px;
- border-top:1px solid #4a3820;color:#aaa;font-size:12px;
-}
-footer strong{color:var(--gold);font-size:17px}
-@media(min-width:650px){
- .gallery{grid-template-columns:repeat(3,1fr)}
- .grid{grid-template-columns:repeat(3,1fr)}
- .hero{min-height:490px}
-}
+button:disabled{opacity:.5;cursor:not-allowed}
+#message{text-align:center;margin-top:18px;font-weight:bold}
+footer{margin-top:35px;border-top:1px solid #80612d}
+footer strong{color:#e7bd68}
 </style>
 </head>
-
 <body>
+
 <header>
- <div class="logo">
-  MELODY MAGIC
-  <small>DIGITAL AUDITORIUM</small>
- </div>
- <button class="gold" onclick="showPage('host')">HOST LOGIN</button>
+  <div class="logo">
+    MELODY MAGIC
+    <small>DIGITAL AUDITORIUM</small>
+  </div>
 </header>
 
-<nav>
- <button class="dark" onclick="showPage('home')">HOME</button>
- <button class="dark" onclick="showPage('sessions')">SESSIONS</button>
- <button class="dark" onclick="showPage('register')">SING WITH US</button>
- <button class="dark" onclick="showPage('queue')">SINGER QUEUE</button>
- <button class="dark" onclick="showPage('host')">HOST PANEL</button>
-</nav>
-
 <main>
-
-<section id="home" class="page active">
-
- <div class="hero">
-  <div class="hero-content">
-   <div class="eyebrow">WELCOME TO THE WORLD OF MUSIC</div>
-   <h1>YOUR STAGE.<br>YOUR VOICE.</h1>
-   <p>Experience the magic of live singing. Join music lovers, perform your favourite songs and shine on our virtual auditorium stage.</p>
-   <button class="gold" onclick="showPage('register')">🎤 JOIN THE AUDITORIUM</button>
-   <button class="dark" onclick="showPage('sessions')">EXPLORE SESSIONS</button>
-  </div>
- </div>
-
- <h2>THE MELODY MAGIC EXPERIENCE</h2>
- <p class="section-intro">A platform for singers, music lovers and performers. Bring your voice and enjoy the magic of music together.</p>
-
- <div class="gallery">
-  <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600" alt="Singer performing with microphone">
-  <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600" alt="Concert lights">
-  <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600" alt="Live music audience">
- </div>
-
- <h2>OUR MUSIC CATEGORIES</h2>
- <div class="grid">
-  <div class="tile">
-   <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=500" alt="Bollywood concert">
-   <div><strong>Bollywood Retro</strong><p class="small">Golden era melodies</p></div>
-  </div>
-  <div class="tile">
-   <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=500" alt="Live singer">
-   <div><strong>Hindi Singing</strong><p class="small">Hindi favourite songs</p></div>
-  </div>
-  <div class="tile">
-   <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=500" alt="Music stage">
-   <div><strong>Marathi Singing</strong><p class="small">Marathi melodies</p></div>
-  </div>
-  <div class="tile">
-   <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=500" alt="Concert performance">
-   <div><strong>Open Mic</strong><p class="small">Show your talent</p></div>
-  </div>
- </div>
-
- <h2>UPCOMING AUDITORIUM SESSIONS</h2>
- <div id="homeSessions"></div>
-</section>
-
-<section id="sessions" class="page">
- <h2>UPCOMING SINGING SESSIONS</h2>
- <p class="section-intro">Choose your favourite music session and register as a performer.</p>
- <div id="sessionList"></div>
-</section>
-
-<section id="register" class="page">
- <h2>🎤 REGISTER AS A SINGER</h2>
- <p class="section-intro">Take your place on the Melody Magic stage.</p>
- <div class="card">
-  <label>Full Name</label>
-  <input id="singerName" placeholder="Your full name">
-
-  <label>Mobile Number</label>
-  <input id="mobile" type="tel" placeholder="Your mobile number">
-
-  <label>Select Session</label>
-  <select id="sessionChoice"></select>
-
-  <label>Song Name</label>
-  <input id="songName" placeholder="Enter your favourite song">
-
-  <label>Language</label>
-  <select id="language">
-   <option>Hindi</option><option>Marathi</option>
-   <option>English</option><option>Other</option>
-  </select>
-
-  <label>Performance</label>
-  <select id="performance">
-   <option>Solo</option><option>Duet</option><option>Group</option>
-  </select>
-
-  <button class="gold" onclick="registerSinger()">SUBMIT REGISTRATION</button>
- </div>
-</section>
-
-<section id="queue" class="page">
- <h2>🎵 SINGER QUEUE</h2>
- <p class="section-intro">See the registered performers and their stage status.</p>
- <div id="queueList"></div>
-</section>
-
-<section id="host" class="page">
- <h2>HOST CONTROL ROOM</h2>
- <div id="hostLogin" class="card">
-  <label>Host PIN</label>
-  <input type="password" id="hostPin" placeholder="Enter host PIN">
-  <button class="gold" onclick="hostLogin()">LOGIN</button>
-  <p class="small">Demo PIN: 1234. Do not use this demo PIN for a public service.</p>
- </div>
-
- <div id="hostPanel" style="display:none">
   <div class="card">
-   <h3>CREATE A SINGING SESSION</h3>
-   <label>Session Name</label>
-   <input id="newSession" placeholder="Bollywood Retro Night">
+    <h2>🎤 REGISTER AS A SINGER</h2>
+    <p>Take your place on the Melody Magic stage.</p>
 
-   <label>Date</label>
-   <input id="sessionDate" type="date">
+    <div id="showDetails">Loading show details...</div>
 
-   <label>Time</label>
-   <input id="sessionTime" type="time">
+    <form id="registrationForm">
+      <label>Full Name</label>
+      <input id="singerName" required maxlength="80"
+             placeholder="Enter your full name">
 
-   <label>Host Name</label>
-   <input id="sessionHost" placeholder="Melody Magic Host">
+      <label>Mobile Number</label>
+      <input id="mobile" type="tel" required
+             maxlength="15" placeholder="Enter mobile number">
 
-   <label>Language</label>
-   <select id="sessionLanguage">
-    <option>Hindi</option><option>Marathi</option>
-    <option>Hindi and Marathi</option><option>All Languages</option>
-   </select>
+      <label>Song Name</label>
+      <input id="songName" required maxlength="120"
+             placeholder="Enter your song name">
 
-   <label>Participation Fee (₹)</label>
-   <input id="sessionFee" type="number" placeholder="0">
+      <label>Language</label>
+      <select id="language" required>
+        <option value="Hindi">Hindi</option>
+        <option value="Marathi">Marathi</option>
+        <option value="English">English</option>
+        <option value="Other">Other</option>
+      </select>
 
-   <label>Online Meeting Link (optional)</label>
-   <input id="meetingLink" placeholder="Paste meeting URL">
+      <label>Performance</label>
+      <select id="performance" required>
+        <option value="Solo">Solo</option>
+        <option value="Duet">Duet</option>
+        <option value="Group">Group</option>
+      </select>
 
-   <button class="gold" onclick="createSession()">CREATE SESSION</button>
+      <button id="submitButton" type="submit">
+        SUBMIT REGISTRATION
+      </button>
+    </form>
+
+    <div id="message" role="status"></div>
   </div>
-
-  <h3>MANAGE SINGERS</h3>
-  <div id="hostQueue"></div>
-
-  <h3>MANAGE SESSIONS</h3>
-  <div id="hostSessions"></div>
- </div>
-</section>
-
 </main>
 
 <footer>
- <strong>MELODY MAGIC MUSIC STUDIO</strong>
- <p>DIGITAL AUDITORIUM</p>
- <p>Sing Together. Shine Together.</p>
- <p>Created by Amol Kamble</p>
- <p>© 2026 Melody Magic</p>
+  <strong>MELODY MAGIC MUSIC STUDIO</strong>
+  <p>DIGITAL AUDITORIUM</p>
+  <p>Sing Together. Shine Together.</p>
+  <p>Created by Amol Kamble</p>
+  <p>© 2026 Melody Magic</p>
 </footer>
 
-<script>
-const defaultSessions=[{
- id:"session1",
- name:"Bollywood Retro Singing",
- date:"",
- time:"",
- host:"Melody Magic",
- language:"Hindi",
- fee:0,
- link:""
-}];
+<script type="module">
+import { db, registerSinger } from "./firebase.js";
+import {
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-let sessions=JSON.parse(localStorage.getItem("mm_sessions")||"null")||defaultSessions;
-let singers=JSON.parse(localStorage.getItem("mm_singers")||"[]");
+const params = new URLSearchParams(window.location.search);
+const showId = params.get("showId");
 
-function safe(v){
- return String(v||"").replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- })[c]);
-}
-function save(){
- localStorage.setItem("mm_sessions",JSON.stringify(sessions));
- localStorage.setItem("mm_singers",JSON.stringify(singers));
-}
-function showPage(id){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- document.getElementById(id).classList.add("active");
- renderAll();
- window.scrollTo(0,0);
-}
-function renderAll(){
- renderSessions();renderQueue();renderHost();
-}
-function renderSessions(){
- const html=sessions.map(s=>`
- <div class="card">
-  <span class="badge">SINGING SESSION</span>
-  <h3>${safe(s.name)}</h3>
-  <p>${safe(s.language)} • Host: ${safe(s.host)}</p>
-  <p class="small">${safe(s.date||"Date to be announced")} | ${safe(s.time||"Time to be announced")}</p>
-  <p>Participation: ₹${Number(s.fee)||0}</p>
-  <button class="gold" onclick="selectSession('${s.id}')">JOIN SESSION</button>
- </div>`).join("")||'<div class="empty">No sessions yet.</div>';
+const details = document.getElementById("showDetails");
+const form = document.getElementById("registrationForm");
+const message = document.getElementById("message");
+const button = document.getElementById("submitButton");
 
- document.getElementById("sessionList").innerHTML=html;
- document.getElementById("homeSessions").innerHTML=html;
- document.getElementById("sessionChoice").innerHTML=sessions.map(s=>
- `<option value="${s.id}">${safe(s.name)}</option>`).join("");
-}
-function selectSession(id){
- document.getElementById("sessionChoice").value=id;
- showPage("register");
-}
-function registerSinger(){
- const name=document.getElementById("singerName").value.trim();
- const mobile=document.getElementById("mobile").value.trim();
- const song=document.getElementById("songName").value.trim();
- const sessionId=document.getElementById("sessionChoice").value;
+let currentShow = null;
 
- if(!name||!mobile||!song||!sessionId){
-  alert("Please complete all required details.");return;
- }
- if(!/^[0-9+\-\s]{8,15}$/.test(mobile)){
-  alert("Enter a valid mobile number.");return;
- }
- singers.push({
-  id:"s"+Date.now(),name,mobile,song,
-  language:document.getElementById("language").value,
-  performance:document.getElementById("performance").value,
-  sessionId,status:"Waiting"
- });
- save();
- alert("Registration saved successfully!");
- ["singerName","mobile","songName"].forEach(id=>document.getElementById(id).value="");
- showPage("queue");
+function showMessage(text, success = false) {
+  message.textContent = text;
+  message.style.color = success ? "#a8dfa5" : "#ff9999";
 }
-function renderQueue(){
- const list=singers.filter(s=>s.status!=="Removed");
- document.getElementById("queueList").innerHTML=list.length?
- list.map((s,i)=>{
-  const session=sessions.find(x=>x.id===s.sessionId);
-  return `<div class="item">
-  <strong>${i+1}. ${safe(s.name)}</strong>
-  <p>${safe(s.song)} • ${safe(s.language)} • ${safe(s.performance)}</p>
-  <p class="small">${safe(session?session.name:"Session")}</p>
-  <span class="status">${safe(s.status)}</span>
-  </div>`;
- }).join(""):'<div class="empty">No singers registered yet.</div>';
-}
-function hostLogin(){
- if(document.getElementById("hostPin").value==="1234"){
-  document.getElementById("hostLogin").style.display="none";
-  document.getElementById("hostPanel").style.display="block";
-  renderHost();
- }else alert("Incorrect PIN");
-}
-function validLink(v){
- try{return new URL(v).protocol==="https:"}catch(e){return false}
-}
-function createSession(){
- const name=document.getElementById("newSession").value.trim();
- const link=document.getElementById("meetingLink").value.trim();
- if(!name){alert("Enter a session name.");return}
- if(link&&!validLink(link)){alert("Enter a valid HTTPS meeting link.");return}
 
- sessions.push({
-  id:"s"+Date.now(),name,
-  date:document.getElementById("sessionDate").value,
-  time:document.getElementById("sessionTime").value,
-  host:document.getElementById("sessionHost").value||"Melody Magic",
-  language:document.getElementById("sessionLanguage").value,
-  fee:Number(document.getElementById("sessionFee").value)||0,
-  link
- });
- save();
- document.getElementById("newSession").value="";
- alert("Session created!");
- renderAll();
-}
-function renderHost(){
- if(document.getElementById("hostPanel").style.display!=="block")return;
- const list=singers.filter(s=>s.status!=="Removed");
- document.getElementById("hostQueue").innerHTML=list.map(s=>`
- <div class="item">
- <strong>${safe(s.name)}</strong>
- <p>${safe(s.song)} • ${safe(s.status)}</p>
- <div class="row">
- <button class="gold" onclick="setStatus('${s.id}','On Stage')">CALL SINGER</button>
- <button class="dark" onclick="setStatus('${s.id}','Completed')">DONE</button>
- <button class="dark" onclick="setStatus('${s.id}','Removed')">REMOVE</button>
- </div></div>`).join("")||'<p class="empty">No singers.</p>';
+if (!showId) {
+  details.textContent = "No show selected. Please return to the sessions page.";
+  button.disabled = true;
+} else {
+  onValue(ref(db, "shows/" + showId), snapshot => {
+    if (!snapshot.exists()) {
+      currentShow = null;
+      details.textContent = "Show not found.";
+      button.disabled = true;
+      return;
+    }
 
- document.getElementById("hostSessions").innerHTML=sessions.map(s=>`
- <div class="item">
- <strong>${safe(s.name)}</strong>
- <p class="small">${safe(s.date)} ${safe(s.time)}</p>
- ${s.link?`<button class="gold" onclick="openMeeting('${s.id}')">OPEN MEETING</button>`:""}
- <button class="dark" onclick="deleteSession('${s.id}')">DELETE</button>
- </div>`).join("");
+    currentShow = snapshot.val();
+
+    if (currentShow.status !== "Published") {
+      details.textContent = "This show is not open for registration.";
+      button.disabled = true;
+      return;
+    }
+
+    details.innerHTML = `
+      <h3 style="color:#e7bd68;text-align:center"></h3>
+      <p id="showInfo"></p>
+    `;
+
+    details.querySelector("h3").textContent =
+      currentShow.title || "Singing Session";
+
+    details.querySelector("#showInfo").textContent =
+      (currentShow.hostName || "Melody Magic Host") +
+      " | " + (currentShow.date || "Date to be announced") +
+      " | " + (currentShow.time || "Time to be announced") +
+      " | Entry: " +
+      (currentShow.entryType === "paid"
+        ? "₹" + (currentShow.entryFee || 0)
+        : "Free");
+
+    button.disabled = false;
+  }, error => {
+    details.textContent = "Unable to load show details.";
+    showMessage(error.message);
+    button.disabled = true;
+  });
 }
-function setStatus(id,status){
- const s=singers.find(x=>x.id===id);
- if(s)s.status=status;
- save();renderAll();
-}
-function deleteSession(id){
- if(!confirm("Delete this session?"))return;
- sessions=sessions.filter(s=>s.id!==id);
- save();renderAll();
-}
-function openMeeting(id){
- const s=sessions.find(x=>x.id===id);
- if(s&&s.link)window.open(s.link,"_blank");
-}
-renderAll();
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!currentShow || !showId) {
+    showMessage("Please select a valid published show.");
+    return;
+  }
+
+  const name = document.getElementById("singerName").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const song = document.getElementById("songName").value.trim();
+  const language = document.getElementById("language").value;
+  const performance = document.getElementById("performance").value;
+
+  if (!/^[0-9+\-\s]{8,15}$/.test(mobile)) {
+    showMessage("Please enter a valid mobile number.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "SAVING REGISTRATION...";
+
+  try {
+    const registrationId = await registerSinger(
+      name, mobile, song, language, showId, performance
+    );
+
+    form.reset();
+    showMessage(
+      "Registration saved successfully! Reference: " + registrationId,
+      true
+    );
+  } catch (error) {
+    console.error(error);
+    showMessage("Registration failed: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "SUBMIT REGISTRATION";
+  }
+});
 </script>
-
-<script type="module" src="firebase.js"></script>
-<script type="module" src="livekit.js"></script>
 
 </body>
 </html>
-
