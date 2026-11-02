@@ -77,7 +77,11 @@ const applications = document.getElementById("applications");
 
 let stopListening = null;
 
-const days = planDays[String(app.plan || "").trim().toLowerCase()];
+const planDays = {
+  daily: 1,
+  weekly: 7,
+  monthly: 30
+};
 function showMessage(text, error = false) {
   message.textContent = text;
   message.style.color = error ? "#ff9999" : "#e5bd60";
@@ -152,7 +156,7 @@ function renderApplications(data) {
       });
 
       approveButton.addEventListener("click", async () => {
-        const days = planDays[app.plan];
+        const days = planDays[String(app.plan || "").trim().toLowerCase()];
         if (!days || !checkbox.checked) {
           showMessage("Verify payment and check a valid subscription plan.", true);
           return;
