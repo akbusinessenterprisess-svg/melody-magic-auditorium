@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Melody Magic Digital Auditorium</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}
@@ -24,10 +25,20 @@ h2{color:#e8c36c}
 .card{background:#171717;border:1px solid #705726;border-radius:12px;padding:24px;width:min(100%,290px)}
 .card h3{color:#e8c36c}
 .card p{color:#c9c2b4;line-height:1.6;font-size:14px}
+.show-card{background:#171717;border:1px solid #9c792e;border-radius:12px;padding:22px;width:min(100%,320px);text-align:left}
+.show-card h3{color:#e8c36c;margin-top:12px}
+.show-card p{color:#c9c2b4;font-size:14px;line-height:1.6}
+.show-label{display:inline-block;background:#30240d;color:#f0ce78;border-radius:20px;padding:6px 10px;font-size:11px}
+.show-entry{color:#f0ce78!important;font-weight:bold}
+.show-button{display:inline-block;background:#d9b45d;color:#17120a;padding:11px 17px;border-radius:7px;text-decoration:none;font-weight:bold;margin-top:8px}
+.show-message{color:#c9c2b4;line-height:1.7;padding:20px}
+.show-error{color:#ffaaaa}
 footer{text-align:center;padding:25px;color:#aaa;border-top:1px solid #493a20;font-size:13px}
 </style>
 </head>
+
 <body>
+
 <header>
 <div class="logo">MELODY MAGIC</div>
 <div class="tagline">DIGITAL AUDITORIUM • SING • CONNECT • CELEBRATE</div>
@@ -50,22 +61,9 @@ footer{text-align:center;padding:25px;color:#aaa;border-top:1px solid #493a20;fo
 <section id="shows">
 <h2>UPCOMING LIVE SINGING SHOWS</h2>
 <p style="color:#c9c2b4">Discover performances hosted by our music community.</p>
-<div class="cards">
-<div class="card">
-<h3>Live Shows</h3>
-<p>Show listings will appear here as hosts publish their events.</p>
-<a class="btn" href="join-auditorium.html">Explore</a>
-</div>
-<div class="card">
-<h3>Host Your Own Show</h3>
-<p>Create your own online singing event and welcome performers.</p>
-<a class="btn" href="host-signup.html">Register as Host</a>
-</div>
-<div class="card">
-<h3>Already a Host?</h3>
-<p>Sign in to access your host account.</p>
-<a class="btn" href="host-login.html">Host Login</a>
-</div>
+
+<div class="cards" id="publishedShows">
+<div class="show-message">Loading published shows...</div>
 </div>
 </section>
 
@@ -80,5 +78,118 @@ Melody Magic Digital Auditorium brings singers, hosts and music lovers together 
 © 2026 Melody Magic Digital Auditorium<br>
 Sing Together. Shine Together.
 </footer>
+
+<script type="module">
+import { db } from "./firebase.js";
+
+import {
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const showsContainer = document.getElementById("publishedShows");
+
+function createShowCard(show, showId) {
+  const card = document.createElement("div");
+  card.className = "show-card";
+
+  const label = document.createElement("span");
+  label.className = "show-label";
+  label.textContent =
+    show.entryType === "paid" ? "PAID SINGING SHOW" : "FREE SINGING SHOW";
+
+  const title = document.createElement("h3");
+  title.textContent = show.title || "Untitled Show";
+
+  const host = document.createElement("p");
+  host.textContent = "Host: " + (show.hostName || "Melody Magic Host");
+
+  const dateTime = document.createElement("p");
+  dateTime.textContent =
+    "Date: " + (show.date || "Not specified") +
+    " | Time: " + (show.time || "Not specified");
+
+  const description = document.createElement("p");
+  description.textContent = show.description || "Join this live singing event.";
+
+  const entry = document.createElement("p");
+  entry.className = "show-entry";
+  entry.textContent =
+    show.entryType === "paid"
+      ? "Singer Entry Fee: ₹" + Number(show.entryFee || 0)
+      : "Singer Entry: FREE";
+
+  const joinButton = document.createElement("a");
+  joinButton.className = "show-button";
+  joinButton.textContent = "JOIN THIS SHOW";
+  joinButton.href =
+    "join-auditorium.html?showId=" + encodeURIComponent(showId);
+
+  card.append(label, title, host, dateTime, description, entry, joinButton);
+
+  return card;
+}
+
+onValue(
+  ref(db, "shows"),
+  (snapshot) => {
+    showsContainer.replaceChildren();
+
+    if (!snapshot.exists()) {
+      const empty = document.createElement("div");
+      empty.className = "show-message";
+      empty.textContent =
+        "No published shows yet. Please check again soon.";
+      showsContainer.appendChild(empty);
+      return;
+    }
+
+    const shows = [];
+
+    snapshot.forEach((child) => {
+      const show = child.val();
+
+      if (show && show.status === "Published") {
+        shows.push({
+          id: child.key,
+          ...show
+        });
+      }
+    });
+
+    shows.sort((a, b) => {
+      const dateA = new Date((a.date || "") + "T" + (a.time || "00:00"));
+      const dateB = new Date((b.date || "") + "T" + (b.time || "00:00"));
+      return dateA - dateB;
+    });
+
+    if (shows.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "show-message";
+      empty.textContent =
+        "No published shows yet. Please check again soon.";
+      showsContainer.appendChild(empty);
+      return;
+    }
+
+    shows.forEach((show) => {
+      showsContainer.appendChild(createShowCard(show, show.id));
+    });
+  },
+  (error) => {
+    console.error("Firebase show loading error:", error);
+
+    showsContainer.replaceChildren();
+
+    const errorMessage = document.createElement("div");
+    errorMessage.className = "show-message show-error";
+    errorMessage.textContent =
+      "Unable to load shows right now. Please refresh the page.";
+
+    showsContainer.appendChild(errorMessage);
+  }
+);
+</script>
+
 </body>
 </html>
