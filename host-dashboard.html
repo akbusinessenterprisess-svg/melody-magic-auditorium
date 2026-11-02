@@ -59,7 +59,42 @@ footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
         <p><strong>Coming in the next development step.</strong></p>
       </div>
       <div class="card">
-        <h3>Entry Fees & UPI</h3>
+  <h3>Create and Publish a Show</h3>
+  <p>Enter your show details and publish it for singers.</p>
+
+  <form id="createShowForm">
+
+    <label>Show Name</label>
+    <input id="showTitle" type="text" placeholder="Example: Bollywood Singing Night" required>
+
+    <label>Show Date</label>
+    <input id="showDate" type="date" required>
+
+    <label>Show Time</label>
+    <input id="showTime" type="time" required>
+
+    <label>Show Description</label>
+    <textarea id="showDescription" placeholder="Tell singers about your show"></textarea>
+
+    <label>Singer Entry Type</label>
+    <select id="entryType" required>
+      <option value="free">Free Entry</option>
+      <option value="paid">Paid Entry</option>
+    </select>
+
+    <div id="feeSection" class="hidden">
+      <label>Singer Entry Fee (₹)</label>
+      <input id="entryFee" type="number" min="1" placeholder="Example: 100">
+
+      <label>Your UPI ID</label>
+      <input id="hostUpi" type="text" placeholder="yourname@upi">
+    </div>
+
+    <button type="submit" id="publishButton">Publish Show</button>
+    <p id="publishMessage"></p>
+
+  </form>
+</div>
         <p>Configure free or paid singer entry and your UPI details.</p>
         <p><strong>Coming in the next development step.</strong></p>
       </div>
@@ -74,7 +109,42 @@ footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
         <p><strong>Coming in the next development step.</strong></p>
       </div>
       <div class="card">
-        <h3>UPI Collection</h3>
+  <h3>Create and Publish a Show</h3>
+  <p>Enter your show details and publish it for singers.</p>
+
+  <form id="createShowForm">
+
+    <label>Show Name</label>
+    <input id="showTitle" type="text" placeholder="Example: Bollywood Singing Night" required>
+
+    <label>Show Date</label>
+    <input id="showDate" type="date" required>
+
+    <label>Show Time</label>
+    <input id="showTime" type="time" required>
+
+    <label>Show Description</label>
+    <textarea id="showDescription" placeholder="Tell singers about your show"></textarea>
+
+    <label>Singer Entry Type</label>
+    <select id="entryType" required>
+      <option value="free">Free Entry</option>
+      <option value="paid">Paid Entry</option>
+    </select>
+
+    <div id="feeSection" class="hidden">
+      <label>Singer Entry Fee (₹)</label>
+      <input id="entryFee" type="number" min="1" placeholder="Example: 100">
+
+      <label>Your UPI ID</label>
+      <input id="hostUpi" type="text" placeholder="yourname@upi">
+    </div>
+
+    <button type="submit" id="publishButton">Publish Show</button>
+    <p id="publishMessage"></p>
+
+  </form>
+</div>
         <p>Use your own UPI ID or QR code for singer entry payments.</p>
         <p><strong>Coming in the next development step.</strong></p>
       </div>
