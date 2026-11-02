@@ -68,7 +68,18 @@ a{color:#e5bd60}
   <p><a href="host-dashboard.html">← Back to Host Dashboard</a></p>
 </main>
 
-<script>
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  ref,
+  get,
+  set
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const urlInput = document.getElementById("youtubeUrl");
 const singerInput = document.getElementById("singer");
 const player = document.getElementById("player");
@@ -132,7 +143,57 @@ document.getElementById("previewButton").addEventListener("click", () => {
     "Video loaded. Press Play inside the YouTube player to preview.";
 });
 
-prepareButton.addEventListener("click", () => {
+prepareButton.addEventListener("click", async () => {
+  const singer = singerInput.value.trim();
+
+  if (!singer) {
+    statusText.textContent = "Please enter the singer's name first.";
+    return;
+  }
+
+  if (!selectedVideoId) {
+    statusText.textContent = "Please preview a YouTube video first.";
+    return;
+  }
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    statusText.textContent =
+      "Please sign in through Host Login first, then reopen this page.";
+    return;
+  }
+
+  prepareButton.disabled = true;
+  statusText.textContent = "Checking host approval...";
+
+  try {
+    const applicationRef = ref(db, "hostApplications/" + user.uid);
+    const applicationSnapshot = await get(applicationRef);
+
+    if (!applicationSnapshot.exists() ||
+        applicationSnapshot.val().status !== "Approved") {
+      throw new Error("Your host account is not approved.");
+    }
+
+    const selectionRef = ref(db, "karaokeSelections/" + user.uid);
+
+    await set(selectionRef, {
+      singerName: singer,
+      videoId: selectedVideoId,
+      videoUrl: urlInput.value.trim(),
+      updatedAt: Date.now()
+    });
+
+    statusText.textContent =
+      "SUCCESS! Video selection saved in Firebase for " + singer + ".";
+
+  } catch (error) {
+    statusText.textContent = "Firebase error: " + error.message;
+  } finally {
+    prepareButton.disabled = false;
+  }
+});
   const singer = singerInput.value.trim();
 
   if (!singer) {
