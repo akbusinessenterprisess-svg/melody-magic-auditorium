@@ -13,7 +13,19 @@ export class VirtualAudioEffects {
     this.nodes = {};
   }
 
-  async start() {
+  async start(inputTrack) {
+  if (this.context) {
+    throw new Error("Audio effects are already running.");
+  }
+
+  if (!inputTrack || inputTrack.readyState !== "live") {
+    throw new Error("A live microphone track is required.");
+  }
+
+  this.inputStream = new MediaStream([inputTrack]);
+
+  try {
+    this.context = new AudioContext();
     if (this.context) {
       throw new Error("Audio effects are already running.");
     }
