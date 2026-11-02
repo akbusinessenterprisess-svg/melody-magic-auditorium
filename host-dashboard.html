@@ -229,7 +229,89 @@ onAuthStateChanged(auth, async (user) => {
       application.plan || "Host subscription";
 
     document.getElementById("expiryDate").textContent =
-      new Date(end).toLocaleString("en-IN");
+      new Date(end).toLocaleString("en-IN");// Show free/paid payment fields
+const entryType = document.getElementById("entryType");
+const feeSection = document.getElementById("feeSection");
+const feeInput = document.getElementById("entryFee");
+const upiInput = document.getElementById("hostUpi");
+
+entryType.addEventListener("change", () => {
+  const paid = entryType.value === "paid";
+  feeSection.classList.toggle("hidden", !paid);
+  feeInput.required = paid;
+  upiInput.required = paid;
+});
+
+// Publish show to Firebase
+const showForm = document.getElementById("createShowForm");
+const publishButton = document.getElementById("publishButton");
+const publishMessage = document.getElementById("publishMessage");
+
+showForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const title = document.getElementById("showTitle").value.trim();
+  const date = document.getElementById("showDate").value;
+  const time = document.getElementById("showTime").value;
+  const description = document.getElementById("showDescription").value.trim();
+  const type = entryType.value;
+  const fee = type === "paid" ? Number(feeInput.value) : 0;
+  const upi = type === "paid" ? upiInput.value.trim() : "";
+
+  if (!title || !date || !time) {
+    publishMessage.textContent = "Please complete all required fields.";
+    return;
+  }
+
+  if (type === "paid" && (!Number.isFinite(fee) || fee < 1 || !upi)) {
+    publishMessage.textContent = "Enter a valid fee and UPI ID.";
+    return;
+  }
+
+  const showDateTime = new Date(`${date}T${time}`);
+
+  if (Number.isNaN(showDateTime.getTime()) || showDateTime.getTime() <= Date.now()) {
+    publishMessage.textContent = "Please select a future show date and time.";
+    return;
+  }
+
+  publishButton.disabled = true;
+  publishMessage.textContent = "Publishing your show...";
+
+  try {
+    const newShowRef = push(ref(db, "shows"));
+
+    await set(newShowRef, {
+      showId: newShowRef.key,
+      title: title,
+      date: date,
+      time: time,
+      description: description,
+      entryType: type,
+      entryFee: fee,
+      hostUpi: upi,
+      hostUid: user.uid,
+      hostName: application.name || user.displayName || "Host",
+      hostEmail: user.email || "",
+      status: "Published",
+      createdAt: Date.now()
+    });
+
+    publishMessage.textContent =
+      "SUCCESS! Your show has been published.";
+
+    showForm.reset();
+    feeSection.classList.add("hidden");
+    feeInput.required = false;
+    upiInput.required = false;
+
+  } catch (error) {
+    publishMessage.textContent =
+      "Could not publish show: " + error.message;
+  } finally {
+    publishButton.disabled = false;
+  }
+});
 
   } catch (error) {
     showMessage("Unable to check your account: " + error.message);
