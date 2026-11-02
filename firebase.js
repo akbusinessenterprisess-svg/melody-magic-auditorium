@@ -1,3 +1,4 @@
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 
 import {
@@ -16,7 +17,8 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-// Replace these example values with your Firebase web configuration
+
+// Keep your original Firebase configuration values here.
 const firebaseConfig = {
   apiKey: "AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk",
   authDomain: "melody-magic-auditorium.firebaseapp.com",
@@ -49,13 +51,12 @@ async function registerSinger(name, song, language, sessionId, performance) {
 
   return user.uid;
 }
-function
- listenToSingers(callback) {
+
+function listenToSingers(callback) {
   onValue(ref(db, "registrations"), (snapshot) => {
     callback(snapshot.val() || {});
   });
 }
-
 
 async function registerHost(name, email, mobile, plan, password) {
   const result = await createUserWithEmailAndPassword(
@@ -67,10 +68,10 @@ async function registerHost(name, email, mobile, plan, password) {
   const user = result.user;
 
   await set(ref(db, "hostApplications/" + user.uid), {
-    name: name,
-    email: email,
-    mobile: mobile,
-    plan: plan,
+    name,
+    email,
+    mobile,
+    plan,
     status: "Pending",
     createdAt: Date.now()
   });
@@ -78,7 +79,8 @@ async function registerHost(name, email, mobile, plan, password) {
   return user;
 }
 
-  );
+async function hostLogin(email, password) {
+  const result = await signInWithEmailAndPassword(auth, email, password);
   return result.user;
 }
 
@@ -86,7 +88,7 @@ async function hostLogout() {
   await signOut(auth);
 }
 
-function checkLogin(callback)
+function checkLogin(callback) {
   return onAuthStateChanged(auth, callback);
 }
 
