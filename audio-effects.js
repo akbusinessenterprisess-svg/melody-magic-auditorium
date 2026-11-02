@@ -196,9 +196,7 @@ export class VirtualAudioEffects {
   }
 
   stop() {
-    if (this.inputStream) {
-      this.inputStream.getTracks().forEach(track => track.stop());
-      this.inputStream = null;
+    this.inputStream = null;
     }
 
     if (this.processedTrack) {
