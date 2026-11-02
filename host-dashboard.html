@@ -7,58 +7,23 @@
 <title>Host Dashboard | Melody Magic</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#090909;
-  color:#f5f0df;
-  font-family:Arial,sans-serif;
-}
-header{
-  padding:25px 18px;
-  text-align:center;
-  background:#15120b;
-  border-bottom:1px solid #b89542;
-}
+body{margin:0;background:#090909;color:#f5f0df;font-family:Arial,sans-serif}
+header{padding:24px 18px;text-align:center;background:#15120b;border-bottom:1px solid #b89542}
 .brand{color:#e5bd60;font-size:23px;font-weight:bold}
 header p{color:#c9b98e;font-size:13px}
-main{max-width:850px;margin:auto;padding:20px}
+main{max-width:900px;margin:auto;padding:20px}
 h2{color:#e5bd60}
-.notice{
-  background:#211b0e;
-  border:1px solid #9c7832;
-  border-radius:12px;
-  padding:17px;
-  line-height:1.6;
-  margin-bottom:22px;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:14px;
-}
-.card{
-  background:#171717;
-  border:1px solid #51401f;
-  border-radius:12px;
-  padding:20px;
-}
+.notice,.card{background:#171717;border:1px solid #51401f;border-radius:12px;padding:18px;margin-bottom:16px}
+.notice{background:#211b0e;border-color:#9c7832;line-height:1.6}
+.status{display:inline-block;color:#f1cb70;background:#30250e;padding:7px 12px;border-radius:20px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .card h3{color:#e5bd60;margin-top:0}
 .card p{color:#c8c3b6;line-height:1.5;font-size:14px}
-.status{
-  display:inline-block;
-  color:#f1cb70;
-  background:#30250e;
-  padding:7px 12px;
-  border-radius:20px;
-  font-size:12px;
-}
-.plan{font-size:23px;color:#e5bd60;font-weight:bold}
-footer{
-  text-align:center;
-  padding:25px;
-  color:#928b7b;
-  font-size:12px;
-}
+button{background:#d5ad50;color:#17120a;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
+.hidden{display:none}
+#message{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -70,73 +35,53 @@ footer{
 </header>
 
 <main>
-  <h2>Welcome, Host!</h2>
+  <div id="message" class="notice">Checking your host account...</div>
 
-  <div class="notice">
-    <span class="status">HOST APPROVAL REQUIRED</span>
-    <p>
-      Your host dashboard will become active after platform
-      administrator approval and subscription verification.
-    </p>
-    <p>
-      You will then be able to create and manage your live
-      singing shows.
-    </p>
-  </div>
-
-  <h2>Host Subscription Plans</h2>
-  <div class="grid">
-    <div class="card">
-      <h3>Daily Plan</h3>
-      <div class="plan">₹99</div>
-      <p>Access for 24 hours after admin approval.</p>
+  <section id="activeDashboard" class="hidden">
+    <div class="notice">
+      <span class="status">APPROVED · SUBSCRIPTION ACTIVE</span>
+      <h2>Welcome, <span id="hostName">Host</span>!</h2>
+      <p id="hostEmail"></p>
+      <p>Plan: <strong id="hostPlan"></strong></p>
+      <p>Subscription expires: <strong id="expiryDate"></strong></p>
     </div>
 
-    <div class="card">
-      <h3>Weekly Plan</h3>
-      <div class="plan">₹499</div>
-      <p>Access for 7 days after admin approval.</p>
+    <h2>Host Control Centre</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Create a Show</h3>
+        <p>Create and publish your live singing show.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Manage Singers</h3>
+        <p>Manage registrations and the performance queue.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Entry Fees & UPI</h3>
+        <p>Configure free or paid singer entry and your UPI details.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Promotional Poster</h3>
+        <p>Create and share a poster for your show.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Live Auditorium</h3>
+        <p>Host your online singing session with live audio and video.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
+      <div class="card">
+        <h3>UPI Collection</h3>
+        <p>Use your own UPI ID or QR code for singer entry payments.</p>
+        <p><strong>Coming in the next development step.</strong></p>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>Monthly Plan</h3>
-      <div class="plan">₹1,499</div>
-      <p>Access for 30 days after admin approval.</p>
-    </div>
-  </div>
-
-  <h2>Your Host Features</h2>
-  <div class="grid">
-    <div class="card">
-      <h3>Create a Show</h3>
-      <p>Create one active live singing show at a time.</p>
-    </div>
-
-    <div class="card">
-      <h3>Manage Singers</h3>
-      <p>Manage your singer registrations and performance queue.</p>
-    </div>
-
-    <div class="card">
-      <h3>Entry Fees</h3>
-      <p>Choose free or paid singer entry and collect payments directly.</p>
-    </div>
-
-    <div class="card">
-      <h3>Promotional Poster</h3>
-      <p>Generate and share a poster for every show.</p>
-    </div>
-
-    <div class="card">
-      <h3>Live Auditorium</h3>
-      <p>Host your online singing session with live audio and video.</p>
-    </div>
-
-    <div class="card">
-      <h3>UPI Collection</h3>
-      <p>Use your own UPI ID or QR code for singer entry payments.</p>
-    </div>
-  </div>
+    <button id="logoutButton">Sign Out</button>
+  </section>
 </main>
 
 <footer>
@@ -144,6 +89,83 @@ footer{
   <br>Created by Melody Magic Music Studio
 </footer>
 
+<script type="module">
+import { auth, db } from "./firebase.js";
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  ref,
+  get
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const message = document.getElementById("message");
+const dashboard = document.getElementById("activeDashboard");
+
+function showMessage(text) {
+  message.textContent = text;
+  message.classList.remove("hidden");
+  dashboard.classList.add("hidden");
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "host-login.html";
+    return;
+  }
+
+  try {
+    const snapshot = await get(
+      ref(db, "hostApplications/" + user.uid)
+    );
+
+    if (!snapshot.exists()) {
+      showMessage("Host application not found. Please contact the administrator.");
+      return;
+    }
+
+    const application = snapshot.val();
+
+    if (application.status !== "Approved") {
+      showMessage("Your host application is not approved yet. Please contact the administrator.");
+      return;
+    }
+
+    const start = Number(application.subscriptionStartAt);
+    const end = Number(application.subscriptionEndAt);
+    const now = Date.now();
+
+    if (!start || !end || now < start || now >= end) {
+      showMessage("Your subscription is not active or has expired. Please contact the administrator.");
+      return;
+    }
+
+    message.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+
+    document.getElementById("hostName").textContent =
+      application.name || user.displayName || "Host";
+
+    document.getElementById("hostEmail").textContent =
+      user.email || "";
+
+    document.getElementById("hostPlan").textContent =
+      application.plan || "Host subscription";
+
+    document.getElementById("expiryDate").textContent =
+      new Date(end).toLocaleString("en-IN");
+
+  } catch (error) {
+    showMessage("Unable to check your account: " + error.message);
+  }
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "host-login.html";
+});
+</script>
+
 </body>
 </html>
-
