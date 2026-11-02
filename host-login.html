@@ -90,7 +90,8 @@ a{color:#e5bd60}
 </div>
 
 <script type="module">
-import { hostLogin } from "./firebase.js";
+import { hostLogin, db } from "./firebase.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const form = document.getElementById("loginForm");
 const message = document.getElementById("message");
