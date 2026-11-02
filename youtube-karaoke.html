@@ -159,6 +159,53 @@ prepareButton.addEventListener("click", async () => {
   const user = auth.currentUser;
 
   if (!user) {
+    statusText.textContent = "Please sign in through Host Login first.";
+    return;
+  }
+
+  prepareButton.disabled = true;
+  statusText.textContent = "Checking host approval...";
+
+  try {
+    const applicationRef = ref(db, "hostApplications/" + user.uid);
+    const applicationSnapshot = await get(applicationRef);
+
+    if (!applicationSnapshot.exists() ||
+        applicationSnapshot.val().status !== "Approved") {
+      throw new Error("Your host account is not approved.");
+    }
+
+    const selectionRef = ref(db, "karaokeSelections/" + user.uid);
+
+    await set(selectionRef, {
+      singerName: singer,
+      videoId: selectedVideoId,
+      videoUrl: urlInput.value.trim(),
+      updatedAt: Date.now()
+    });
+
+    statusText.textContent =
+      "SUCCESS! Video selection saved in Firebase for " + singer + ".";
+
+  } catch (error) {
+    statusText.textContent = "Firebase error: " + error.message;
+  } finally {
+    prepareButton.disabled = false;
+  }
+});
+  if (!singer) {
+    statusText.textContent = "Please enter the singer's name first.";
+    return;
+  }
+
+  if (!selectedVideoId) {
+    statusText.textContent = "Please preview a YouTube video first.";
+    return;
+  }
+
+  const user = auth.currentUser;
+
+  if (!user) {
     statusText.textContent =
       "Please sign in through Host Login first, then reopen this page.";
     return;
