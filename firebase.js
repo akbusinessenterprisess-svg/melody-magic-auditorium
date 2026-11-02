@@ -24,6 +24,8 @@ const firebaseConfig = {
   authDomain: "melody-magic-auditorium.firebaseapp.com",
   databaseURL: "https://melody-magic-auditorium-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "melody-magic-auditorium",
+  storageBucket: "melody-magic-auditorium.firebasestorage.app",
+  messagingSenderId: "458186749712",
   appId: "1:458186749712:web:311ecbed0c87367022d795"
 };
 
