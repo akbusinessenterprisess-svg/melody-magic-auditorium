@@ -95,5 +95,7 @@ export {
   connectAuditorium,
   hostLogin,
   hostLogout,
-  checkLogin
+  checkLogin,
+  db,
+  auth
 };
