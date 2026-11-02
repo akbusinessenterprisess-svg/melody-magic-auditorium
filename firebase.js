@@ -18,7 +18,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-// Keep your original Firebase configuration values here.
 const firebaseConfig = {
   apiKey: "AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk",
   authDomain: "melody-magic-auditorium.firebaseapp.com",
