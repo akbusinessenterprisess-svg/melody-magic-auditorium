@@ -77,12 +77,7 @@ const applications = document.getElementById("applications");
 
 let stopListening = null;
 
-const planDays = {
-  Daily: 1,
-  Weekly: 7,
-  Monthly: 30
-};
-
+const planDays = { daily: 1, weekly: 7, monthly: 30, Daily: 1, Weekly: 7, Monthly: 30 };
 function showMessage(text, error = false) {
   message.textContent = text;
   message.style.color = error ? "#ff9999" : "#e5bd60";
