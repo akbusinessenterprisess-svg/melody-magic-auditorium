@@ -20,10 +20,14 @@ h2{color:#e5bd60}
 .card h3{color:#e5bd60;margin-top:0}
 .card p{color:#c8c3b6;line-height:1.5;font-size:14px}
 button{background:#d5ad50;color:#17120a;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:not-allowed}
 footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
-.hidden{display:none}
-#message{overflow-wrap:anywhere}
+.hidden{display:none!important}
+#message,#publishMessage{overflow-wrap:anywhere}
+label{display:block;margin-top:14px;margin-bottom:6px;color:#e5bd60;font-size:13px}
+input,textarea,select{width:100%;padding:12px;border-radius:7px;border:1px solid #51401f;background:#090909;color:#fff;margin-bottom:8px;font-size:14px}
+textarea{min-height:85px;resize:vertical}
+.form-help{font-size:12px;color:#b9b09d}
 </style>
 </head>
 <body>
@@ -49,108 +53,68 @@ footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
     <h2>Host Control Centre</h2>
     <div class="grid">
       <div class="card">
-        <h3>Create a Show</h3>
-        <p>Create and publish your live singing show.</p>
-        <p><strong>Coming in the next development step.</strong></p>
+        <h3>Create and Publish a Show</h3>
+        <p>Enter your show details and publish it for singers.</p>
+
+        <form id="createShowForm">
+          <label for="showTitle">Show Name</label>
+          <input id="showTitle" type="text" maxlength="100" placeholder="Example: Bollywood Singing Night" required>
+
+          <label for="showDate">Show Date</label>
+          <input id="showDate" type="date" required>
+
+          <label for="showTime">Show Time</label>
+          <input id="showTime" type="time" required>
+
+          <label for="showDescription">Show Description</label>
+          <textarea id="showDescription" maxlength="1000" placeholder="Tell singers about your show"></textarea>
+
+          <label for="entryType">Singer Entry Type</label>
+          <select id="entryType" required>
+            <option value="free">Free Entry</option>
+            <option value="paid">Paid Entry</option>
+          </select>
+
+          <div id="feeSection" class="hidden">
+            <label for="entryFee">Singer Entry Fee (₹)</label>
+            <input id="entryFee" type="number" min="1" step="1" placeholder="Example: 100">
+
+            <label for="hostUpi">Your UPI ID</label>
+            <input id="hostUpi" type="text" maxlength="100" placeholder="yourname@upi">
+            <p class="form-help">Your UPI ID will be visible to singers for payment.</p>
+          </div>
+
+          <button type="submit" id="publishButton" disabled>Publish Show</button>
+          <p id="publishMessage" role="status"></p>
+        </form>
       </div>
+
       <div class="card">
         <h3>Manage Singers</h3>
         <p>Manage registrations and the performance queue.</p>
         <p><strong>Coming in the next development step.</strong></p>
       </div>
-      <div class="card">
-  <h3>Create and Publish a Show</h3>
-  <p>Enter your show details and publish it for singers.</p>
 
-  <form id="createShowForm">
-
-    <label>Show Name</label>
-    <input id="showTitle" type="text" placeholder="Example: Bollywood Singing Night" required>
-
-    <label>Show Date</label>
-    <input id="showDate" type="date" required>
-
-    <label>Show Time</label>
-    <input id="showTime" type="time" required>
-
-    <label>Show Description</label>
-    <textarea id="showDescription" placeholder="Tell singers about your show"></textarea>
-
-    <label>Singer Entry Type</label>
-    <select id="entryType" required>
-      <option value="free">Free Entry</option>
-      <option value="paid">Paid Entry</option>
-    </select>
-
-    <div id="feeSection" class="hidden">
-      <label>Singer Entry Fee (₹)</label>
-      <input id="entryFee" type="number" min="1" placeholder="Example: 100">
-
-      <label>Your UPI ID</label>
-      <input id="hostUpi" type="text" placeholder="yourname@upi">
-    </div>
-
-    <button type="submit" id="publishButton">Publish Show</button>
-    <p id="publishMessage"></p>
-
-  </form>
-</div>
-        <p>Configure free or paid singer entry and your UPI details.</p>
-        <p><strong>Coming in the next development step.</strong></p>
-      </div>
       <div class="card">
         <h3>Promotional Poster</h3>
         <p>Create and share a poster for your show.</p>
         <p><strong>Coming in the next development step.</strong></p>
       </div>
+
       <div class="card">
         <h3>Live Auditorium</h3>
         <p>Host your online singing session with live audio and video.</p>
         <p><strong>Coming in the next development step.</strong></p>
       </div>
+
       <div class="card">
-  <h3>Create and Publish a Show</h3>
-  <p>Enter your show details and publish it for singers.</p>
-
-  <form id="createShowForm">
-
-    <label>Show Name</label>
-    <input id="showTitle" type="text" placeholder="Example: Bollywood Singing Night" required>
-
-    <label>Show Date</label>
-    <input id="showDate" type="date" required>
-
-    <label>Show Time</label>
-    <input id="showTime" type="time" required>
-
-    <label>Show Description</label>
-    <textarea id="showDescription" placeholder="Tell singers about your show"></textarea>
-
-    <label>Singer Entry Type</label>
-    <select id="entryType" required>
-      <option value="free">Free Entry</option>
-      <option value="paid">Paid Entry</option>
-    </select>
-
-    <div id="feeSection" class="hidden">
-      <label>Singer Entry Fee (₹)</label>
-      <input id="entryFee" type="number" min="1" placeholder="Example: 100">
-
-      <label>Your UPI ID</label>
-      <input id="hostUpi" type="text" placeholder="yourname@upi">
-    </div>
-
-    <button type="submit" id="publishButton">Publish Show</button>
-    <p id="publishMessage"></p>
-
-  </form>
-</div>
-        <p>Use your own UPI ID or QR code for singer entry payments.</p>
-        <p><strong>Coming in the next development step.</strong></p>
+        <h3>UPI Collection</h3>
+        <p>Use your own UPI ID for singer entry payments.</p>
+        <p><strong>UPI QR code support is a later step.</strong></p>
       </div>
     </div>
 
-    <button id="logoutButton">Sign Out</button>
+    <button id="logoutButton" type="button">Sign Out</button>
   </section>
 </main>
 
@@ -160,19 +124,32 @@ footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
 </footer>
 
 <script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   ref,
   get,
   push,
   set
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import {
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const message = document.getElementById("message");
 const dashboard = document.getElementById("activeDashboard");
+const showForm = document.getElementById("createShowForm");
+const entryType = document.getElementById("entryType");
+const feeSection = document.getElementById("feeSection");
+const feeInput = document.getElementById("entryFee");
+const upiInput = document.getElementById("hostUpi");
+const publishButton = document.getElementById("publishButton");
+const publishMessage = document.getElementById("publishMessage");
+
+let currentHostUser = null;
+let currentHostApplication = null;
 
 function showMessage(text) {
   message.textContent = text;
@@ -180,16 +157,28 @@ function showMessage(text) {
   dashboard.classList.add("hidden");
 }
 
+function updateEntryFields() {
+  const paid = entryType.value === "paid";
+  feeSection.classList.toggle("hidden", !paid);
+  feeInput.required = paid;
+  upiInput.required = paid;
+}
+
+entryType.addEventListener("change", updateEntryFields);
+updateEntryFields();
+
 onAuthStateChanged(auth, async (user) => {
+  publishButton.disabled = true;
+  currentHostUser = null;
+  currentHostApplication = null;
+
   if (!user) {
     window.location.href = "host-login.html";
     return;
   }
 
   try {
-    const snapshot = await get(
-      ref(db, "hostApplications/" + user.uid)
-    );
+    const snapshot = await get(ref(db, "hostApplications/" + user.uid));
 
     if (!snapshot.exists()) {
       showMessage("Host application not found. Please contact the administrator.");
@@ -212,39 +201,48 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    message.classList.add("hidden");
-    dashboard.classList.remove("hidden");
+    currentHostUser = user;
+    currentHostApplication = application;
 
     document.getElementById("hostName").textContent =
       application.name || user.displayName || "Host";
 
-    document.getElementById("hostEmail").textContent =
-      user.email || "";
+    document.getElementById("hostEmail").textContent = user.email || "";
 
     document.getElementById("hostPlan").textContent =
       application.plan || "Host subscription";
 
     document.getElementById("expiryDate").textContent =
-      new Date(end).toLocaleString("en-IN");// Show free/paid payment fields
-const entryType = document.getElementById("entryType");
-const feeSection = document.getElementById("feeSection");
-const feeInput = document.getElementById("entryFee");
-const upiInput = document.getElementById("hostUpi");
+      new Date(end).toLocaleString("en-IN");
 
-entryType.addEventListener("change", () => {
-  const paid = entryType.value === "paid";
-  feeSection.classList.toggle("hidden", !paid);
-  feeInput.required = paid;
-  upiInput.required = paid;
+    message.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    publishButton.disabled = false;
+
+  } catch (error) {
+    showMessage("Unable to check your account: " + error.message);
+  }
 });
-
-// Publish show to Firebase
-const showForm = document.getElementById("createShowForm");
-const publishButton = document.getElementById("publishButton");
-const publishMessage = document.getElementById("publishMessage");
 
 showForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  publishMessage.textContent = "";
+
+  if (!currentHostUser || !currentHostApplication) {
+    publishMessage.textContent =
+      "Your host account has not been verified. Please refresh and sign in again.";
+    return;
+  }
+
+  const subscriptionEnd = Number(currentHostApplication.subscriptionEndAt);
+
+  if (currentHostApplication.status !== "Approved" ||
+      !subscriptionEnd || Date.now() >= subscriptionEnd) {
+    publishMessage.textContent =
+      "Your host subscription is not active. Please contact the administrator.";
+    publishButton.disabled = true;
+    return;
+  }
 
   const title = document.getElementById("showTitle").value.trim();
   const date = document.getElementById("showDate").value;
@@ -255,19 +253,23 @@ showForm.addEventListener("submit", async (event) => {
   const upi = type === "paid" ? upiInput.value.trim() : "";
 
   if (!title || !date || !time) {
-    publishMessage.textContent = "Please complete all required fields.";
+    publishMessage.textContent =
+      "Please complete the show name, date and time.";
     return;
   }
 
   if (type === "paid" && (!Number.isFinite(fee) || fee < 1 || !upi)) {
-    publishMessage.textContent = "Enter a valid fee and UPI ID.";
+    publishMessage.textContent =
+      "Enter a valid singer entry fee and UPI ID.";
     return;
   }
 
   const showDateTime = new Date(`${date}T${time}`);
 
-  if (Number.isNaN(showDateTime.getTime()) || showDateTime.getTime() <= Date.now()) {
-    publishMessage.textContent = "Please select a future show date and time.";
+  if (Number.isNaN(showDateTime.getTime()) ||
+      showDateTime.getTime() <= Date.now()) {
+    publishMessage.textContent =
+      "Please select a future show date and time.";
     return;
   }
 
@@ -286,9 +288,9 @@ showForm.addEventListener("submit", async (event) => {
       entryType: type,
       entryFee: fee,
       hostUpi: upi,
-      hostUid: user.uid,
-      hostName: application.name || user.displayName || "Host",
-      
+      hostUid: currentHostUser.uid,
+      hostName: currentHostApplication.name ||
+                currentHostUser.displayName || "Host",
       status: "Published",
       createdAt: Date.now()
     });
@@ -297,9 +299,8 @@ showForm.addEventListener("submit", async (event) => {
       "SUCCESS! Your show has been published.";
 
     showForm.reset();
-    feeSection.classList.add("hidden");
-    feeInput.required = false;
-    upiInput.required = false;
+    entryType.value = "free";
+    updateEntryFields();
 
   } catch (error) {
     publishMessage.textContent =
@@ -309,42 +310,14 @@ showForm.addEventListener("submit", async (event) => {
   }
 });
 
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "host-login.html";
   } catch (error) {
-    showMessage("Unable to check your account: " + error.message);
+    showMessage("Unable to sign out: " + error.message);
   }
 });
-
-document.getElementById("logoutButton").addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "host-login.html";
-});
-  label{
-  display:block;
-  margin-top:14px;
-  margin-bottom:6px;
-  color:#e5bd60;
-  font-size:13px;
-}
-
-input,textarea,select{
-  width:100%;
-  padding:12px;
-  border-radius:7px;
-  border:1px solid #51401f;
-  background:#090909;
-  color:#fff;
-  margin-bottom:8px;
-  font-size:14px;
-}
-
-textarea{
-  min-height:85px;
-  resize:vertical;
-}
-
-#publishMessage{
-  overflow-wrap:anywhere;
-}
 </script>
 
 </body>
