@@ -88,6 +88,8 @@ function checkLogin(callback) {
 }
 
 export {
+  db,
+  auth,
   registerSinger,
   registerHost,
   listenToSingers,
