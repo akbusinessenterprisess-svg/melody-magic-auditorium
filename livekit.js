@@ -1,10 +1,12 @@
+
 import {
-  import { VirtualAudioEffects } from "./audio-effects.js";
   Room,
   RoomEvent,
   createLocalAudioTrack,
   createLocalVideoTrack
 } from "https://esm.sh/livekit-client@2";
+
+import { VirtualAudioEffects } from "./audio-effects.js";
 
 const LIVEKIT_URL =
   "wss://melody-magic-auditorium-wrgjlqio.livekit.cloud";
