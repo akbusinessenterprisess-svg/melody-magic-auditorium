@@ -8,49 +8,30 @@
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  background:#090909;
-  color:#f5f0df;
+  margin:0;min-height:100vh;display:flex;
+  align-items:center;justify-content:center;
+  padding:20px;background:#090909;color:#f5f0df;
   font-family:Arial,sans-serif;
 }
 .login{
-  width:100%;
-  max-width:400px;
-  padding:28px;
-  background:#171717;
-  border:1px solid #a8863b;
-  border-radius:16px;
-  text-align:center;
+  width:100%;max-width:400px;padding:28px;
+  background:#171717;border:1px solid #a8863b;
+  border-radius:16px;text-align:center;
 }
 .brand{color:#e5bd60;font-size:24px;font-weight:bold}
 h2{color:#e5bd60}
 p{color:#c8c3b6;line-height:1.5;font-size:14px}
 input{
-  width:100%;
-  padding:14px;
-  margin:9px 0;
-  border:1px solid #66532c;
-  border-radius:8px;
-  background:#090909;
-  color:white;
-  font-size:16px;
+  width:100%;padding:14px;margin:9px 0;
+  border:1px solid #66532c;border-radius:8px;
+  background:#090909;color:white;font-size:16px;
 }
 button{
-  width:100%;
-  padding:14px;
-  margin-top:14px;
-  border:0;
-  border-radius:8px;
-  background:#d5ad50;
-  color:#17120a;
-  font-size:16px;
-  font-weight:bold;
+  width:100%;padding:14px;margin-top:14px;
+  border:0;border-radius:8px;background:#d5ad50;
+  color:#17120a;font-size:16px;font-weight:bold;
 }
+button:disabled{opacity:.6}
 #message{margin-top:18px;overflow-wrap:anywhere}
 a{color:#e5bd60}
 </style>
@@ -59,38 +40,22 @@ a{color:#e5bd60}
 
 <div class="login">
   <div class="brand">MELODY MAGIC</div>
-  
-     <script type="module">                              
   <h2>Host Login</h2>
   <p>Sign in with your registered email and password.</p>
 
   <form id="loginForm">
-    <input
-      type="email"
-      id="email"
-      placeholder="Email address"
-      autocomplete="username"
-      required
-    >
-
-    <input
-      type="password"
-      id="password"
-      placeholder="Password"
-      autocomplete="current-password"
-      required
-    >
-
+    <input type="email" id="email"
+      placeholder="Email address" autocomplete="username" required>
+    <input type="password" id="password"
+      placeholder="Password" autocomplete="current-password" required>
     <button type="submit" id="loginButton">Sign In</button>
   </form>
 
   <p id="message" role="status"></p>
-
-  <p>
-    <a href="host-dashboard.html">Back to Host Dashboard</a>
-  </p>
+  <p><a href="host-dashboard.html">Back to Host Dashboard</a></p>
 </div>
 
+<script type="module">
 import { hostLogin, db } from "./firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -110,9 +75,9 @@ form.addEventListener("submit", async (event) => {
 
   try {
     const user = await hostLogin(email, password);
-
-    const applicationRef = ref(db, "hostApplications/" + user.uid);
-    const snapshot = await get(applicationRef);
+    const snapshot = await get(
+      ref(db, "hostApplications/" + user.uid)
+    );
 
     if (!snapshot.exists()) {
       message.textContent = "Host application not found. Contact administrator.";
@@ -133,7 +98,7 @@ form.addEventListener("submit", async (event) => {
       !application.subscriptionStartAt ||
       !application.subscriptionEndAt ||
       now < application.subscriptionStartAt ||
-      now > application.subscriptionEndAt
+      now >= application.subscriptionEndAt
     ) {
       message.textContent = "Your subscription is not active or has expired.";
       message.style.color = "#ff9999";
@@ -152,9 +117,8 @@ form.addEventListener("submit", async (event) => {
     button.disabled = false;
     button.textContent = "Sign In";
   }
-});</script>
+});
+</script>
 
-  
 </body>
 </html>
-
