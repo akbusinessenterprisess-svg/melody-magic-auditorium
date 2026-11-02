@@ -235,6 +235,33 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "host-login.html";
 });
+  label{
+  display:block;
+  margin-top:14px;
+  margin-bottom:6px;
+  color:#e5bd60;
+  font-size:13px;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border-radius:7px;
+  border:1px solid #51401f;
+  background:#090909;
+  color:#fff;
+  margin-bottom:8px;
+  font-size:14px;
+}
+
+textarea{
+  min-height:85px;
+  resize:vertical;
+}
+
+#publishMessage{
+  overflow-wrap:anywhere;
+}
 </script>
 
 </body>
