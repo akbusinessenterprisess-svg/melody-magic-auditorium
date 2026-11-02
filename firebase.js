@@ -86,7 +86,7 @@ async function hostLogout() {
   await signOut(auth);
 }
 
-function checkLogin(callback) {
+function checkLogin(callback)
   return onAuthStateChanged(auth, callback);
 }
 
