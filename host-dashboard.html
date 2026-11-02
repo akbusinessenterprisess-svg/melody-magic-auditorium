@@ -160,7 +160,12 @@ footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
 </footer>
 
 <script type="module">
-import { auth, db } from "./firebase.js";
+import {
+  ref,
+  get,
+  push,
+  set
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   onAuthStateChanged,
   signOut
