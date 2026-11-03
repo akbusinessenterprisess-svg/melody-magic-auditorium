@@ -1,3 +1,4 @@
+
 export class VirtualAudioEffects {
   constructor() {
     this.context = null;
@@ -5,6 +6,7 @@ export class VirtualAudioEffects {
     this.destination = null;
     this.output = null;
     this.processedTrack = null;
+    this.monitorGain = null;
     this.nodes = null;
   }
 
@@ -21,25 +23,25 @@ export class VirtualAudioEffects {
       this.source = this.context.createMediaStreamSource(stream);
       this.destination = this.context.createMediaStreamDestination();
 
-      // Dry audio path.
+      // Dry audio path
       const dry = this.context.createGain();
 
-      // Echo path.
+      // Echo path
       const echoSend = this.context.createGain();
       const echoDelay = this.context.createDelay(1);
       const echoFeedback = this.context.createGain();
       const echoReturn = this.context.createGain();
 
-      // Reverb path.
+      // Reverb path
       const reverbSend = this.context.createGain();
       const convolver = this.context.createConvolver();
       const reverbReturn = this.context.createGain();
 
-      // Combined audio.
+      // Combined audio
       const wetBus = this.context.createGain();
       const outputGain = this.context.createGain();
 
-      // Create a simple reverb impulse.
+      // Create reverb impulse
       const length = this.context.sampleRate * 2;
       const impulse = this.context.createBuffer(
         2,
@@ -59,7 +61,7 @@ export class VirtualAudioEffects {
 
       convolver.buffer = impulse;
 
-      // Echo connections.
+      // Echo connections
       this.source.connect(dry);
 
       this.source.connect(echoSend);
@@ -68,43 +70,45 @@ export class VirtualAudioEffects {
       echoFeedback.connect(echoDelay);
       echoDelay.connect(echoReturn);
 
-      // Reverb connections.
+      // Reverb connections
       this.source.connect(reverbSend);
       reverbSend.connect(convolver);
       convolver.connect(reverbReturn);
 
-      // Combine signals.
+      // Combine signals
       echoReturn.connect(wetBus);
       reverbReturn.connect(wetBus);
 
       dry.connect(outputGain);
       wetBus.connect(outputGain);
 
-      // Send processed audio to LiveKit.
-outputGain.connect(this.destination);
+      // Send processed audio to LiveKit
+      outputGain.connect(this.destination);
 
-// Local headphone monitoring (OFF by default).
-this.monitorGain = this.context.createGain();
-this.monitorGain.gain.value = 0;
+      // Local headphone monitoring (OFF by default)
+      this.monitorGain = this.context.createGain();
+      this.monitorGain.gain.value = 0;
 
-outputGain.connect(this.monitorGain);
-this.monitorGain.connect(this.context.destination);
+      outputGain.connect(this.monitorGain);
+      this.monitorGain.connect(this.context.destination);
+
       this.output = outputGain;
+
       this.processedTrack =
         this.destination.stream.getAudioTracks()[0];
 
       this.nodes = {
-  dry,
-  echoSend,
-  echoDelay,
-  echoFeedback,
-  echoReturn,
-  reverbSend,
-  reverbReturn,
-  wetBus,
-  outputGain,
-  monitorGain: this.monitorGain
-};
+        dry,
+        echoSend,
+        echoDelay,
+        echoFeedback,
+        echoReturn,
+        reverbSend,
+        reverbReturn,
+        wetBus,
+        outputGain,
+        monitorGain: this.monitorGain
+      };
 
       this.setEcho(25);
       this.setReverb(30);
@@ -184,8 +188,13 @@ this.monitorGain.connect(this.context.destination);
       0.02
     );
   }
-  setMonitor(enabled) {
+
+  async setMonitor(enabled) {
     if (!this.context || !this.monitorGain) return;
+
+    if (this.context.state === "suspended") {
+      await this.context.resume();
+    }
 
     this.monitorGain.gain.setTargetAtTime(
       enabled ? 0.7 : 0,
@@ -193,9 +202,12 @@ this.monitorGain.connect(this.context.destination);
       0.05
     );
   }
+
   stop() {
     try {
-      if (this.source) this.source.disconnect();
+      if (this.source) {
+        this.source.disconnect();
+      }
 
       if (this.nodes) {
         Object.values(this.nodes).forEach(node => {
@@ -221,6 +233,7 @@ this.monitorGain.connect(this.context.destination);
     this.destination = null;
     this.output = null;
     this.processedTrack = null;
+    this.monitorGain = null;
     this.nodes = null;
   }
 }
