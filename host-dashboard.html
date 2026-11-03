@@ -196,9 +196,7 @@ async function loadHostRegistrations(hostUid) {
         continue;
       }
 
-      const registrations = Object.values(snapshot.val());
-
-      registrations.forEach((singer) => {
+      Object.entries(snapshot.val()).forEach(([registrationId, singer]) => {
         const card = document.createElement("div");
         card.style.padding = "12px";
         card.style.margin = "10px 0";
@@ -214,11 +212,43 @@ async function loadHostRegistrations(hostUid) {
           " | Status: " + (singer.status || "N/A");
 
         card.appendChild(details);
+
+        const actions = [
+          ["Approve", "Approved"],
+          ["Reject", "Rejected"],
+          ["Add to Queue", "Queued"],
+          ["Mark Completed", "Completed"]
+        ];
+
+        actions.forEach(([label, status]) => {
+          const button = document.createElement("button");
+          button.textContent = label;
+          button.style.margin = "4px";
+
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+
+            try {
+              await update(
+                ref(db, "showRegistrations/" + showId + "/" + registrationId),
+                { status: status }
+              );
+
+              await loadHostRegistrations(hostUid);
+            } catch (error) {
+              alert("Could not update singer status: " + error.message);
+              button.disabled = false;
+            }
+          });
+
+          card.appendChild(button);
+        });
+
         singerRegistrations.appendChild(card);
       });
     }
 
-   } catch (error) {
+  } catch (error) {
     console.error("Registration loading error:", error);
     singerRegistrations.textContent =
       "Could not load registrations: " + error.message;
