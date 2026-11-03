@@ -158,7 +158,70 @@ function showMessage(text) {
   message.classList.remove("hidden");
   dashboard.classList.add("hidden");
 }
+async function loadHostRegistrations(hostUid) {
+  singerRegistrations.textContent = "Loading registered singers...";
 
+  try {
+    const showsSnapshot = await get(ref(db, "shows"));
+
+    if (!showsSnapshot.exists()) {
+      singerRegistrations.textContent = "You have not published any shows yet.";
+      return;
+    }
+
+    const shows = Object.entries(showsSnapshot.val())
+      .filter(([id, show]) => show.hostUid === hostUid);
+
+    if (shows.length === 0) {
+      singerRegistrations.textContent = "You have not published any shows yet.";
+      return;
+    }
+
+    singerRegistrations.textContent = "";
+
+    for (const [showId, show] of shows) {
+      const heading = document.createElement("h4");
+      heading.textContent = show.title || "Singing Show";
+      singerRegistrations.appendChild(heading);
+
+      const snapshot = await get(
+        ref(db, "showRegistrations/" + showId)
+      );
+
+      if (!snapshot.exists()) {
+        const empty = document.createElement("p");
+        empty.textContent = "No singers registered for this show yet.";
+        singerRegistrations.appendChild(empty);
+        continue;
+      }
+
+      const registrations = Object.values(snapshot.val());
+
+      registrations.forEach((singer) => {
+        const card = document.createElement("div");
+        card.style.padding = "12px";
+        card.style.margin = "10px 0";
+        card.style.border = "1px solid #705322";
+        card.style.borderRadius = "8px";
+
+        const details = document.createElement("p");
+        details.textContent =
+          "Name: " + (singer.name || "N/A") +
+          " | Mobile: " + (singer.mobile || "N/A") +
+          " | Song: " + (singer.song || "N/A") +
+          " | Language: " + (singer.language || "N/A") +
+          " | Status: " + (singer.status || "N/A");
+
+        card.appendChild(details);
+        singerRegistrations.appendChild(card);
+      });
+    }
+
+  } catch (error) {
+    console.error("Registration loading error:", error);
+    singerRegistrations.textContent =
+      "Could not load registrations: " + error.message;
+  }
 function updateEntryFields() {
   const paid = entryType.value === "paid";
   feeSection.classList.toggle("hidden", !paid);
