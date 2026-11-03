@@ -52,12 +52,12 @@ function createPanel() {
         JOIN LIVE AUDITORIUM
       </button>
 
-      <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
         <button id="liveMic" style="flex:1;padding:12px">Mute Mic</button>
+        <button id="liveMonitor" style="flex:1;padding:12px">Monitor My Voice: OFF</button>
         <button id="liveCamera" style="flex:1;padding:12px">Turn Camera Off</button>
         <button id="liveLeave" style="flex:1;padding:12px">Leave</button>
       </div>
-    </div>
 
     <p id="liveStatus" style="text-align:center;color:#d6b45b">
       Not connected
