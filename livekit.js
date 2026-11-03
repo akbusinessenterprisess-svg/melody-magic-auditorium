@@ -29,10 +29,11 @@ function createPanel() {
   const panel = document.createElement("div");
   panel.id = "livekitPanel";
 
-  panel.style.cssText = `
-    position:fixed;
-    inset:10px;
-    z-index:99999;
+    panel.style.cssText = `
+    position:relative;
+    width:100%;
+    max-width:900px;
+    margin:10px auto;
     background:#090909;
     color:white;
     padding:15px;
@@ -41,6 +42,7 @@ function createPanel() {
     font-family:Arial,sans-serif;
     overflow:auto;
   `;
+  
 
   panel.innerHTML = `
     <h2 style="color:#d6b45b;text-align:center">
