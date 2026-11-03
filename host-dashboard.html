@@ -217,11 +217,14 @@ async function loadHostRegistrations(hostUid) {
       });
     }
 
-  } catch (error) {
+   } catch (error) {
     console.error("Registration loading error:", error);
     singerRegistrations.textContent =
       "Could not load registrations: " + error.message;
   }
+}
+
+function updateEntryFields() {
 function updateEntryFields() {
   const paid = entryType.value === "paid";
   feeSection.classList.toggle("hidden", !paid);
