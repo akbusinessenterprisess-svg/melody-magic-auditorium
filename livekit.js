@@ -329,7 +329,21 @@ async function toggleMicrophone() {
     document.getElementById("liveMic").textContent = "Unmute Mic";
   }
 }
+function toggleMonitor() {
+  if (!audioEffects) {
+    return alert("Join the auditorium first.");
+  }
 
+  const button = document.getElementById("liveMonitor");
+  const enabled = button.dataset.enabled !== "true";
+
+  audioEffects.setMonitor(enabled);
+
+  button.dataset.enabled = String(enabled);
+  button.textContent = enabled
+    ? "Monitor My Voice: ON"
+    : "Monitor My Voice: OFF";
+}
 async function toggleCamera() {
   if (!localCamera) return alert("Join the auditorium first.");
 
