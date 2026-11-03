@@ -94,16 +94,17 @@ this.monitorGain.connect(this.context.destination);
         this.destination.stream.getAudioTracks()[0];
 
       this.nodes = {
-        dry,
-        echoSend,
-        echoDelay,
-        echoFeedback,
-        echoReturn,
-        reverbSend,
-        reverbReturn,
-        wetBus,
-        outputGain
-      };
+  dry,
+  echoSend,
+  echoDelay,
+  echoFeedback,
+  echoReturn,
+  reverbSend,
+  reverbReturn,
+  wetBus,
+  outputGain,
+  monitorGain: this.monitorGain
+};
 
       this.setEcho(25);
       this.setReverb(30);
