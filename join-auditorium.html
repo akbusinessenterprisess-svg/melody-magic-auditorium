@@ -202,8 +202,8 @@ form.addEventListener("submit", async (event) => {
     }
 
     const registrationRef = push(
-      ref(db, "registrations/" + user.uid)
-    );
+  ref(db, "showRegistrations/" + showId)
+);
 
     await set(registrationRef, {
       singerUid: user.uid,
