@@ -282,6 +282,7 @@ onAuthStateChanged(auth, async (user) => {
 
     message.classList.add("hidden");
     dashboard.classList.remove("hidden");
+    await loadHostRegistrations(user.uid);
     publishButton.disabled = false;
 
   } catch (error) {
