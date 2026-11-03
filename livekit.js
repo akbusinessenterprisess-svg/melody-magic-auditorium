@@ -83,6 +83,7 @@ function createPanel() {
 
   document.getElementById("liveJoin").onclick = joinAuditorium;
   document.getElementById("liveMic").onclick = toggleMicrophone;
+  document.getElementById("liveMonitor").onclick = toggleMonitor;
   document.getElementById("liveCamera").onclick = toggleCamera;
   document.getElementById("liveLeave").onclick = leaveAuditorium;
 }
