@@ -1,114 +1,99 @@
-
-// Melody Magic Digital Auditorium
-// Virtual Echo and Reverb Audio Processor
-
 export class VirtualAudioEffects {
   constructor() {
     this.context = null;
-    this.inputStream = null;
     this.source = null;
+    this.destination = null;
     this.output = null;
     this.processedTrack = null;
-
-    this.nodes = {};
+    this.nodes = null;
   }
 
   async start(inputTrack) {
-  if (this.context) {
-    throw new Error("Audio effects are already running.");
-  }
-
-  if (!inputTrack || inputTrack.readyState !== "live") {
-    throw new Error("A live microphone track is required.");
-  }
-
-  this.inputStream = new MediaStream([inputTrack]);
-
-  try {
-    this.context = new AudioContext();
-    if (this.context) {
-      throw new Error("Audio effects are already running.");
-    }
-
-    this.inputStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false
-      }
-    });
-
     try {
       this.context = new AudioContext();
-      await this.context.resume();
 
-      const ctx = this.context;
+      if (this.context.state === "suspended") {
+        await this.context.resume();
+      }
 
-      this.source = ctx.createMediaStreamSource(this.inputStream);
+      const stream = new MediaStream([inputTrack]);
 
-      const dry = ctx.createGain();
-      const echoSend = ctx.createGain();
-      const echoDelay = ctx.createDelay(1);
-      const echoFeedback = ctx.createGain();
-      const echoReturn = ctx.createGain();
+      this.source = this.context.createMediaStreamSource(stream);
+      this.destination = this.context.createMediaStreamDestination();
 
-      const reverbSend = ctx.createGain();
-      const convolver = ctx.createConvolver();
-      const reverbReturn = ctx.createGain();
+      // Dry audio path.
+      const dry = this.context.createGain();
 
-      const wetBus = ctx.createGain();
-      const outputGain = ctx.createGain();
+      // Echo path.
+      const echoSend = this.context.createGain();
+      const echoDelay = this.context.createDelay(1);
+      const echoFeedback = this.context.createGain();
+      const echoReturn = this.context.createGain();
 
-      const destination = ctx.createMediaStreamDestination();
+      // Reverb path.
+      const reverbSend = this.context.createGain();
+      const convolver = this.context.createConvolver();
+      const reverbReturn = this.context.createGain();
 
-      // Create a two-second synthetic reverb impulse.
-      const length = Math.floor(ctx.sampleRate * 2);
-      const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+      // Combined audio.
+      const wetBus = this.context.createGain();
+      const outputGain = this.context.createGain();
+
+      // Create a simple reverb impulse.
+      const length = this.context.sampleRate * 2;
+      const impulse = this.context.createBuffer(
+        2,
+        length,
+        this.context.sampleRate
+      );
 
       for (let channel = 0; channel < 2; channel++) {
         const data = impulse.getChannelData(channel);
 
         for (let i = 0; i < length; i++) {
-          const decay = Math.pow(1 - i / length, 3);
-          data[i] = (Math.random() * 2 - 1) * decay;
+          data[i] =
+            (Math.random() * 2 - 1) *
+            Math.pow(1 - i / length, 3);
         }
       }
 
       convolver.buffer = impulse;
 
-      // Dry microphone path.
+      // Echo connections.
       this.source.connect(dry);
 
-      // Echo path with feedback.
       this.source.connect(echoSend);
       echoSend.connect(echoDelay);
       echoDelay.connect(echoFeedback);
       echoFeedback.connect(echoDelay);
       echoDelay.connect(echoReturn);
 
-      // Reverb path.
+      // Reverb connections.
       this.source.connect(reverbSend);
       reverbSend.connect(convolver);
       convolver.connect(reverbReturn);
 
-      // Combine processed signals.
+      // Combine signals.
       echoReturn.connect(wetBus);
       reverbReturn.connect(wetBus);
 
       dry.connect(outputGain);
       wetBus.connect(outputGain);
 
-      // Send only to LiveKit's outgoing audio track.
-      outputGain.connect(destination);
+      // Send processed audio to LiveKit.
+      outputGain.connect(this.destination);
 
       this.output = outputGain;
-      this.processedTrack = destination.stream.getAudioTracks()[0];
+      this.processedTrack =
+        this.destination.stream.getAudioTracks()[0];
 
       this.nodes = {
         dry,
+        echoSend,
         echoDelay,
         echoFeedback,
         echoReturn,
+        reverbSend,
         reverbReturn,
         wetBus,
         outputGain
@@ -128,24 +113,23 @@ export class VirtualAudioEffects {
   }
 
   setEcho(value) {
-    if (!this.context) return;
+    if (!this.context || !this.nodes) return;
 
     const amount = Math.max(0, Math.min(100, value)) / 100;
-    const n = this.nodes;
 
-    n.echoDelay.delayTime.setTargetAtTime(
+    this.nodes.echoDelay.delayTime.setTargetAtTime(
       0.12 + amount * 0.38,
       this.context.currentTime,
       0.02
     );
 
-    n.echoFeedback.gain.setTargetAtTime(
-      amount * 0.45,
+    this.nodes.echoFeedback.gain.setTargetAtTime(
+      amount * 0.55,
       this.context.currentTime,
       0.02
     );
 
-    n.echoReturn.gain.setTargetAtTime(
+    this.nodes.echoSend.gain.setTargetAtTime(
       amount,
       this.context.currentTime,
       0.02
@@ -153,11 +137,11 @@ export class VirtualAudioEffects {
   }
 
   setReverb(value) {
-    if (!this.context) return;
+    if (!this.context || !this.nodes) return;
 
     const amount = Math.max(0, Math.min(100, value)) / 100;
 
-    this.nodes.reverbReturn.gain.setTargetAtTime(
+    this.nodes.reverbSend.gain.setTargetAtTime(
       amount,
       this.context.currentTime,
       0.02
@@ -165,18 +149,17 @@ export class VirtualAudioEffects {
   }
 
   setMix(value) {
-    if (!this.context) return;
+    if (!this.context || !this.nodes) return;
 
     const amount = Math.max(0, Math.min(100, value)) / 100;
-    const n = this.nodes;
 
-    n.dry.gain.setTargetAtTime(
+    this.nodes.dry.gain.setTargetAtTime(
       1 - amount * 0.5,
       this.context.currentTime,
       0.02
     );
 
-    n.wetBus.gain.setTargetAtTime(
+    this.nodes.wetBus.gain.setTargetAtTime(
       amount,
       this.context.currentTime,
       0.02
@@ -184,7 +167,7 @@ export class VirtualAudioEffects {
   }
 
   setVolume(value) {
-    if (!this.context) return;
+    if (!this.context || !this.nodes) return;
 
     const amount = Math.max(0, Math.min(100, value)) / 100;
 
@@ -196,21 +179,33 @@ export class VirtualAudioEffects {
   }
 
   stop() {
-    this.inputStream = null;
+    try {
+      if (this.source) this.source.disconnect();
+
+      if (this.nodes) {
+        Object.values(this.nodes).forEach(node => {
+          try {
+            node.disconnect();
+          } catch (error) {}
+        });
+      }
+
+      if (this.processedTrack) {
+        this.processedTrack.stop();
+      }
+
+      if (this.context && this.context.state !== "closed") {
+        this.context.close();
+      }
+    } catch (error) {
+      console.error("Audio effects cleanup error:", error);
     }
 
-    if (this.processedTrack) {
-      this.processedTrack.stop();
-      this.processedTrack = null;
-    }
-
-    if (this.context) {
-      this.context.close().catch(console.error);
-      this.context = null;
-    }
-
+    this.context = null;
     this.source = null;
+    this.destination = null;
     this.output = null;
-    this.nodes = {};
+    this.processedTrack = null;
+    this.nodes = null;
   }
 }
