@@ -15,13 +15,13 @@ main{max-width:850px;margin:auto;padding:20px}
 .card{background:#171717;border:1px solid #80652e;border-radius:14px;padding:20px;margin:18px 0}
 h2,h3{color:#e5bd60}
 label{display:block;margin:14px 0 7px}
-input{width:100%;padding:13px;border:1px solid #80652e;border-radius:8px;background:#090909;color:white;font-size:16px}
+input,select{width:100%;padding:13px;border:1px solid #80652e;border-radius:8px;background:#090909;color:white;font-size:16px}
 button{padding:13px 18px;margin:12px 8px 0 0;border:0;border-radius:8px;background:#d5ad50;color:#17120a;font-weight:bold;cursor:pointer}
 button.secondary{background:#333;color:white}
 button:disabled{opacity:.5;cursor:not-allowed}
 #player{width:100%;aspect-ratio:16/9;background:#000;margin-top:18px}
 #player iframe{width:100%;height:100%;border:0}
-#status{color:#e5bd60;line-height:1.5}
+#status{color:#e5bd60;line-height:1.5;overflow-wrap:anywhere}
 .note{color:#aaa;font-size:13px;line-height:1.5}
 a{color:#e5bd60}
 </style>
@@ -36,34 +36,45 @@ a{color:#e5bd60}
 
 <main>
   <div class="card">
-    <h3>Assign Karaoke Video</h3>
+    <h3>Assign Karaoke Video to Show</h3>
+
+    <label for="showSelect">Select Your Published Show</label>
+    <select id="showSelect">
+      <option value="">Loading your shows...</option>
+    </select>
 
     <label for="singer">Singer name</label>
-    <input id="singer" type="text" placeholder="Enter singer name">
+    <input id="singer" type="text" maxlength="100"
+      placeholder="Enter singer name">
 
     <label for="youtubeUrl">YouTube karaoke video link</label>
-    <input id="youtubeUrl" type="url" placeholder="Paste YouTube video link here">
+    <input id="youtubeUrl" type="url"
+      placeholder="Paste YouTube video link here">
 
     <button id="previewButton">Preview Video</button>
     <button id="clearButton" class="secondary">Clear</button>
 
     <div id="player"></div>
+
     <p id="status">Checking host login...</p>
 
-    <button id="prepareButton" disabled>Save Selection to Firebase</button>
+    <button id="prepareButton" disabled>
+      Save Selection to This Show
+    </button>
 
     <p class="note">
-      The video preview uses the official YouTube player.
-      Saving stores the selected singer and video for this host.
-      Audience sharing will be connected separately.
+      Your selection is saved separately for the show you choose.
+      The official YouTube player is used for video playback.
     </p>
   </div>
 
   <div class="card">
     <h3>YouTube Player Guidelines</h3>
     <p class="note">
-      The YouTube player and its controls must remain visible.
-      Some videos may not allow embedding or may be unavailable in your region.
+      Keep the YouTube player and its controls visible.
+      Some videos may not allow embedding or may be unavailable
+      in your region. Audience synchronization will be connected
+      separately.
     </p>
   </div>
 
@@ -83,6 +94,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+const showSelect = document.getElementById("showSelect");
 const urlInput = document.getElementById("youtubeUrl");
 const singerInput = document.getElementById("singer");
 const player = document.getElementById("player");
@@ -91,6 +103,8 @@ const prepareButton = document.getElementById("prepareButton");
 
 let selectedVideoId = "";
 let currentUser = null;
+let currentApplication = null;
+let hostShows = [];
 let authReady = false;
 
 function extractVideoId(value) {
@@ -98,8 +112,7 @@ function extractVideoId(value) {
     const url = new URL(value.trim());
     let id = "";
 
-    if (url.hostname === "youtu.be" ||
-        url.hostname === "www.youtu.be") {
+    if (["youtu.be", "www.youtu.be"].includes(url.hostname)) {
       id = url.pathname.split("/").filter(Boolean)[0] || "";
     } else if (
       ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname)
@@ -120,14 +133,94 @@ function extractVideoId(value) {
   }
 }
 
-onAuthStateChanged(auth, (user) => {
+async function loadHostShows(uid) {
+  showSelect.innerHTML = '<option value="">Loading shows...</option>';
+
+  const snapshot = await get(ref(db, "shows"));
+
+  hostShows = [];
+
+  if (snapshot.exists()) {
+    hostShows = Object.entries(snapshot.val())
+      .filter(([id, show]) =>
+        show.hostUid === uid && show.status === "Published"
+      )
+      .map(([id, show]) => ({ id, ...show }));
+  }
+
+  showSelect.innerHTML = "";
+
+  if (hostShows.length === 0) {
+    showSelect.innerHTML =
+      '<option value="">No published shows found</option>';
+    prepareButton.disabled = true;
+    statusText.textContent =
+      "You have no published shows. Publish a show from your Host Dashboard first.";
+    return;
+  }
+
+  const firstOption = document.createElement("option");
+  firstOption.value = "";
+  firstOption.textContent = "Choose a show";
+  showSelect.appendChild(firstOption);
+
+  hostShows.forEach(show => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent =
+      show.title + " (" + show.date + " " + show.time + ")";
+    showSelect.appendChild(option);
+  });
+
+  statusText.textContent =
+    "Your published shows are ready. Select a show to continue.";
+}
+
+onAuthStateChanged(auth, async user => {
   authReady = true;
   currentUser = user;
 
-  if (user) {
-    statusText.textContent = "Host login detected. You can prepare a selection.";
-  } else {
-    statusText.textContent = "Please sign in through Host Login before saving.";
+  prepareButton.disabled = true;
+
+  if (!user) {
+    statusText.textContent =
+      "Please sign in through Host Login before continuing.";
+    showSelect.innerHTML =
+      '<option value="">Host login required</option>';
+    return;
+  }
+
+  try {
+    const applicationSnapshot = await get(
+      ref(db, "hostApplications/" + user.uid)
+    );
+
+    if (!applicationSnapshot.exists()) {
+      throw new Error("Host application not found.");
+    }
+
+    currentApplication = applicationSnapshot.val();
+
+    const start = Number(currentApplication.subscriptionStartAt);
+    const end = Number(currentApplication.subscriptionEndAt);
+
+    if (
+      currentApplication.status !== "Approved" ||
+      !start ||
+      !end ||
+      Date.now() < start ||
+      Date.now() >= end
+    ) {
+      throw new Error("Your host subscription is not active.");
+    }
+
+    await loadHostShows(user.uid);
+
+  } catch (error) {
+    console.error(error);
+    statusText.textContent = error.message;
+    showSelect.innerHTML =
+      '<option value="">Unable to load shows</option>';
   }
 });
 
@@ -135,20 +228,22 @@ document.getElementById("previewButton").addEventListener("click", () => {
   const videoId = extractVideoId(urlInput.value);
 
   if (!videoId) {
-    statusText.textContent = "Please enter a valid YouTube video link.";
+    statusText.textContent =
+      "Please enter a valid YouTube video link.";
+    selectedVideoId = "";
     prepareButton.disabled = true;
     return;
   }
 
   selectedVideoId = videoId;
-  prepareButton.disabled = false;
 
   player.innerHTML = "";
 
   const iframe = document.createElement("iframe");
   iframe.src = "https://www.youtube.com/embed/" + videoId;
   iframe.title = "YouTube Karaoke Video";
-  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  iframe.allow =
+    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
   iframe.referrerPolicy = "origin";
   iframe.allowFullscreen = true;
 
@@ -156,13 +251,39 @@ document.getElementById("previewButton").addEventListener("click", () => {
 
   statusText.textContent =
     "Video loaded. Press Play inside the YouTube player.";
+
+  updateSaveButton();
 });
+
+function updateSaveButton() {
+  const selectedShow = hostShows.find(
+    show => show.id === showSelect.value
+  );
+
+  prepareButton.disabled = !(
+    authReady &&
+    currentUser &&
+    selectedShow &&
+    selectedVideoId &&
+    currentApplication
+  );
+}
+
+showSelect.addEventListener("change", updateSaveButton);
 
 prepareButton.addEventListener("click", async () => {
   const singer = singerInput.value.trim();
+  const selectedShow = hostShows.find(
+    show => show.id === showSelect.value
+  );
+
+  if (!selectedShow) {
+    statusText.textContent = "Please select a published show.";
+    return;
+  }
 
   if (!singer) {
-    statusText.textContent = "Please enter the singer's name first.";
+    statusText.textContent = "Please enter the singer's name.";
     return;
   }
 
@@ -171,31 +292,39 @@ prepareButton.addEventListener("click", async () => {
     return;
   }
 
-  if (!authReady) {
-    statusText.textContent = "Checking login. Please wait and try again.";
+  if (!currentUser || !currentApplication) {
+    statusText.textContent = "Please sign in as an approved host.";
     return;
   }
 
-  if (!currentUser) {
-    statusText.textContent = "Please sign in through Host Login first.";
+  const start = Number(currentApplication.subscriptionStartAt);
+  const end = Number(currentApplication.subscriptionEndAt);
+
+  if (
+    currentApplication.status !== "Approved" ||
+    !start ||
+    !end ||
+    Date.now() < start ||
+    Date.now() >= end
+  ) {
+    statusText.textContent =
+      "Your host subscription is not active.";
     return;
   }
 
   prepareButton.disabled = true;
-  statusText.textContent = "Checking host approval...";
+  statusText.textContent = "Saving karaoke selection...";
 
   try {
-    const applicationRef = ref(db, "hostApplications/" + currentUser.uid);
-    const applicationSnapshot = await get(applicationRef);
-
-    if (!applicationSnapshot.exists() ||
-        applicationSnapshot.val().status !== "Approved") {
-      throw new Error("Your host account is not approved.");
-    }
-
-    const selectionRef = ref(db, "karaokeSelections/" + currentUser.uid);
+    const selectionRef = ref(
+      db,
+      "karaokeSelectionsByShow/" + selectedShow.id
+    );
 
     await set(selectionRef, {
+      showId: selectedShow.id,
+      showTitle: selectedShow.title,
+      hostUid: currentUser.uid,
       singerName: singer,
       videoId: selectedVideoId,
       videoUrl: urlInput.value.trim(),
@@ -203,13 +332,15 @@ prepareButton.addEventListener("click", async () => {
     });
 
     statusText.textContent =
-      "SUCCESS! Video selection saved in Firebase for " + singer + ".";
+      "SUCCESS! Karaoke video saved for " +
+      selectedShow.title + " — Singer: " + singer + ".";
 
   } catch (error) {
     console.error(error);
-    statusText.textContent = "Firebase error: " + error.message;
+    statusText.textContent =
+      "Firebase error: " + error.message;
   } finally {
-    prepareButton.disabled = false;
+    updateSaveButton();
   }
 });
 
@@ -218,11 +349,12 @@ document.getElementById("clearButton").addEventListener("click", () => {
   singerInput.value = "";
   selectedVideoId = "";
   player.innerHTML = "";
+
   prepareButton.disabled = true;
 
   statusText.textContent = currentUser
-    ? "Host logged in. Paste a YouTube karaoke link."
-    : "Please sign in through Host Login before saving.";
+    ? "Select a show and paste a YouTube karaoke link."
+    : "Please sign in through Host Login.";
 });
 </script>
 
