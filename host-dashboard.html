@@ -225,7 +225,6 @@ async function loadHostRegistrations(hostUid) {
 }
 
 function updateEntryFields() {
-function updateEntryFields() {
   const paid = entryType.value === "paid";
   feeSection.classList.toggle("hidden", !paid);
   feeInput.required = paid;
