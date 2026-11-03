@@ -184,7 +184,15 @@ this.monitorGain.connect(this.context.destination);
       0.02
     );
   }
+  setMonitor(enabled) {
+    if (!this.context || !this.monitorGain) return;
 
+    this.monitorGain.gain.setTargetAtTime(
+      enabled ? 0.7 : 0,
+      this.context.currentTime,
+      0.05
+    );
+  }
   stop() {
     try {
       if (this.source) this.source.disconnect();
