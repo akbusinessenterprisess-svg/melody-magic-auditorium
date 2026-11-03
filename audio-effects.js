@@ -81,8 +81,14 @@ export class VirtualAudioEffects {
       wetBus.connect(outputGain);
 
       // Send processed audio to LiveKit.
-      outputGain.connect(this.destination);
+outputGain.connect(this.destination);
 
+// Local headphone monitoring (OFF by default).
+this.monitorGain = this.context.createGain();
+this.monitorGain.gain.value = 0;
+
+outputGain.connect(this.monitorGain);
+this.monitorGain.connect(this.context.destination);
       this.output = outputGain;
       this.processedTrack =
         this.destination.stream.getAudioTracks()[0];
