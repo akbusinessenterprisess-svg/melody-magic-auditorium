@@ -191,32 +191,33 @@ export class VirtualAudioEffects {
   }
 
   setMonitorVolume(value) {
-    if (!this.context || !this.monitorGain) return;
+  if (!this.context || !this.monitorGain) return;
 
-    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
+  const amount = Math.max(0, Math.min(100, Number(value))) / 100;
+  this.monitorLevel = amount;
 
-    this.monitorGain.gain.setTargetAtTime(
-      amount,
-      this.context.currentTime,
-      0.03
-    );
+  this.monitorGain.gain.setTargetAtTime(
+    this.monitorEnabled ? amount : 0,
+    this.context.currentTime,
+    0.03
+  );
+}
+
+async setMonitor(enabled) {
+  if (!this.context || !this.monitorGain) return;
+
+  if (this.context.state === "suspended") {
+    await this.context.resume();
   }
 
-  async setMonitor(enabled) {
-    if (!this.context || !this.monitorGain) return;
+  this.monitorEnabled = enabled;
 
-    if (this.context.state === "suspended") {
-      await this.context.resume();
-    }
-
-    // Monitoring is controlled separately from the LiveKit output.
-    this.monitorGain.gain.setTargetAtTime(
-      enabled ? this.monitorLevel : 0,
-      this.context.currentTime,
-      0.05
-    );
-  }
-
+  this.monitorGain.gain.setTargetAtTime(
+    enabled ? this.monitorLevel : 0,
+    this.context.currentTime,
+    0.05
+  );
+}
   stop() {
     try {
       if (this.source) {
