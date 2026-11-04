@@ -38,7 +38,7 @@ let localCamera = null;
 let currentUser = null;
 let isHost = false;
 let hostUid = "";
-let stageSingerUid = "";
+let stageSingerUids = [];
 let registrations = {};
 
 let stopStageListener = null;
