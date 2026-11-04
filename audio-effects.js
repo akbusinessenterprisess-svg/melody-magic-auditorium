@@ -23,26 +23,23 @@ export class VirtualAudioEffects {
       this.source = this.context.createMediaStreamSource(stream);
       this.destination = this.context.createMediaStreamDestination();
 
-      // Dry audio path
       const dry = this.context.createGain();
 
-      // Echo path
       const echoSend = this.context.createGain();
       const echoDelay = this.context.createDelay(1);
       const echoFeedback = this.context.createGain();
       const echoReturn = this.context.createGain();
 
-      // Reverb path
       const reverbSend = this.context.createGain();
       const convolver = this.context.createConvolver();
       const reverbReturn = this.context.createGain();
 
-      // Combined audio
       const wetBus = this.context.createGain();
       const outputGain = this.context.createGain();
 
-      // Create reverb impulse
+      // Create a 2-second reverb impulse
       const length = this.context.sampleRate * 2;
+
       const impulse = this.context.createBuffer(
         2,
         length,
@@ -61,31 +58,32 @@ export class VirtualAudioEffects {
 
       convolver.buffer = impulse;
 
-      // Echo connections
+      // Dry vocal
       this.source.connect(dry);
 
+      // Echo
       this.source.connect(echoSend);
       echoSend.connect(echoDelay);
       echoDelay.connect(echoFeedback);
       echoFeedback.connect(echoDelay);
       echoDelay.connect(echoReturn);
 
-      // Reverb connections
+      // Reverb
       this.source.connect(reverbSend);
       reverbSend.connect(convolver);
       convolver.connect(reverbReturn);
 
-      // Combine signals
+      // Combine effects
       echoReturn.connect(wetBus);
       reverbReturn.connect(wetBus);
 
       dry.connect(outputGain);
       wetBus.connect(outputGain);
 
-      // Send processed audio to LiveKit
+      // Send processed voice to LiveKit
       outputGain.connect(this.destination);
 
-      // Local headphone monitoring (OFF by default)
+      // Separate local headphone monitoring
       this.monitorGain = this.context.createGain();
       this.monitorGain.gain.value = 0;
 
@@ -106,14 +104,16 @@ export class VirtualAudioEffects {
         reverbSend,
         reverbReturn,
         wetBus,
-        outputGain,
-        monitorGain: this.monitorGain
+        outputGain
       };
 
-      this.setEcho(25);
-      this.setReverb(30);
-      this.setMix(30);
+      // Initial settings
+      this.setEcho(20);
+      this.setReverb(20);
+      this.setMix(25);
       this.setVolume(80);
+      this.setMonitorVolume(35);
+      await this.setMonitor(false);
 
       return this.processedTrack;
 
@@ -126,23 +126,24 @@ export class VirtualAudioEffects {
   setEcho(value) {
     if (!this.context || !this.nodes) return;
 
-    const amount = Math.max(0, Math.min(100, value)) / 100;
+    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
+    const now = this.context.currentTime;
 
     this.nodes.echoDelay.delayTime.setTargetAtTime(
       0.12 + amount * 0.38,
-      this.context.currentTime,
+      now,
       0.02
     );
 
     this.nodes.echoFeedback.gain.setTargetAtTime(
-      amount * 0.55,
-      this.context.currentTime,
+      amount * 0.45,
+      now,
       0.02
     );
 
     this.nodes.echoSend.gain.setTargetAtTime(
-      amount,
-      this.context.currentTime,
+      amount * 0.7,
+      now,
       0.02
     );
   }
@@ -150,10 +151,10 @@ export class VirtualAudioEffects {
   setReverb(value) {
     if (!this.context || !this.nodes) return;
 
-    const amount = Math.max(0, Math.min(100, value)) / 100;
+    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
 
     this.nodes.reverbSend.gain.setTargetAtTime(
-      amount,
+      amount * 0.6,
       this.context.currentTime,
       0.02
     );
@@ -162,7 +163,7 @@ export class VirtualAudioEffects {
   setMix(value) {
     if (!this.context || !this.nodes) return;
 
-    const amount = Math.max(0, Math.min(100, value)) / 100;
+    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
 
     this.nodes.dry.gain.setTargetAtTime(
       1 - amount * 0.5,
@@ -180,12 +181,24 @@ export class VirtualAudioEffects {
   setVolume(value) {
     if (!this.context || !this.nodes) return;
 
-    const amount = Math.max(0, Math.min(100, value)) / 100;
+    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
 
     this.nodes.outputGain.gain.setTargetAtTime(
       amount,
       this.context.currentTime,
       0.02
+    );
+  }
+
+  setMonitorVolume(value) {
+    if (!this.context || !this.monitorGain) return;
+
+    const amount = Math.max(0, Math.min(100, Number(value))) / 100;
+
+    this.monitorGain.gain.setTargetAtTime(
+      amount,
+      this.context.currentTime,
+      0.03
     );
   }
 
@@ -196,8 +209,9 @@ export class VirtualAudioEffects {
       await this.context.resume();
     }
 
+    // Monitoring is controlled separately from the LiveKit output.
     this.monitorGain.gain.setTargetAtTime(
-      enabled ? 0.7 : 0,
+      enabled ? this.monitorLevel : 0,
       this.context.currentTime,
       0.05
     );
@@ -215,6 +229,10 @@ export class VirtualAudioEffects {
             node.disconnect();
           } catch (error) {}
         });
+      }
+
+      if (this.monitorGain) {
+        this.monitorGain.disconnect();
       }
 
       if (this.processedTrack) {
