@@ -395,12 +395,30 @@ function listenToStage() {
   stopStageListener = onValue(stageRef, snapshot => {
     const stageData = snapshot.val();
 
-    stageSingerUid = stageData?.singerUid || "";
+    if (Array.isArray(stageData?.singerUids)) {
+      stageSingerUids = stageData.singerUids.filter(Boolean);
+    } else {
+      stageSingerUids = stageData?.singerUid
+        ? [stageData.singerUid]
+        : [];
+    }
 
-    showMainSinger(stageSingerUid);
+    showMainSinger(stageSingerUids);
 
-    if (stageData?.singerName) {
-      status("Main singer: " + stageData.singerName);
+    const names = Array.isArray(stageData?.singerNames)
+      ? stageData.singerNames
+      : stageData?.singerName
+        ? [stageData.singerName]
+        : [];
+
+    if (names.length) {
+      status(
+        names.length > 1
+          ? "Duet singers: " + names.join(" & ")
+          : "Main singer: " + names[0]
+      );
+    } else {
+      status("No singer selected on stage.");
     }
   }, error => {
     console.error("Stage listener error:", error);
