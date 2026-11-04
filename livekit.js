@@ -1,4 +1,3 @@
-
 import {
   Room,
   RoomEvent,
@@ -8,20 +7,58 @@ import {
 
 import { VirtualAudioEffects } from "./audio-effects.js";
 
+import { auth, db } from "./firebase.js";
+
+import {
+  ref,
+  get,
+  set,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
 const LIVEKIT_URL =
   "wss://melody-magic-auditorium-wrgjlqio.livekit.cloud";
 
 const TOKEN_SERVER =
   "https://lucky-night-b9bfmelody-magic-token-server.akbusinessenterprisess.workers.dev/";
 
+const showId = new URLSearchParams(window.location.search)
+  .get("showId");
+
 let room = null;
 let localMic = null;
 let audioEffects = null;
 let processedMicTrack = null;
 let localCamera = null;
-let mainSinger = null;
+
+let currentUser = null;
+let isHost = false;
+let hostUid = "";
+let stageSingerUid = "";
+let registrations = {};
+
+let stopStageListener = null;
+let stopQueueListener = null;
 
 const participants = new Map();
+
+function waitForUser() {
+  return new Promise((resolve) => {
+    if (auth.currentUser) {
+      resolve(auth.currentUser);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
 function createPanel() {
   if (document.getElementById("livekitPanel")) return;
@@ -29,7 +66,7 @@ function createPanel() {
   const panel = document.createElement("div");
   panel.id = "livekitPanel";
 
-    panel.style.cssText = `
+  panel.style.cssText = `
     position:relative;
     width:100%;
     max-width:900px;
@@ -42,25 +79,21 @@ function createPanel() {
     font-family:Arial,sans-serif;
     overflow:auto;
   `;
-  
 
   panel.innerHTML = `
     <h2 style="color:#d6b45b;text-align:center">
       🎤 Melody Magic Digital Auditorium
     </h2>
 
-    <div style="max-width:500px;margin:auto">
+    <div style="max-width:700px;margin:auto">
+
+      <p id="showRoomInfo" style="text-align:center;color:#d6b45b">
+        Loading show...
+      </p>
 
       <input
         id="liveSingerName"
         placeholder="Your singer name"
-        style="width:100%;box-sizing:border-box;padding:12px;margin:5px 0"
-      >
-
-      <input
-        id="liveRoomName"
-        value="melody-test-room"
-        placeholder="Room name"
         style="width:100%;box-sizing:border-box;padding:12px;margin:5px 0"
       >
 
@@ -90,8 +123,38 @@ function createPanel() {
       </div>
 
       <p id="liveStatus" style="text-align:center;color:#d6b45b">
-        Not connected
+        Checking show access...
       </p>
+
+      <section id="hostStageControls" style="
+        display:none;
+        margin-top:18px;
+        padding:12px;
+        border:1px solid #c9a34a;
+        border-radius:10px;
+      ">
+        <h3 style="color:#d6b45b">HOST CONTROL — SINGER QUEUE</h3>
+
+        <p>Select a queued singer who has joined the auditorium.</p>
+
+        <select id="stageSingerSelect" style="
+          width:100%;
+          padding:12px;
+          margin-bottom:8px;
+        ">
+          <option value="">Select a connected singer</option>
+        </select>
+
+        <button id="makeMainSinger" style="
+          width:100%;
+          padding:12px;
+          background:#c9a34a;
+          color:#000;
+          font-weight:bold;
+        ">
+          MAKE MAIN SINGER
+        </button>
+      </section>
 
       <h3 style="color:#d6b45b;text-align:center">
         ⭐ MAIN SINGER STAGE
@@ -107,9 +170,9 @@ function createPanel() {
         display:flex;
         align-items:center;
         justify-content:center;
-        overflow:hidden
+        overflow:hidden;
       ">
-        <p>Waiting for the main singer...</p>
+        <p>Waiting for the host to select a singer...</p>
       </div>
 
       <h3 style="color:#d6b45b">
@@ -119,24 +182,40 @@ function createPanel() {
       <div id="singerGrid" style="
         display:grid;
         grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-        gap:10px
+        gap:10px;
       "></div>
 
     </div>
   `;
 
-  document.body.appendChild(panel);
+  const target = document.getElementById("livekitArea") || document.body;
+  target.appendChild(panel);
 
   document.getElementById("liveJoin").onclick = joinAuditorium;
   document.getElementById("liveMic").onclick = toggleMicrophone;
   document.getElementById("liveMonitor").onclick = toggleMonitor;
   document.getElementById("liveCamera").onclick = toggleCamera;
   document.getElementById("liveLeave").onclick = leaveAuditorium;
+  document.getElementById("makeMainSinger").onclick = selectMainSinger;
 }
 
 function status(message) {
   const element = document.getElementById("liveStatus");
   if (element) element.textContent = message;
+}
+
+function displayName(uid) {
+  if (uid === currentUser?.uid) {
+    return document.getElementById("liveSingerName")?.value.trim()
+      || "You";
+  }
+
+  const registration = Object.values(registrations)
+    .find(item => item && item.singerUid === uid);
+
+  if (registration) return registration.name || "Singer";
+
+  return participants.get(uid)?.name || "Participant";
 }
 
 function makeSingerTile(identity, name) {
@@ -174,31 +253,36 @@ function makeSingerTile(identity, name) {
     overflow:hidden;
   `;
 
-  const button = document.createElement("button");
-  button.textContent = "Make Main Singer";
-  button.style.cssText = "width:100%;padding:8px;margin-top:8px";
-
-  button.onclick = () => {
-    mainSinger = identity;
-    showMainSinger(identity);
-  };
-
-  tile.append(title, videoBox, button);
+  tile.append(title, videoBox);
   grid.appendChild(tile);
 
   return tile;
 }
 
-function showMainSinger(identity) {
+function showMainSinger(uid) {
   const stage = document.getElementById("mainStage");
   if (!stage) return;
 
   stage.innerHTML = "";
 
-  const participant = participants.get(identity);
+  if (!uid) {
+    stage.textContent = "Waiting for the host to select a singer...";
+    return;
+  }
+
+  const participant = participants.get(uid);
+
+  const heading = document.createElement("p");
+  heading.textContent = "⭐ " + displayName(uid);
+  heading.style.cssText =
+    "color:#d6b45b;font-weight:bold;text-align:center";
 
   if (!participant) {
-    stage.textContent = "Waiting for singer video...";
+    stage.appendChild(heading);
+
+    const message = document.createElement("p");
+    message.textContent = "Singer is not connected yet.";
+    stage.appendChild(message);
     return;
   }
 
@@ -210,12 +294,12 @@ function showMainSinger(identity) {
     video.style.cssText =
       "width:100%;max-height:450px;object-fit:contain";
 
-    stage.appendChild(video);
+    stage.append(heading, video);
   } else {
-    const message = document.createElement("p");
-    message.textContent =
-      participant.name + " is on the main stage";
+    stage.appendChild(heading);
 
+    const message = document.createElement("p");
+    message.textContent = "Singer is on stage. Camera is off.";
     stage.appendChild(message);
   }
 }
@@ -224,29 +308,190 @@ function addParticipant(identity, name) {
   if (participants.has(identity)) return;
 
   participants.set(identity, {
-    name,
+    name: name || identity,
     videoTrack: null
   });
 
-  makeSingerTile(identity, name);
+  makeSingerTile(identity, name || identity);
+  updateSingerOptions();
+}
 
-  if (!mainSinger) {
-    mainSinger = identity;
-    showMainSinger(identity);
+function updateSingerOptions() {
+  if (!isHost) return;
+
+  const select = document.getElementById("stageSingerSelect");
+  if (!select) return;
+
+  const previousValue = select.value;
+
+  select.innerHTML =
+    '<option value="">Select a connected singer</option>';
+
+  const queued = Object.entries(registrations)
+    .filter(([id, item]) =>
+      item &&
+      item.status === "Queued" &&
+      participants.has(item.singerUid)
+    );
+
+  queued.forEach(([registrationId, item]) => {
+    const option = document.createElement("option");
+    option.value = registrationId;
+    option.textContent = item.name + " — " + (item.song || "Song not specified");
+    select.appendChild(option);
+  });
+
+  if ([...select.options].some(option => option.value === previousValue)) {
+    select.value = previousValue;
+  }
+}
+
+async function selectMainSinger() {
+  if (!isHost || !currentUser || !showId) {
+    status("Only the show's host can select the main singer.");
+    return;
+  }
+
+  const registrationId =
+    document.getElementById("stageSingerSelect").value;
+
+  if (!registrationId) {
+    alert("Please select a connected queued singer.");
+    return;
+  }
+
+  const singer = registrations[registrationId];
+
+  if (!singer || singer.status !== "Queued") {
+    alert("This singer is not in the queue.");
+    return;
+  }
+
+  if (!participants.has(singer.singerUid)) {
+    alert("This singer must join the auditorium first.");
+    return;
+  }
+
+  try {
+    await set(ref(db, "liveStage/" + showId), {
+      registrationId,
+      singerUid: singer.singerUid,
+      singerName: singer.name || "Singer",
+      updatedAt: Date.now()
+    });
+
+    status("Main singer selected: " + (singer.name || "Singer"));
+  } catch (error) {
+    console.error("Stage selection error:", error);
+    status("Unable to select singer: " + error.message);
+  }
+}
+
+function listenToStage() {
+  if (stopStageListener) stopStageListener();
+
+  const stageRef = ref(db, "liveStage/" + showId);
+
+  stopStageListener = onValue(stageRef, snapshot => {
+    const stageData = snapshot.val();
+
+    stageSingerUid = stageData?.singerUid || "";
+
+    showMainSinger(stageSingerUid);
+
+    if (stageData?.singerName) {
+      status("Main singer: " + stageData.singerName);
+    }
+  }, error => {
+    console.error("Stage listener error:", error);
+    status("Unable to load stage selection.");
+  });
+}
+
+function listenToHostQueue() {
+  if (!isHost || stopQueueListener) return;
+
+  const queueRef = ref(db, "showRegistrations/" + showId);
+
+  stopQueueListener = onValue(queueRef, snapshot => {
+    registrations = snapshot.val() || {};
+    updateSingerOptions();
+  }, error => {
+    console.error("Queue listener error:", error);
+    status("Unable to load singer queue.");
+  });
+}
+
+async function initializeShow() {
+  createPanel();
+
+  if (!showId) {
+    status("Show ID missing. Open the auditorium using the show's join link.");
+    document.getElementById("liveJoin").disabled = true;
+    return;
+  }
+
+  try {
+    currentUser = await waitForUser();
+
+    if (!currentUser) {
+      status("Please sign in before joining this auditorium.");
+      document.getElementById("liveJoin").disabled = true;
+      return;
+    }
+
+    const showSnapshot = await get(ref(db, "shows/" + showId));
+
+    if (!showSnapshot.exists()) {
+      status("This show could not be found.");
+      document.getElementById("liveJoin").disabled = true;
+      return;
+    }
+
+    const show = showSnapshot.val();
+
+    if (show.status !== "Published") {
+      status("This show is not currently published.");
+      document.getElementById("liveJoin").disabled = true;
+      return;
+    }
+
+    hostUid = show.hostUid || "";
+    isHost = currentUser.uid === hostUid;
+
+    document.getElementById("showRoomInfo").textContent =
+      "Show: " + (show.title || showId);
+
+    if (isHost) {
+      document.getElementById("hostStageControls").style.display = "block";
+      listenToHostQueue();
+    }
+
+    listenToStage();
+
+    status(isHost
+      ? "Host verified. You can manage the singer stage."
+      : "Show loaded. Waiting for the host.");
+
+  } catch (error) {
+    console.error("Show initialization error:", error);
+    status("Unable to verify show access: " + error.message);
+    document.getElementById("liveJoin").disabled = true;
   }
 }
 
 async function joinAuditorium() {
   if (room) return;
 
+  if (!currentUser || !showId) {
+    return alert("Show access is not ready. Please refresh the page.");
+  }
+
   const name =
     document.getElementById("liveSingerName").value.trim();
 
-  const roomName =
-    document.getElementById("liveRoomName").value.trim();
-
-  if (!name || !roomName) {
-    alert("Please enter your name and room name.");
+  if (!name) {
+    alert("Please enter your name.");
     return;
   }
 
@@ -256,6 +501,8 @@ async function joinAuditorium() {
   try {
     status("Getting access token...");
 
+    const roomName = "melody-show-" + showId;
+
     const response = await fetch(TOKEN_SERVER, {
       method: "POST",
       headers: {
@@ -263,53 +510,47 @@ async function joinAuditorium() {
       },
       body: JSON.stringify({
         room: roomName,
-        identity: name + "-" + Date.now()
+        identity: currentUser.uid
       })
     });
 
     const data = await response.json();
 
     if (!response.ok || !data.token) {
-      throw new Error(
-        data.error || "Token generation failed"
-      );
+      throw new Error(data.error || "Token generation failed");
     }
 
     room = new Room();
 
-    room.on(
-      RoomEvent.ParticipantConnected,
-      participant => {
-        addParticipant(
-          participant.identity,
-          participant.name || participant.identity
-        );
+    room.on(RoomEvent.ParticipantConnected, participant => {
+      addParticipant(
+        participant.identity,
+        participant.name || participant.identity
+      );
+    });
+
+    room.on(RoomEvent.ParticipantDisconnected, participant => {
+      const identity = participant.identity;
+
+      participants.delete(identity);
+
+      document.getElementById("singer-" + identity)?.remove();
+
+      if (stageSingerUid === identity) {
+        showMainSinger(stageSingerUid);
       }
-    );
 
-    room.on(
-      RoomEvent.ParticipantDisconnected,
-      participant => {
-        const identity = participant.identity;
-
-        participants.delete(identity);
-
-        document.getElementById(
-          "singer-" + identity
-        )?.remove();
-
-        if (mainSinger === identity) {
-          mainSinger = null;
-
-          document.getElementById("mainStage").textContent =
-            "Waiting for the main singer...";
-        }
-      }
-    );
+      updateSingerOptions();
+    });
 
     room.on(
       RoomEvent.TrackSubscribed,
       (track, publication, participant) => {
+        addParticipant(
+          participant.identity,
+          participant.name || participant.identity
+        );
+
         if (track.kind === "audio") {
           const audio = track.attach();
 
@@ -325,11 +566,6 @@ async function joinAuditorium() {
         }
 
         if (track.kind === "video") {
-          addParticipant(
-            participant.identity,
-            participant.name || participant.identity
-          );
-
           const person = participants.get(participant.identity);
           person.videoTrack = track;
 
@@ -349,10 +585,12 @@ async function joinAuditorium() {
             videoBox.appendChild(video);
           }
 
-          if (mainSinger === participant.identity) {
-            showMainSinger(participant.identity);
+          if (stageSingerUid === participant.identity) {
+            showMainSinger(stageSingerUid);
           }
         }
+
+        updateSingerOptions();
       }
     );
 
@@ -366,43 +604,40 @@ async function joinAuditorium() {
 
           if (person) person.videoTrack = null;
 
-          if (mainSinger === participant.identity) {
-            showMainSinger(participant.identity);
+          if (stageSingerUid === participant.identity) {
+            showMainSinger(stageSingerUid);
           }
         }
       }
     );
 
     room.on(RoomEvent.Disconnected, () => {
-      status("Disconnected");
+      status("Disconnected from auditorium.");
     });
 
-    status("Connecting...");
+    status("Connecting to show room...");
 
     await room.connect(LIVEKIT_URL, data.token);
 
-    addParticipant(room.localParticipant.identity, name);
+    addParticipant(
+      room.localParticipant.identity,
+      name
+    );
 
-    // Open the original microphone.
     localMic = await createLocalAudioTrack({
       echoCancellation: false,
       noiseSuppression: false,
       autoGainControl: false
     });
 
-    // Start virtual echo and reverb processing.
     audioEffects = new VirtualAudioEffects();
 
     processedMicTrack = await audioEffects.start(
       localMic.mediaStreamTrack
     );
 
-    // Publish processed audio to the audience.
-    await room.localParticipant.publishTrack(
-      processedMicTrack
-    );
+    await room.localParticipant.publishTrack(processedMicTrack);
 
-    // Start camera.
     localCamera = await createLocalVideoTrack();
 
     await room.localParticipant.publishTrack(localCamera);
@@ -431,20 +666,23 @@ async function joinAuditorium() {
       localBox.appendChild(localVideo);
     }
 
-    mainSinger = room.localParticipant.identity;
-    showMainSinger(mainSinger);
+    if (stageSingerUid) {
+      showMainSinger(stageSingerUid);
+    }
 
     document.getElementById("liveMic").textContent = "Mute Mic";
     document.getElementById("liveMonitor").dataset.enabled = "false";
     document.getElementById("liveMonitor").textContent =
       "Monitor My Voice: OFF";
 
-    status("Connected! Microphone and camera are LIVE.");
+    status("Connected to " + roomName + ". Microphone and camera are LIVE.");
+
+    updateSingerOptions();
 
   } catch (error) {
     console.error("Join error:", error);
 
-    status("Error: " + error.message);
+    status("Connection error: " + error.message);
     alert("Connection failed: " + error.message);
 
     await leaveAuditorium();
@@ -461,14 +699,10 @@ async function toggleMicrophone() {
   try {
     if (localMic.isMuted) {
       await localMic.unmute();
-
-      document.getElementById("liveMic").textContent =
-        "Mute Mic";
+      document.getElementById("liveMic").textContent = "Mute Mic";
     } else {
       await localMic.mute();
-
-      document.getElementById("liveMic").textContent =
-        "Unmute Mic";
+      document.getElementById("liveMic").textContent = "Unmute Mic";
     }
   } catch (error) {
     console.error("Microphone error:", error);
@@ -476,7 +710,6 @@ async function toggleMicrophone() {
   }
 }
 
-// Local headphone monitoring.
 async function toggleMonitor() {
   if (!audioEffects) {
     return alert("Join the auditorium first.");
@@ -496,18 +729,9 @@ async function toggleMonitor() {
       ? "Monitor My Voice: ON"
       : "Monitor My Voice: OFF";
 
-    status(
-      enabled
-        ? "Voice monitoring is ON. Speak into your microphone."
-        : "Voice monitoring is OFF."
-    );
-
   } catch (error) {
     console.error("Monitor error:", error);
-
-    alert(
-      "Unable to start voice monitoring. Please try again."
-    );
+    alert("Unable to start voice monitoring.");
   }
 }
 
@@ -519,14 +743,10 @@ async function toggleCamera() {
   try {
     if (localCamera.isMuted) {
       await localCamera.unmute();
-
-      document.getElementById("liveCamera").textContent =
-        "Turn Camera Off";
+      document.getElementById("liveCamera").textContent = "Turn Camera Off";
     } else {
       await localCamera.mute();
-
-      document.getElementById("liveCamera").textContent =
-        "Turn Camera On";
+      document.getElementById("liveCamera").textContent = "Turn Camera On";
     }
   } catch (error) {
     console.error("Camera error:", error);
@@ -535,7 +755,6 @@ async function toggleCamera() {
 }
 
 async function leaveAuditorium() {
-  // Turn off and clean up local audio effects.
   if (audioEffects) {
     audioEffects.stop();
     audioEffects = null;
@@ -543,7 +762,6 @@ async function leaveAuditorium() {
 
   processedMicTrack = null;
 
-  // Disconnect LiveKit room.
   if (room) {
     try {
       await room.disconnect();
@@ -554,28 +772,20 @@ async function leaveAuditorium() {
     room = null;
   }
 
-  // Stop microphone.
   if (localMic) {
     localMic.stop();
     localMic = null;
   }
 
-  // Stop camera.
   if (localCamera) {
     localCamera.stop();
     localCamera = null;
   }
 
   participants.clear();
-  mainSinger = null;
 
   const grid = document.getElementById("singerGrid");
   if (grid) grid.innerHTML = "";
-
-  const stage = document.getElementById("mainStage");
-  if (stage) {
-    stage.textContent = "Waiting for the main singer...";
-  }
 
   document.querySelectorAll("#livekitPanel audio").forEach(audio => {
     audio.pause();
@@ -599,3 +809,4 @@ async function leaveAuditorium() {
 }
 
 createPanel();
+initializeShow();
