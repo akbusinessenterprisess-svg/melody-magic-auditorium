@@ -22,7 +22,7 @@ import {
 
 // Keep these exact project URLs
 const LIVEKIT_URL =
-  "wss://melody-magic-music-studio-wrgjlqio.livekit.cloud";
+  "wss://melody-magic-auditorium-wrgjlqio.livekit.cloud";
 
 const TOKEN_SERVER =
   "https://lucky-night-b9bfmelody-magic-token-server.akbusinessenterprisess.workers.dev/";
