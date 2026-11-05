@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,105 +8,35 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#080808;
-  color:#fff;
-  font-family:Arial,sans-serif;
-}
-header{
-  padding:22px 15px;
-  text-align:center;
-  background:#111;
-  border-bottom:1px solid #b89445;
-}
-.brand{
-  color:#e6c16a;
-  font-size:25px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
+body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}
+header{padding:22px 15px;text-align:center;background:#111;border-bottom:1px solid #b89445}
+.brand{color:#e6c16a;font-size:25px;font-weight:bold;letter-spacing:1px}
 .subtitle{color:#ccc;margin-top:7px;font-size:13px}
 main{max-width:1050px;margin:25px auto;padding:0 15px}
-.card{
-  background:#151515;
-  border:1px solid #383027;
-  border-radius:13px;
-  padding:20px;
-  margin-bottom:20px;
-}
-h2{color:#e6c16a;margin-top:0}
-h3{color:#e6c16a}
-input,textarea,select{
-  width:100%;
-  padding:13px;
-  margin:7px 0 15px;
-  border:1px solid #555;
-  border-radius:7px;
-  background:#090909;
-  color:#fff;
-  font-size:15px;
-}
+.card{background:#151515;border:1px solid #383027;border-radius:13px;padding:20px;margin-bottom:20px}
+h2,h3{color:#e6c16a;margin-top:0}
+input,textarea,select{width:100%;padding:13px;margin:7px 0 15px;border:1px solid #555;border-radius:7px;background:#090909;color:#fff;font-size:15px}
 textarea{min-height:90px;resize:vertical}
 label{display:block;color:#ddd;font-size:14px}
-button,.button-link{
-  display:inline-block;
-  padding:12px 17px;
-  border:0;
-  border-radius:7px;
-  background:#c49b45;
-  color:#111;
-  font-weight:bold;
-  cursor:pointer;
-  text-decoration:none;
-  margin:5px 5px 5px 0;
-  font-size:14px;
-}
+button,.button-link{display:inline-block;padding:12px 17px;border:0;border-radius:7px;background:#c49b45;color:#111;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 5px 5px 0;font-size:14px}
 button:hover,.button-link:hover{opacity:.88}
 button:disabled{opacity:.5;cursor:not-allowed}
-.whatsapp{
-  background:#168c4a;
-  color:white;
-}
+.whatsapp{background:#168c4a;color:white}
 .danger{background:#a83232;color:white}
 .secondary{background:#444;color:white}
 .small{font-size:13px;color:#aaa;line-height:1.5}
-.status{
-  padding:12px;
-  border-radius:7px;
-  background:#202020;
-  margin:12px 0;
-  color:#e6c16a;
-  line-height:1.5;
-}
-.show-card{
-  background:#101010;
-  border:1px solid #444;
-  border-radius:10px;
-  padding:16px;
-  margin:15px 0;
-}
+.status{padding:12px;border-radius:7px;background:#202020;margin:12px 0;color:#e6c16a;line-height:1.5}
+.show-card{background:#101010;border:1px solid #444;border-radius:10px;padding:16px;margin:15px 0}
 .show-card p{line-height:1.5;color:#ddd}
-.registration{
-  border-top:1px solid #333;
-  padding:12px 0;
-  margin-top:10px;
-}
-.badge{
-  display:inline-block;
-  background:#333;
-  color:#e6c16a;
-  padding:5px 9px;
-  border-radius:20px;
-  font-size:12px;
-}
+.registration{border-top:1px solid #333;padding:12px 0;margin-top:10px}
+.badge{display:inline-block;background:#333;color:#e6c16a;padding:5px 9px;border-radius:20px;font-size:12px}
 .hidden{display:none!important}
-footer{
-  text-align:center;
-  padding:25px;
-  color:#888;
-  font-size:12px;
-}
+.poster-panel{border:1px solid #51452e;background:#18150f;padding:14px;border-radius:9px;margin:15px 0}
+.poster-preview{width:100%;max-width:300px;display:block;margin:12px 0;border-radius:8px;border:1px solid #555}
+.poster-pending{color:#f0c85e}
+.poster-approved{color:#60d394}
+.poster-rejected{color:#ff7777}
+footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
 
@@ -117,7 +48,6 @@ footer{
 </header>
 
 <main>
-
   <div id="message" class="status">Checking host account...</div>
 
   <section id="activeDashboard" class="hidden">
@@ -135,10 +65,8 @@ footer{
       <h2>Create a New Show</h2>
 
       <form id="createShowForm">
-
         <label>Show name</label>
-        <input id="showTitle" type="text"
-               placeholder="Example: Bollywood Retro Night" required>
+        <input id="showTitle" type="text" placeholder="Example: Bollywood Retro Night" required>
 
         <label>Show date</label>
         <input id="showDate" type="date" required>
@@ -147,17 +75,11 @@ footer{
         <input id="showTime" type="time" required>
 
         <label>Show description</label>
-        <textarea id="showDescription"
-          placeholder="Write about your show, theme, singers and special attractions..."
-          required></textarea>
+        <textarea id="showDescription" placeholder="Write about your show, theme, singers and special attractions..." required></textarea>
 
         <label>Host WhatsApp number</label>
-        <input id="hostMobile" type="tel"
-          placeholder="10-digit mobile number" required>
-        <p class="small">
-          Singers will use this number to contact you directly on WhatsApp.
-          Include the correct mobile number.
-        </p>
+        <input id="hostMobile" type="tel" placeholder="10-digit mobile number" required>
+        <p class="small">Singers will use this number to contact you directly on WhatsApp.</p>
 
         <label>Entry type</label>
         <select id="entryType">
@@ -167,12 +89,8 @@ footer{
 
         <div id="feeSection" class="hidden">
           <label>Entry fee (₹)</label>
-          <input id="entryFee" type="number" min="0"
-                 placeholder="Enter entry fee">
-          <p class="small">
-            Payment arrangements will be handled directly between the
-            singer and host. No QR code or online payment is collected here.
-          </p>
+          <input id="entryFee" type="number" min="1" placeholder="Enter entry fee">
+          <p class="small">Payment arrangements are handled directly between the singer and host. No online payment is collected here.</p>
         </div>
 
         <button id="publishButton" type="submit">Publish Show</button>
@@ -183,13 +101,10 @@ footer{
 
     <div class="card">
       <h2>My Published Shows</h2>
-      <div id="myShows">
-        Loading your shows...
-      </div>
+      <div id="myShows">Loading your shows...</div>
     </div>
 
     <button id="logoutButton" class="danger">Sign Out</button>
-
   </section>
 </main>
 
@@ -214,6 +129,8 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
+const MAX_POSTER_DATA_LENGTH = 850000;
 
 const messageBox = document.getElementById("message");
 const dashboard = document.getElementById("activeDashboard");
@@ -223,11 +140,7 @@ const myShows = document.getElementById("myShows");
 
 let currentUser = null;
 let currentHost = null;
-
-
-/* -------------------------------
-   GENERAL HELPERS
--------------------------------- */
+let posterPermission = false;
 
 function showMessage(text) {
   messageBox.textContent = text;
@@ -238,76 +151,40 @@ function hideMessage() {
   messageBox.classList.add("hidden");
 }
 
-function safeText(value) {
-  return String(value ?? "");
-}
-
 function formatDate(value) {
   if (!value) return "Not specified";
-
   const date = new Date(value + "T00:00:00");
-
   if (Number.isNaN(date.getTime())) return value;
-
   return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
+    day: "2-digit", month: "short", year: "numeric"
   });
 }
 
 function formatTimestamp(value) {
   if (!value) return "Not available";
-
   let number = Number(value);
-
-  // Convert seconds to milliseconds if necessary.
-  if (number > 0 && number < 100000000000) {
-    number *= 1000;
-  }
-
+  if (number > 0 && number < 100000000000) number *= 1000;
   const date = new Date(number);
-
   if (Number.isNaN(date.getTime())) return "Not available";
-
   return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
+    day: "2-digit", month: "short", year: "numeric"
   });
 }
 
 function getHostName(data, user) {
-  return data.name ||
-         data.fullName ||
-         data.hostName ||
-         user.displayName ||
-         "Host";
+  return data.name || data.fullName || data.hostName ||
+         user.displayName || "Host";
 }
 
 function getHostMobile(data, user) {
-  return data.mobile ||
-         data.phone ||
-         data.phoneNumber ||
-         data.contactNumber ||
-         user.phoneNumber ||
-         "";
+  return data.mobile || data.phone || data.phoneNumber ||
+         data.contactNumber || user.phoneNumber || "";
 }
-
-
-/* -------------------------------
-   WHATSAPP LINK
--------------------------------- */
 
 function getWhatsAppLink(show) {
   let number = String(show.hostMobile || "").replace(/\D/g, "");
 
-  // Indian 10-digit mobile number.
-  if (number.length === 10) {
-    number = "91" + number;
-  }
-
-  // Indian number entered with leading zero.
+  if (number.length === 10) number = "91" + number;
   else if (number.length === 11 && number.startsWith("0")) {
     number = "91" + number.substring(1);
   }
@@ -316,52 +193,40 @@ function getWhatsAppLink(show) {
     throw new Error("The host WhatsApp number is invalid. Please update it.");
   }
 
-  const text =
-    "Hello, I am interested in registering for " +
-    (show.title || "your show") +
-    ". Please share the details.";
+  const text = "Hello, I am interested in registering for " +
+    (show.title || "your show") + ". Please share the details.";
 
-  return "https://wa.me/" + number + "?text=" +
-         encodeURIComponent(text);
+  return "https://wa.me/" + number + "?text=" + encodeURIComponent(text);
 }
 
-
-/* -------------------------------
-   AUTHENTICATION AND HOST CHECK
--------------------------------- */
+/* HOST AUTHENTICATION */
 
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
     showMessage("Please log in with your host account.");
-    setTimeout(() => {
-      window.location.href = "host-login.html";
-    }, 1500);
+    setTimeout(() => window.location.href = "host-login.html", 1500);
     return;
   }
 
   currentUser = user;
 
   try {
-    const hostSnapshot = await get(
-      ref(db, "hostApplications/" + user.uid)
-    );
+    const hostSnapshot = await get(ref(db, "hostApplications/" + user.uid));
 
     if (!hostSnapshot.exists()) {
       showMessage("Host application not found.");
       return;
     }
 
-    const hostData = hostSnapshot.val();
-    currentHost = hostData;
+    currentHost = hostSnapshot.val();
 
-    if (hostData.status !== "Approved") {
+    if (currentHost.status !== "Approved") {
       showMessage("Your host account is not approved yet.");
       return;
     }
 
-    const startAt = Number(hostData.subscriptionStartAt || 0);
-    const endAt = Number(hostData.subscriptionEndAt || 0);
+    const startAt = Number(currentHost.subscriptionStartAt || 0);
+    const endAt = Number(currentHost.subscriptionEndAt || 0);
     const now = Date.now();
 
     if (!startAt || !endAt || now < startAt || now > endAt) {
@@ -369,23 +234,26 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    const hostName = getHostName(hostData, user);
-    const hostMobile = getHostMobile(hostData, user);
+    document.getElementById("hostName").textContent =
+      getHostName(currentHost, user);
 
-    document.getElementById("hostName").textContent = hostName;
     document.getElementById("hostEmail").textContent =
-      user.email || hostData.email || "—";
+      user.email || currentHost.email || "—";
 
     document.getElementById("hostPlan").textContent =
-      hostData.plan || hostData.subscriptionPlan || "Active";
+      currentHost.plan || currentHost.subscriptionPlan || "Active";
 
     document.getElementById("hostExpiry").textContent =
       formatTimestamp(endAt);
 
+    const mobile = getHostMobile(currentHost, user);
     document.getElementById("hostMobileDisplay").textContent =
-      hostMobile || "Not provided";
+      mobile || "Not provided";
 
-    document.getElementById("hostMobile").value = hostMobile;
+    document.getElementById("hostMobile").value = mobile;
+
+    // Check whether administrator has enabled poster upload.
+    await loadPosterPermission();
 
     dashboard.classList.remove("hidden");
     hideMessage();
@@ -398,44 +266,55 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+/* POSTER UPLOAD PERMISSION */
 
-/* -------------------------------
-   FREE / PAID ENTRY
--------------------------------- */
+async function loadPosterPermission() {
+  try {
+    const snapshot = await get(
+      ref(db, "posterUploadPermissions/" + currentUser.uid)
+    );
+
+    if (!snapshot.exists()) {
+      posterPermission = false;
+      return;
+    }
+
+    const value = snapshot.val();
+
+    posterPermission =
+      value === true ||
+      value === "true" ||
+      (value && typeof value === "object" &&
+       (value.enabled === true || value.allowed === true));
+
+  } catch (error) {
+    console.error("Poster permission check:", error);
+    posterPermission = false;
+  }
+}
+
+/* FREE / PAID ENTRY */
 
 document.getElementById("entryType").addEventListener("change", () => {
-  const isPaid =
-    document.getElementById("entryType").value === "paid";
-
-  document.getElementById("feeSection")
-    .classList.toggle("hidden", !isPaid);
+  const paid = document.getElementById("entryType").value === "paid";
+  document.getElementById("feeSection").classList.toggle("hidden", !paid);
 });
 
-
-/* -------------------------------
-   CREATE / PUBLISH SHOW
--------------------------------- */
+/* CREATE SHOW */
 
 createForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-
   if (!currentUser || !currentHost) return;
 
   const title = document.getElementById("showTitle").value.trim();
   const date = document.getElementById("showDate").value;
   const time = document.getElementById("showTime").value;
-  const description =
-    document.getElementById("showDescription").value.trim();
-
-  const hostMobile =
-    document.getElementById("hostMobile").value.trim();
-
+  const description = document.getElementById("showDescription").value.trim();
+  const hostMobile = document.getElementById("hostMobile").value.trim();
   const entryType = document.getElementById("entryType").value;
-
-  const entryFee =
-    entryType === "paid"
-      ? Number(document.getElementById("entryFee").value || 0)
-      : 0;
+  const entryFee = entryType === "paid"
+    ? Number(document.getElementById("entryFee").value || 0)
+    : 0;
 
   if (!title || !date || !time || !description || !hostMobile) {
     createMessage.textContent = "Please complete all required fields.";
@@ -448,28 +327,22 @@ createForm.addEventListener("submit", async (event) => {
   }
 
   const mobileDigits = hostMobile.replace(/\D/g, "");
-
   if (mobileDigits.length < 10 || mobileDigits.length > 15) {
     createMessage.textContent = "Please enter a valid WhatsApp number.";
     return;
   }
 
-  const publishButton = document.getElementById("publishButton");
-  publishButton.disabled = true;
-  publishButton.textContent = "Publishing...";
+  const button = document.getElementById("publishButton");
+  button.disabled = true;
+  button.textContent = "Publishing...";
 
   try {
     const newShowRef = push(ref(db, "shows"));
 
     const showData = {
       showId: newShowRef.key,
-      title,
-      date,
-      time,
-      description,
-      entryType,
-      entryFee,
-      hostMobile,
+      title, date, time, description,
+      entryType, entryFee, hostMobile,
       hostUid: currentUser.uid,
       hostName: getHostName(currentHost, currentUser),
       hostEmail: currentUser.email || "",
@@ -491,22 +364,18 @@ createForm.addEventListener("submit", async (event) => {
     console.error(error);
     createMessage.textContent = "Could not publish your show. Please try again.";
   } finally {
-    publishButton.disabled = false;
-    publishButton.textContent = "Publish Show";
+    button.disabled = false;
+    button.textContent = "Publish Show";
   }
 });
 
-
-/* -------------------------------
-   LOAD HOST SHOWS
--------------------------------- */
+/* LOAD HOST SHOWS */
 
 async function loadHostShows(hostUid) {
   myShows.textContent = "Loading your shows...";
 
   try {
     const snapshot = await get(ref(db, "shows"));
-
     myShows.innerHTML = "";
 
     if (!snapshot.exists()) {
@@ -514,9 +383,7 @@ async function loadHostShows(hostUid) {
       return;
     }
 
-    const allShows = snapshot.val();
-
-    const hostShows = Object.values(allShows)
+    const hostShows = Object.values(snapshot.val())
       .filter(show => show && show.hostUid === hostUid)
       .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
@@ -535,10 +402,7 @@ async function loadHostShows(hostUid) {
   }
 }
 
-
-/* -------------------------------
-   RENDER SHOW AND REGISTRATIONS
--------------------------------- */
+/* SHOW CARD */
 
 async function renderShowCard(show) {
   const card = document.createElement("div");
@@ -548,31 +412,25 @@ async function renderShowCard(show) {
   title.textContent = show.title || "Untitled Show";
 
   const details = document.createElement("p");
-  details.textContent =
-    "Date: " + formatDate(show.date) +
+  details.textContent = "Date: " + formatDate(show.date) +
     " | Time: " + (show.time || "Not specified");
 
   const entry = document.createElement("p");
-  entry.textContent =
-    show.entryType === "paid"
-      ? "Entry Fee: ₹" + Number(show.entryFee || 0)
-      : "Free Entry";
+  entry.textContent = show.entryType === "paid"
+    ? "Entry Fee: ₹" + Number(show.entryFee || 0)
+    : "Free Entry";
 
   const status = document.createElement("span");
   status.className = "badge";
   status.textContent = show.status || "Published";
 
-  const posterDownload = document.createElement("button");
-  posterDownload.textContent = "Download Poster PNG";
-  posterDownload.addEventListener("click", () => {
-    generateShowPoster(show, "download");
-  });
+  const downloadButton = document.createElement("button");
+  downloadButton.textContent = "Download Poster PNG";
+  downloadButton.addEventListener("click", () => generateShowPoster(show, "download"));
 
-  const posterShare = document.createElement("button");
-  posterShare.textContent = "Share Poster";
-  posterShare.addEventListener("click", () => {
-    generateShowPoster(show, "share");
-  });
+  const shareButton = document.createElement("button");
+  shareButton.textContent = "Share Poster";
+  shareButton.addEventListener("click", () => generateShowPoster(show, "share"));
 
   const whatsappButton = document.createElement("a");
   whatsappButton.className = "button-link whatsapp";
@@ -584,24 +442,24 @@ async function renderShowCard(show) {
     whatsappButton.rel = "noopener noreferrer";
   } catch (error) {
     whatsappButton.href = "#";
-    whatsappButton.addEventListener("click", (event) => {
+    whatsappButton.addEventListener("click", event => {
       event.preventDefault();
       alert(error.message);
     });
   }
 
-  const copyLinkButton = document.createElement("button");
-  copyLinkButton.className = "secondary";
-  copyLinkButton.textContent = "Copy WhatsApp Link";
+  const posterPanel = document.createElement("div");
+  posterPanel.className = "poster-panel";
 
-  copyLinkButton.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(getWhatsAppLink(show));
-      copyLinkButton.textContent = "Link Copied!";
-    } catch (error) {
-      alert(error.message || "Unable to copy the link.");
-    }
-  });
+  const posterHeading = document.createElement("h3");
+  posterHeading.textContent = "External Show Poster";
+
+  const posterInfo = document.createElement("p");
+  posterInfo.className = "small";
+
+  posterPanel.append(posterHeading, posterInfo);
+
+  await renderPosterUpload(show, posterPanel, posterInfo);
 
   const registrationHeading = document.createElement("h3");
   registrationHeading.textContent = "Singer Registrations";
@@ -611,27 +469,270 @@ async function renderShowCard(show) {
   registrationArea.textContent = "Loading registrations...";
 
   card.append(
-  title,
-  details,
-  entry,
-  status,
-  document.createElement("br"),
-  posterDownload,
-  posterShare,
-  whatsappButton,
-  registrationHeading,
-  registrationArea
-);
+    title, details, entry, status,
+    document.createElement("br"),
+    downloadButton, shareButton, whatsappButton,
+    posterPanel, registrationHeading, registrationArea
+  );
 
   myShows.appendChild(card);
-
   await loadRegistrations(show, registrationArea);
 }
 
+/* IMAGE COMPRESSION */
 
-/* -------------------------------
-   LOAD SINGER REGISTRATIONS
--------------------------------- */
+function compressPoster(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) {
+      reject(new Error("Please select a valid image."));
+      return;
+    }
+
+    if (file.size > 12 * 1024 * 1024) {
+      reject(new Error("Please select an image smaller than 12 MB."));
+      return;
+    }
+
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      try {
+        const maxDimension = 1400;
+        const scale = Math.min(
+          1,
+          maxDimension / Math.max(image.width, image.height)
+        );
+
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        let quality = 0.75;
+
+        function tryQuality() {
+          canvas.toBlob(blob => {
+            if (!blob) {
+              URL.revokeObjectURL(objectUrl);
+              reject(new Error("Image compression failed."));
+              return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+              const dataUrl = reader.result;
+
+              if (dataUrl.length <= MAX_POSTER_DATA_LENGTH) {
+                URL.revokeObjectURL(objectUrl);
+                resolve(dataUrl);
+                return;
+              }
+
+              if (quality > 0.35) {
+                quality -= 0.10;
+                tryQuality();
+              } else {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error("Image is too large even after compression. Please choose a smaller image."));
+              }
+            };
+
+            reader.onerror = () => {
+              URL.revokeObjectURL(objectUrl);
+              reject(new Error("Unable to read compressed image."));
+            };
+
+            reader.readAsDataURL(blob);
+          }, "image/jpeg", quality);
+        }
+
+        tryQuality();
+
+      } catch (error) {
+        URL.revokeObjectURL(objectUrl);
+        reject(error);
+      }
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Unable to open this image. Try another JPG or PNG image."));
+    };
+
+    image.src = objectUrl;
+  });
+}
+
+/* POSTER UPLOAD UI AND STATUS */
+
+async function renderPosterUpload(show, panel, info) {
+  let posterData = null;
+
+  try {
+    const snapshot = await get(
+      ref(db, "showPosters/" + show.showId)
+    );
+
+    if (snapshot.exists()) posterData = snapshot.val();
+
+  } catch (error) {
+    console.error("Poster status:", error);
+    info.textContent = "Unable to check poster status. Please refresh.";
+    return;
+  }
+
+  if (posterData && posterData.imageData) {
+    const preview = document.createElement("img");
+    preview.className = "poster-preview";
+    preview.src = posterData.imageData;
+    preview.alt = "Uploaded show poster";
+    panel.appendChild(preview);
+  }
+
+  if (posterData && posterData.status) {
+    const statusLine = document.createElement("p");
+    const statusValue = String(posterData.status);
+
+    statusLine.textContent = "Poster status: " + statusValue;
+    statusLine.className =
+      statusValue === "Approved" ? "poster-approved" :
+      statusValue === "Rejected" ? "poster-rejected" :
+      "poster-pending";
+
+    panel.appendChild(statusLine);
+
+    if (statusValue === "Rejected" && posterData.rejectionReason) {
+      const reason = document.createElement("p");
+      reason.className = "small";
+      reason.textContent = "Admin feedback: " + posterData.rejectionReason;
+      panel.appendChild(reason);
+    }
+  }
+
+  if (!posterPermission) {
+    info.textContent = "Poster upload is currently disabled. Please contact the administrator to enable permission.";
+    return;
+  }
+
+  if (posterData && posterData.status === "Pending") {
+    info.textContent = "Your poster has been submitted and is waiting for administrator approval.";
+    return;
+  }
+
+  if (posterData && posterData.status === "Approved") {
+    info.textContent = "Your poster has been approved. It can now be displayed publicly.";
+    return;
+  }
+
+  if (posterData && posterData.status !== "Rejected") {
+    info.textContent = "A poster record already exists. Please contact the administrator.";
+    return;
+  }
+
+  info.textContent = posterData && posterData.status === "Rejected"
+    ? "Your previous poster was rejected. You can upload a replacement."
+    : "Upload one poster for this show. Your poster will be reviewed by the administrator before public display.";
+
+  const fileLabel = document.createElement("label");
+  fileLabel.textContent = "Choose poster image (JPG or PNG)";
+
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/jpeg,image/png,image/webp";
+
+  const uploadButton = document.createElement("button");
+  uploadButton.textContent = posterData ? "Upload Replacement Poster" : "Upload Poster";
+
+  const uploadMessage = document.createElement("p");
+  uploadMessage.className = "small";
+
+  uploadButton.addEventListener("click", async () => {
+    const file = fileInput.files && fileInput.files[0];
+
+    if (!file) {
+      uploadMessage.textContent = "Please select a poster image first.";
+      return;
+    }
+
+    uploadButton.disabled = true;
+    uploadButton.textContent = "Compressing image...";
+    uploadMessage.textContent = "Please wait. Preparing your poster...";
+
+    try {
+      // Recheck permission before upload.
+      const permissionSnapshot = await get(
+        ref(db, "posterUploadPermissions/" + currentUser.uid)
+      );
+
+      const permissionValue = permissionSnapshot.val();
+
+      const allowed =
+        permissionValue === true ||
+        permissionValue === "true" ||
+        (permissionValue && typeof permissionValue === "object" &&
+         (permissionValue.enabled === true || permissionValue.allowed === true));
+
+      if (!allowed) {
+        posterPermission = false;
+        throw new Error("Poster upload permission has been disabled by the administrator.");
+      }
+
+      const compressedImage = await compressPoster(file);
+
+      uploadButton.textContent = "Uploading...";
+
+      const posterRecord = {
+        showId: show.showId,
+        hostUid: currentUser.uid,
+        imageData: compressedImage,
+        status: "Pending",
+        submittedAt: Date.now(),
+        fileName: file.name,
+        contentType: "image/jpeg"
+      };
+
+      await set(
+        ref(db, "showPosters/" + show.showId),
+        posterRecord
+      );
+
+      uploadMessage.textContent = "Poster submitted successfully! Waiting for administrator approval.";
+
+      await renderShowCardRefresh(show, panel);
+
+    } catch (error) {
+      console.error(error);
+      uploadMessage.textContent = error.message || "Poster upload failed. Please try again.";
+    } finally {
+      uploadButton.disabled = false;
+      uploadButton.textContent = "Upload Poster";
+    }
+  });
+
+  panel.append(fileLabel, fileInput, uploadButton, uploadMessage);
+}
+
+async function renderShowCardRefresh(show, panel) {
+  // Refresh the poster area after a successful upload.
+  panel.innerHTML = "";
+
+  const heading = document.createElement("h3");
+  heading.textContent = "External Show Poster";
+
+  const info = document.createElement("p");
+  info.className = "small";
+
+  panel.append(heading, info);
+  await renderPosterUpload(show, panel, info);
+}
+
+/* LOAD SINGER REGISTRATIONS */
 
 async function loadRegistrations(show, container) {
   try {
@@ -646,15 +747,12 @@ async function loadRegistrations(show, container) {
       return;
     }
 
-    const registrations = snapshot.val();
-
-    for (const [registrationId, singer] of Object.entries(registrations)) {
+    for (const [registrationId, singer] of Object.entries(snapshot.val())) {
       const row = document.createElement("div");
       row.className = "registration";
 
       const singerName = document.createElement("strong");
-      singerName.textContent =
-        singer.singerName || singer.name || "Singer";
+      singerName.textContent = singer.singerName || singer.name || "Singer";
 
       const singerDetails = document.createElement("p");
       singerDetails.textContent =
@@ -668,10 +766,10 @@ async function loadRegistrations(show, container) {
       row.append(singerName, singerDetails, singerStatus);
 
       const actions = [
-        { label: "Approve", value: "Approved", className: "" },
-        { label: "Reject", value: "Rejected", className: "danger" },
-        { label: "Add to Queue", value: "Queued", className: "secondary" },
-        { label: "Mark Completed", value: "Completed", className: "secondary" }
+        {label:"Approve",value:"Approved",className:""},
+        {label:"Reject",value:"Rejected",className:"danger"},
+        {label:"Add to Queue",value:"Queued",className:"secondary"},
+        {label:"Mark Completed",value:"Completed",className:"secondary"}
       ];
 
       for (const action of actions) {
@@ -685,10 +783,7 @@ async function loadRegistrations(show, container) {
           try {
             await update(
               ref(db, "showRegistrations/" + show.showId + "/" + registrationId),
-              {
-                status: action.value,
-                updatedAt: Date.now()
-              }
+              {status:action.value,updatedAt:Date.now()}
             );
 
             singerStatus.textContent = action.value;
@@ -713,31 +808,25 @@ async function loadRegistrations(show, container) {
   }
 }
 
-
-/* -------------------------------
-   POSTER TEXT WRAPPING
--------------------------------- */
+/* POSTER TEXT WRAPPING */
 
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
   const words = String(text || "").split(/\s+/);
   let line = "";
   let lines = 0;
 
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line ? line + " " + words[i] : words[i];
+  for (const word of words) {
+    const test = line ? line + " " + word : word;
 
-    if (ctx.measureText(testLine).width > maxWidth && line) {
+    if (ctx.measureText(test).width > maxWidth && line) {
       ctx.fillText(line, x, y);
       y += lineHeight;
       lines++;
 
-      if (lines >= maxLines) {
-        return y;
-      }
-
-      line = words[i];
+      if (lines >= maxLines) return y;
+      line = word;
     } else {
-      line = testLine;
+      line = test;
     }
   }
 
@@ -749,13 +838,9 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
   return y;
 }
 
-
-/* -------------------------------
-   GENERATE SHOW POSTER
--------------------------------- */
+/* GENERATE SHOW POSTER */
 
 async function generateShowPoster(show, mode = "download") {
-
   let whatsappUrl;
 
   try {
@@ -771,15 +856,12 @@ async function generateShowPoster(show, mode = "download") {
 
   const ctx = canvas.getContext("2d");
 
-  // Background
   const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
   gradient.addColorStop(0, "#080808");
   gradient.addColorStop(1, "#242016");
-
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1080, 1350);
 
-  // Gold border
   ctx.strokeStyle = "#d6ad55";
   ctx.lineWidth = 10;
   ctx.strokeRect(35, 35, 1010, 1280);
@@ -790,7 +872,6 @@ async function generateShowPoster(show, mode = "download") {
 
   ctx.textAlign = "center";
 
-  // Branding
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 48px Arial";
   ctx.fillText("MELODY MAGIC", 540, 135);
@@ -799,7 +880,6 @@ async function generateShowPoster(show, mode = "download") {
   ctx.font = "25px Arial";
   ctx.fillText("DIGITAL AUDITORIUM PRESENTS", 540, 185);
 
-  // Show title
   ctx.fillStyle = "#f4d68b";
   ctx.font = "bold 64px Arial";
 
@@ -821,28 +901,19 @@ async function generateShowPoster(show, mode = "download") {
   if (titleLine) titleLines.push(titleLine);
 
   let titleY = 310;
-
   titleLines.slice(0, 2).forEach(line => {
     ctx.fillText(line, 540, titleY);
     titleY += 78;
   });
 
-  // Description
   ctx.fillStyle = "#ffffff";
   ctx.font = "27px Arial";
 
-  const description = String(show.description || "");
   const descriptionEndY = wrapCanvasText(
-    ctx,
-    description,
-    540,
-    titleY + 35,
-    850,
-    40,
-    3
+    ctx, String(show.description || ""), 540,
+    titleY + 35, 850, 40, 3
   );
 
-  // Show information
   const infoY = Math.max(descriptionEndY + 45, 570);
 
   ctx.fillStyle = "#e9c56f";
@@ -871,11 +942,9 @@ async function generateShowPoster(show, mode = "download") {
     show.entryType === "paid"
       ? "Entry Fee: ₹" + Number(show.entryFee || 0)
       : "FREE ENTRY",
-    540,
-    infoY + 278
+    540, infoY + 278
   );
 
-  // Host contact
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 30px Arial";
   ctx.fillText("CONTACT THE HOST", 540, infoY + 355);
@@ -884,7 +953,6 @@ async function generateShowPoster(show, mode = "download") {
   ctx.font = "bold 32px Arial";
   ctx.fillText(String(show.hostMobile || ""), 540, infoY + 400);
 
-  // Green WhatsApp-style visual button
   const buttonY = Math.min(infoY + 445, 1080);
 
   ctx.fillStyle = "#168c4a";
@@ -900,7 +968,6 @@ async function generateShowPoster(show, mode = "download") {
   ctx.fillStyle = "#d9f5e4";
   ctx.fillText("Contact the host directly", 540, buttonY + 130);
 
-  // Footer
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 27px Arial";
   ctx.fillText("MELODY MAGIC DIGITAL AUDITORIUM", 540, 1245);
@@ -909,10 +976,7 @@ async function generateShowPoster(show, mode = "download") {
   ctx.font = "21px Arial";
   ctx.fillText("Sing • Connect • Celebrate", 540, 1280);
 
-
-  // Convert poster to PNG
-  canvas.toBlob(async (blob) => {
-
+  canvas.toBlob(async blob => {
     if (!blob) {
       alert("Could not generate poster.");
       return;
@@ -920,8 +984,10 @@ async function generateShowPoster(show, mode = "download") {
 
     const file = new File(
       [blob],
-      "Melody-Magic-" + String(show.title || "Show").replace(/[^a-z0-9]/gi, "-") + ".png",
-      { type: "image/png" }
+      "Melody-Magic-" +
+        String(show.title || "Show").replace(/[^a-z0-9]/gi, "-") +
+        ".png",
+      {type:"image/png"}
     );
 
     const shareText =
@@ -934,13 +1000,13 @@ async function generateShowPoster(show, mode = "download") {
       mode === "share" &&
       navigator.share &&
       navigator.canShare &&
-      navigator.canShare({ files: [file] })
+      navigator.canShare({files:[file]})
     ) {
       try {
         await navigator.share({
-          title: show.title || "Melody Magic Show",
-          text: shareText,
-          files: [file]
+          title:show.title || "Melody Magic Show",
+          text:shareText,
+          files:[file]
         });
       } catch (error) {
         if (error.name !== "AbortError") {
@@ -955,44 +1021,32 @@ async function generateShowPoster(show, mode = "download") {
       if (mode === "share" && navigator.share) {
         try {
           await navigator.share({
-            title: show.title || "Melody Magic Show",
-            text: shareText,
-            url: whatsappUrl
+            title:show.title || "Melody Magic Show",
+            text:shareText,
+            url:whatsappUrl
           });
         } catch (error) {
           if (error.name !== "AbortError") console.error(error);
         }
       } else if (mode === "share") {
-        try {
-          await navigator.clipboard.writeText(shareText);
-          alert("Poster downloaded. WhatsApp registration link and show details copied. You can paste them when sharing the poster.");
-        } catch (error) {
-          alert("Poster downloaded. Copy the WhatsApp link using the dashboard button.");
-        }
+        alert("Poster downloaded. You can now attach it to a WhatsApp message and share it.");
       }
     }
-
   }, "image/png");
 }
-
 
 function downloadPoster(file) {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
-
   link.href = url;
   link.download = file.name;
   document.body.appendChild(link);
   link.click();
   link.remove();
-
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-
-/* -------------------------------
-   SIGN OUT
--------------------------------- */
+/* SIGN OUT */
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
   try {
@@ -1003,7 +1057,6 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
     alert("Unable to sign out. Please try again.");
   }
 });
-
 </script>
 
 </body>
