@@ -123,7 +123,7 @@ textarea{min-height:85px;resize:vertical}
   © Melody Magic Digital Auditorium
   <br>Created by Melody Magic Music Studio
 </footer>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 <script type="module">
 import { auth, db } from "./firebase.js";
 
@@ -160,6 +160,185 @@ function showMessage(text) {
   dashboard.classList.add("hidden");
 }
 
+async function generateShowPoster(show) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const ctx = canvas.getContext("2d");
+
+  // Background
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+  gradient.addColorStop(0, "#080808");
+  gradient.addColorStop(0.5, "#241a08");
+  gradient.addColorStop(1, "#080808");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1350);
+
+  // Gold border
+  ctx.strokeStyle = "#e5bd60";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(30, 30, 1020, 1290);
+
+  // Brand
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f5ce69";
+  ctx.font = "bold 65px Arial";
+  ctx.fillText("MELODY MAGIC", 540, 145);
+
+  ctx.font = "bold 42px Arial";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("DIGITAL AUDITORIUM", 540, 210);
+
+  ctx.strokeStyle = "#d5ad50";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(130, 250);
+  ctx.lineTo(950, 250);
+  ctx.stroke();
+
+  // Show title
+  ctx.fillStyle = "#f5ce69";
+  ctx.font = "bold 62px Arial";
+
+  const words = (show.title || "Singing Show").split(" ");
+  let line = "";
+  let y = 390;
+
+  for (const word of words) {
+    const test = line + word + " ";
+
+    if (ctx.measureText(test).width > 850) {
+      ctx.fillText(line.trim(), 540, y);
+      line = word + " ";
+      y += 80;
+    } else {
+      line = test;
+    }
+  }
+
+  if (line.trim()) {
+    ctx.fillText(line.trim(), 540, y);
+  }
+
+  // Show description
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "30px Arial";
+  ctx.fillText("YOU ARE INVITED!", 540, y + 115);
+
+  // Date and time
+  ctx.fillStyle = "#f5ce69";
+  ctx.font = "bold 40px Arial";
+
+  const date = new Date(show.date + "T00:00:00")
+    .toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+  ctx.fillText("DATE: " + date, 540, y + 205);
+  ctx.fillText("TIME: " + show.time, 540, y + 275);
+
+  // Description
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "28px Arial";
+  ctx.fillText(
+    (show.description || "Join us for a musical celebration!").substring(0, 75),
+    540,
+    y + 355
+  );
+
+  // Entry information
+  const entryText = show.entryType === "paid"
+    ? "SINGER ENTRY FEE: ₹" + show.entryFee
+    : "SINGER ENTRY: FREE";
+
+  ctx.fillStyle = "#f5ce69";
+  ctx.font = "bold 42px Arial";
+  ctx.fillText(entryText, 540, y + 465);
+
+  // UPI payment QR code for paid shows
+  if (show.entryType === "paid" && show.hostUpi) {
+
+    const upiLink =
+      "upi://pay?pa=" + encodeURIComponent(show.hostUpi) +
+      "&pn=" + encodeURIComponent(show.hostName || "Host") +
+      "&am=" + encodeURIComponent(show.entryFee) +
+      "&cu=INR" +
+      "&tn=" + encodeURIComponent(show.title);
+
+    const qrData = await QRCode.toDataURL(upiLink, {
+      width: 240,
+      margin: 2
+    });
+
+    const qrImage = new Image();
+    qrImage.src = qrData;
+
+    await new Promise((resolve, reject) => {
+      qrImage.onload = resolve;
+      qrImage.onerror = reject;
+    });
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(400, y + 520, 280, 280);
+    ctx.drawImage(qrImage, 420, y + 540, 240, 240);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "25px Arial";
+    ctx.fillText("SCAN TO PAY ENTRY FEE", 540, y + 840);
+    ctx.fillText("UPI: " + show.hostUpi, 540, y + 885);
+  }
+
+  // Footer
+  ctx.fillStyle = "#f5ce69";
+  ctx.font = "bold 35px Arial";
+  ctx.fillText("SING • CELEBRATE • ENJOY", 540, 1200);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "26px Arial";
+  ctx.fillText("Created by Melody Magic Music Studio", 540, 1260);
+
+  // Convert poster to PNG
+  const blob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/png")
+  );
+
+  if (!blob) {
+    throw new Error("Could not generate poster image.");
+  }
+
+  const file = new File(
+    [blob],
+    "Melody-Magic-Show-Poster.png",
+    { type: "image/png" }
+  );
+
+  // Share poster if supported, otherwise download
+  if (
+    navigator.canShare &&
+    navigator.canShare({ files: [file] }) &&
+    navigator.share
+  ) {
+    await navigator.share({
+      title: show.title,
+      text: "Join our Melody Magic Digital Auditorium show!",
+      files: [file]
+    });
+  } else {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Melody-Magic-Show-Poster.png";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+}
+
 async function loadHostRegistrations(hostUid) {
   singerRegistrations.textContent = "Loading registered singers...";
 
@@ -185,6 +364,29 @@ async function loadHostRegistrations(hostUid) {
       const heading = document.createElement("h4");
       heading.textContent = show.title || "Singing Show";
       singerRegistrations.appendChild(heading);
+
+const posterButton = document.createElement("button");
+
+posterButton.type = "button";
+posterButton.textContent = "Generate & Share Poster";
+posterButton.style.marginBottom = "15px";
+
+posterButton.addEventListener("click", async () => {
+  posterButton.disabled = true;
+  posterButton.textContent = "Generating Poster...";
+
+  try {
+    await generateShowPoster(show);
+    posterButton.textContent = "Generate & Share Poster";
+  } catch (error) {
+    alert("Poster generation failed: " + error.message);
+    posterButton.textContent = "Generate & Share Poster";
+  } finally {
+    posterButton.disabled = false;
+  }
+});
+
+singerRegistrations.appendChild(posterButton);
 
       // Generate the unique singer registration link for this show.
       const joinUrl = new URL("join-auditorium.html", window.location.href);
