@@ -23,6 +23,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .whatsapp{background:#168c4a;color:white}
 .danger{background:#a83232;color:white}
 .secondary{background:#444;color:white}
+.success{background:#168c4a;color:white}
 .small{font-size:13px;color:#aaa;line-height:1.5}
 .status{padding:12px;border-radius:7px;background:#202020;margin:12px 0;color:#e6c16a;line-height:1.5}
 .show-card{background:#101010;border:1px solid #444;border-radius:10px;padding:16px;margin:15px 0}
@@ -35,6 +36,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .poster-pending{color:#f0c85e}
 .poster-approved{color:#60d394}
 .poster-rejected{color:#ff7777}
+.audience-panel{border:1px solid #51452e;background:#14120e;padding:14px;border-radius:9px;margin:15px 0}
+.audience-row{border-top:1px solid #383838;padding:14px 0;margin-top:8px}
+.audience-row p{margin:7px 0;color:#ddd;line-height:1.5}
 footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
@@ -75,7 +79,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
 
         <label>Host WhatsApp number</label>
         <input id="hostMobile" type="tel" placeholder="10-digit mobile number" required>
-        <p class="small">Singers will use this number to contact you directly on WhatsApp.</p>
+        <p class="small">Singers and audience members can use this number to contact you directly on WhatsApp.</p>
 
         <label>Entry type</label>
         <select id="entryType">
@@ -86,7 +90,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
         <div id="feeSection" class="hidden">
           <label>Entry fee (₹)</label>
           <input id="entryFee" type="number" min="1" placeholder="Enter entry fee">
-          <p class="small">Payment arrangements are handled directly between the singer and host. No online payment is collected here.</p>
+          <p class="small">Payment arrangements are handled directly between the audience member and host. No online payment is collected here.</p>
         </div>
 
         <button id="publishButton" type="submit">Publish Show</button>
@@ -151,9 +155,7 @@ function formatDate(value) {
   if (Number.isNaN(date.getTime())) return value;
 
   return date.toLocaleDateString("en-IN", {
-    day:"2-digit",
-    month:"short",
-    year:"numeric"
+    day:"2-digit", month:"short", year:"numeric"
   });
 }
 
@@ -167,9 +169,7 @@ function formatTimestamp(value) {
   if (Number.isNaN(date.getTime())) return "Not available";
 
   return date.toLocaleDateString("en-IN", {
-    day:"2-digit",
-    month:"short",
-    year:"numeric"
+    day:"2-digit", month:"short", year:"numeric"
   });
 }
 
@@ -453,7 +453,6 @@ async function renderShowCard(show) {
   posterInfo.className = "small";
 
   posterPanel.append(posterHeading, posterInfo);
-
   await renderPosterUpload(show, posterPanel, posterInfo);
 
   const registrationHeading = document.createElement("h3");
@@ -462,6 +461,25 @@ async function renderShowCard(show) {
   const registrationArea = document.createElement("div");
   registrationArea.className = "small";
   registrationArea.textContent = "Loading registrations...";
+
+  /* NEW: AUDIENCE MANAGEMENT AREA */
+
+  const audiencePanel = document.createElement("div");
+  audiencePanel.className = "audience-panel";
+
+  const audienceHeading = document.createElement("h3");
+  audienceHeading.textContent = "Audience Management";
+
+  const audienceInfo = document.createElement("p");
+  audienceInfo.className = "small";
+  audienceInfo.textContent =
+    "Review audience entry requests. Approve or reject requests. You can remove and block an approved audience member.";
+
+  const audienceArea = document.createElement("div");
+  audienceArea.className = "small";
+  audienceArea.textContent = "Loading audience requests...";
+
+  audiencePanel.append(audienceHeading, audienceInfo, audienceArea);
 
   card.append(
     title,
@@ -474,11 +492,14 @@ async function renderShowCard(show) {
     whatsappButton,
     posterPanel,
     registrationHeading,
-    registrationArea
+    registrationArea,
+    audiencePanel
   );
 
   myShows.appendChild(card);
+
   await loadRegistrations(show, registrationArea);
+  await loadAudienceRequests(show, audienceArea);
 }
 
 /* IMAGE COMPRESSION */
@@ -789,9 +810,7 @@ async function loadRegistrations(show, container) {
         button.type = "button";
         button.textContent = action.label;
 
-        if (action.className) {
-          button.className = action.className;
-        }
+        if (action.className) button.className = action.className;
 
         button.addEventListener("click", async () => {
           button.disabled = true;
@@ -799,10 +818,7 @@ async function loadRegistrations(show, container) {
           try {
             await update(
               ref(db, "showRegistrations/" + show.showId + "/" + registrationId),
-              {
-                status:action.value,
-                updatedAt:Date.now()
-              }
+              {status:action.value, updatedAt:Date.now()}
             );
 
             singerStatus.textContent = action.value;
@@ -824,6 +840,254 @@ async function loadRegistrations(show, container) {
   } catch (error) {
     console.error("Registration loading failed:", error);
     container.textContent = "Unable to load registrations: " + error.message;
+  }
+}
+
+/* NEW: AUDIENCE REQUEST MANAGEMENT */
+
+async function loadAudienceRequests(show, container) {
+  container.textContent = "Loading audience requests...";
+
+  try {
+    const snapshot = await get(
+      ref(db, "audienceEntryRequests/" + show.showId)
+    );
+
+    container.innerHTML = "";
+
+    if (!snapshot.exists()) {
+      container.textContent = "No audience entry requests yet.";
+      return;
+    }
+
+    const requests = Object.entries(snapshot.val())
+      .sort((a, b) =>
+        Number(b[1].createdAt || 0) - Number(a[1].createdAt || 0)
+      );
+
+    if (!requests.length) {
+      container.textContent = "No audience entry requests yet.";
+      return;
+    }
+
+    let pendingCount = 0;
+    let approvedCount = 0;
+    let rejectedCount = 0;
+    let removedCount = 0;
+
+    for (const [, request] of requests) {
+      const status = String(request.status || "Pending");
+
+      if (status === "Pending") pendingCount++;
+      if (status === "Approved") approvedCount++;
+      if (status === "Rejected") rejectedCount++;
+      if (status === "Removed") removedCount++;
+    }
+
+    const summary = document.createElement("p");
+    summary.className = "small";
+    summary.textContent =
+      "Total: " + requests.length +
+      " | Pending: " + pendingCount +
+      " | Approved: " + approvedCount +
+      " | Rejected: " + rejectedCount +
+      " | Removed: " + removedCount;
+
+    container.appendChild(summary);
+
+    for (const [requestId, audience] of requests) {
+      const row = document.createElement("div");
+      row.className = "audience-row";
+
+      const name = document.createElement("strong");
+      name.textContent = audience.name || "Audience member";
+
+      const details = document.createElement("p");
+      details.textContent =
+        "Mobile: " + (audience.mobile || "Not provided") +
+        " | Entry: " +
+        (audience.entryType === "paid"
+          ? "Paid ₹" + Number(audience.entryFee || 0)
+          : "Free");
+
+      const statusBadge = document.createElement("span");
+      statusBadge.className = "badge";
+      statusBadge.textContent = audience.status || "Pending";
+
+      row.append(name, details, statusBadge);
+
+      const buttons = document.createElement("div");
+
+      if ((audience.status || "Pending") === "Pending") {
+        const approveButton = document.createElement("button");
+        approveButton.type = "button";
+        approveButton.className = "success";
+        approveButton.textContent = "Approve";
+
+        approveButton.addEventListener("click", async () => {
+          await updateAudienceStatus(
+            show.showId,
+            requestId,
+            "Approved",
+            approveButton,
+            container,
+            show
+          );
+        });
+
+        const rejectButton = document.createElement("button");
+        rejectButton.type = "button";
+        rejectButton.className = "danger";
+        rejectButton.textContent = "Reject";
+
+        rejectButton.addEventListener("click", async () => {
+          await updateAudienceStatus(
+            show.showId,
+            requestId,
+            "Rejected",
+            rejectButton,
+            container,
+            show
+          );
+        });
+
+        buttons.append(approveButton, rejectButton);
+      }
+
+      if ((audience.status || "") === "Approved") {
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "danger";
+        removeButton.textContent = "Remove & Block";
+
+        removeButton.addEventListener("click", async () => {
+          const confirmed = confirm(
+            "Remove and block " + (audience.name || "this audience member") +
+            " from this show? They will not be able to submit another request using this account."
+          );
+
+          if (!confirmed) return;
+
+          await removeAndBlockAudience(
+            show,
+            requestId,
+            audience,
+            removeButton,
+            container
+          );
+        });
+
+        buttons.appendChild(removeButton);
+      }
+
+      if (audience.status === "Removed") {
+        const removedNote = document.createElement("p");
+        removedNote.className = "small";
+        removedNote.textContent = "This audience member has been removed and blocked for this show.";
+        row.appendChild(removedNote);
+      }
+
+      if (audience.status === "Rejected") {
+        const rejectedNote = document.createElement("p");
+        rejectedNote.className = "small";
+        rejectedNote.textContent = "This request was rejected.";
+        row.appendChild(rejectedNote);
+      }
+
+      row.appendChild(buttons);
+      container.appendChild(row);
+    }
+
+  } catch (error) {
+    console.error("Audience request loading failed:", error);
+    container.textContent =
+      "Unable to load audience requests: " + error.message +
+      ". Check your Firebase audienceEntryRequests read rules.";
+  }
+}
+
+async function updateAudienceStatus(
+  showId,
+  requestId,
+  newStatus,
+  button,
+  container,
+  show
+) {
+  button.disabled = true;
+
+  try {
+    await update(
+      ref(db, "audienceEntryRequests/" + showId + "/" + requestId),
+      {
+        status:newStatus,
+        updatedAt:Date.now()
+      }
+    );
+
+    await loadAudienceRequests(show, container);
+
+  } catch (error) {
+    console.error("Audience status update failed:", error);
+    alert("Unable to update audience request: " + error.message);
+    button.disabled = false;
+  }
+}
+
+async function removeAndBlockAudience(
+  show,
+  requestId,
+  audience,
+  button,
+  container
+) {
+  if (!currentUser || !audience.audienceUid) {
+    alert("Audience account information is missing. Cannot block this request.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Removing...";
+
+  try {
+    const blockRecord = {
+      blocked:true,
+      showId:show.showId,
+      audienceUid:audience.audienceUid,
+      name:audience.name || "",
+      mobile:audience.mobile || "",
+      requestId:requestId,
+      blockedBy:currentUser.uid,
+      blockedAt:Date.now()
+    };
+
+    /* First block the account, then mark the request Removed. */
+    await set(
+      ref(db, "audienceBlocks/" + show.showId + "/" + audience.audienceUid),
+      blockRecord
+    );
+
+    await update(
+      ref(db, "audienceEntryRequests/" + show.showId + "/" + requestId),
+      {
+        status:"Removed",
+        updatedAt:Date.now()
+      }
+    );
+
+    alert("Audience member removed and blocked for this show.");
+
+    await loadAudienceRequests(show, container);
+
+  } catch (error) {
+    console.error("Audience removal/block failed:", error);
+    alert(
+      "Unable to remove and block this audience member: " +
+      error.message
+    );
+
+    button.disabled = false;
+    button.textContent = "Remove & Block";
   }
 }
 
