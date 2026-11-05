@@ -13,11 +13,14 @@ h1,h2{color:#e7bd68}
 .card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
 label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
 input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
-button,.link{display:block;width:100%;padding:14px;margin-top:20px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;cursor:pointer}
+button{display:block;width:100%;padding:14px;margin-top:20px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.5;cursor:wait}
 .muted{color:#c2b7a6;line-height:1.6}
-.success{color:#8ee29a}
-.error{color:#ff9999}
+.success{color:#8ee29a;line-height:1.6}
+.error{color:#ff9999;line-height:1.6}
+.rules{background:#0d0b08;border:1px solid #57452c;border-radius:8px;padding:15px;margin-top:18px;color:#ddd;line-height:1.7}
+.check{display:flex;gap:10px;align-items:flex-start;color:#e7bd68;line-height:1.5}
+.check input{width:18px;height:18px;margin:2px 0;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -31,18 +34,40 @@ button:disabled{opacity:.5;cursor:wait}
 </div>
 
 <div class="card">
-<h2>Audience Entry Request</h2>
-<p class="muted">Submit your details to request entry. The host will review your request.</p>
+<h2>Free Audience Entry</h2>
+<p class="muted">
+Enter your name and city to join this free show.
+No mobile number or host approval is required.
+</p>
 
 <form id="entryForm">
-<label>Full Name</label>
-<input id="audienceName" type="text" placeholder="Enter your name" required>
+<label for="audienceName">Full Name</label>
+<input id="audienceName" type="text"
+placeholder="Enter your full name" maxlength="80" required>
 
-<label>Mobile Number</label>
-<input id="mobile" type="tel" placeholder="Enter mobile number"
-pattern="[0-9+ -]{8,15}" required>
+<label for="audienceLocation">City / Location</label>
+<input id="audienceLocation" type="text"
+placeholder="Example: Panvel, Navi Mumbai" maxlength="100" required>
 
-<button id="submitButton" type="submit">REQUEST AUDIENCE ENTRY</button>
+<div class="rules">
+<strong style="color:#e7bd68">AUDITORIUM RULES – PLEASE READ</strong>
+<ol>
+<li>Respect the host, singers and all participants.</li>
+<li>No abusive language, harassment or inappropriate behaviour.</li>
+<li>Keep your microphone and camera off unless permitted by the host.</li>
+<li>Follow the host's instructions during the show.</li>
+<li>No unauthorised recording or sharing of the show.</li>
+<li>The host may remove anyone who breaks the rules.</li>
+<li>Breaking the rules may result in being blocked from this show.</li>
+</ol>
+</div>
+
+<label class="check">
+<input id="acceptRules" type="checkbox" required>
+<span>I have read and agree to follow all auditorium rules.</span>
+</label>
+
+<button id="submitButton" type="submit">JOIN FREE SHOW</button>
 </form>
 
 <div id="message" aria-live="polite"></div>
@@ -99,31 +124,39 @@ async function loadShow(){
   const host=document.createElement("p");
   host.textContent="Host: "+(selectedShow.hostName||"Host");
 
-  const fee=document.createElement("p");
   const paid=String(selectedShow.entryType||"Free").toLowerCase()==="paid";
+
+  const fee=document.createElement("p");
   fee.textContent=paid
    ?"Entry Fee: ₹"+(selectedShow.entryFee||0)
    :"Entry: FREE";
 
   showDetails.replaceChildren(title,date,time,host,fee);
 
-  const phone=cleanPhone(
-   selectedShow.hostMobile||
-   selectedShow.hostWhatsApp||
-   selectedShow.hostWhatsapp||
-   selectedShow.mobile
-  );
+  if(paid){
+   form.style.display="none";
+   const phone=cleanPhone(
+    selectedShow.hostMobile||
+    selectedShow.hostWhatsApp||
+    selectedShow.hostWhatsapp||
+    selectedShow.mobile
+   );
 
-  if(phone){
-   const link=document.createElement("a");
-   link.className="link";
-   link.target="_blank";
-   link.rel="noopener";
-   link.href="https://wa.me/"+(phone.length===10?"91"+phone:phone);
-   link.textContent=paid?"CONTACT HOST FOR PAYMENT":"CONTACT HOST ON WHATSAPP";
-   paymentArea.appendChild(link);
+   const info=document.createElement("p");
+   info.className="muted";
+   info.textContent="This is a paid show. Please contact the host for payment and entry details.";
+   paymentArea.appendChild(info);
+
+   if(phone){
+    const link=document.createElement("a");
+    link.href="https://wa.me/"+(phone.length===10?"91"+phone:phone);
+    link.target="_blank";
+    link.rel="noopener";
+    link.textContent="CONTACT HOST FOR PAYMENT";
+    link.style.cssText="display:block;padding:14px;margin-top:18px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold";
+    paymentArea.appendChild(link);
+   }
   }
-
  }catch(error){
   showDetails.textContent=error.message;
   showDetails.className="error";
@@ -140,17 +173,23 @@ form.addEventListener("submit",async(event)=>{
   return;
  }
 
- const name=document.getElementById("audienceName").value.trim();
- const mobile=document.getElementById("mobile").value.trim();
+ if(String(selectedShow.entryType||"Free").toLowerCase()==="paid"){
+  showMessage("This is a paid show. Please contact the host.","error");
+  return;
+ }
 
- if(!name||!mobile){
-  showMessage("Please complete all fields.","error");
+ const name=document.getElementById("audienceName").value.trim();
+ const locationName=document.getElementById("audienceLocation").value.trim();
+ const accepted=document.getElementById("acceptRules").checked;
+
+ if(!name||!locationName||!accepted){
+  showMessage("Enter your name and location, and accept the auditorium rules.","error");
   return;
  }
 
  button.disabled=true;
  button.textContent="PLEASE WAIT...";
- showMessage("Checking entry eligibility...","muted");
+ showMessage("Checking your entry...","muted");
 
  try{
   let user=auth.currentUser;
@@ -160,47 +199,45 @@ form.addEventListener("submit",async(event)=>{
    user=result.user;
   }
 
-  // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
   const blockRef=ref(db,"audienceBlocks/"+showId+"/"+user.uid);
   const blockSnapshot=await get(blockRef);
 
   if(blockSnapshot.exists() && blockSnapshot.val()?.blocked===true){
-   showMessage(
-    "Your entry request for this show is blocked. Please contact the host if you think this is a mistake.",
-    "error"
-   );
+   showMessage("You are blocked from entering this show. Please contact the host if you think this is a mistake.","error");
    return;
   }
 
-  // SUBMIT REQUEST ONLY IF NOT BLOCKED
   const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
 
   await set(requestRef,{
    audienceUid:user.uid,
    name,
-   mobile,
+   location:locationName,
    showId,
    showTitle:selectedShow.title||"",
    hostUid:selectedShow.hostUid||"",
-   entryType:selectedShow.entryType||"Free",
-   entryFee:selectedShow.entryFee||0,
-   status:"Pending",
+   entryType:"Free",
+   entryFee:0,
+   rulesAccepted:true,
+   rulesAcceptedAt:Date.now(),
+   status:"Approved",
    createdAt:Date.now()
   });
 
   showMessage(
-   "Your entry request has been submitted. Please wait for the host to approve your entry.",
+   "Your free-show registration is confirmed! You do not need host approval. Please enter the auditorium when the show starts.",
    "success"
   );
 
   form.reset();
+  form.style.display="none";
 
  }catch(error){
   console.error("Audience entry error:",error);
-  showMessage("Request failed: "+error.message,"error");
+  showMessage("Registration failed: "+error.message,"error");
  }finally{
   button.disabled=false;
-  button.textContent="REQUEST AUDIENCE ENTRY";
+  button.textContent="JOIN FREE SHOW";
  }
 });
 
