@@ -150,15 +150,29 @@ form.addEventListener("submit",async(event)=>{
 
  button.disabled=true;
  button.textContent="PLEASE WAIT...";
- showMessage("Submitting your entry request...","muted");
+ showMessage("Checking entry eligibility...","muted");
 
  try{
   let user=auth.currentUser;
+
   if(!user){
    const result=await signInAnonymously(auth);
    user=result.user;
   }
 
+  // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
+  const blockRef=ref(db,"audienceBlocks/"+showId+"/"+user.uid);
+  const blockSnapshot=await get(blockRef);
+
+  if(blockSnapshot.exists() && blockSnapshot.val()?.blocked===true){
+   showMessage(
+    "Your entry request for this show is blocked. Please contact the host if you think this is a mistake.",
+    "error"
+   );
+   return;
+  }
+
+  // SUBMIT REQUEST ONLY IF NOT BLOCKED
   const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
 
   await set(requestRef,{
