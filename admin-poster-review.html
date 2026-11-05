@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Poster Review | Melody Magic</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080808;color:white;font-family:Arial,sans-serif}
+header{background:#111;padding:22px;text-align:center;border-bottom:1px solid #b89445}
+.brand{font-size:25px;font-weight:bold;color:#e6c16a}
+.subtitle{color:#bbb;font-size:13px;margin-top:7px}
+main{max-width:1100px;margin:25px auto;padding:0 15px}
+.card{background:#151515;border:1px solid #453a2b;border-radius:12px;padding:20px;margin-bottom:20px}
+h2,h3{color:#e6c16a}
+button{padding:11px 16px;border:0;border-radius:7px;background:#c49b45;color:#111;font-weight:bold;cursor:pointer;margin:5px 5px 5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.approve{background:#168c4a;color:white}
+.reject{background:#a83232;color:white}
+.secondary{background:#444;color:white}
+input,textarea{width:100%;padding:12px;margin:8px 0 14px;background:#090909;color:white;border:1px solid #555;border-radius:7px}
+label{display:block;color:#ddd;font-size:14px}
+.status{background:#202020;padding:12px;border-radius:7px;color:#e6c16a;line-height:1.5;margin:12px 0}
+.small{color:#aaa;font-size:13px;line-height:1.5}
+.poster-card{background:#101010;border:1px solid #444;border-radius:10px;padding:16px;margin:15px 0}
+.poster-image{display:block;width:100%;max-width:380px;max-height:500px;object-fit:contain;background:#222;margin:12px 0;border-radius:8px}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#333;color:#e6c16a;font-size:12px}
+.hidden{display:none!important}
+.host-row{padding:13px 0;border-bottom:1px solid #333}
+footer{text-align:center;padding:25px;color:#888;font-size:12px}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">MELODY MAGIC</div>
+  <div class="subtitle">ADMIN — POSTER APPROVAL CONTROL</div>
+</header>
+
+<main>
+
+  <div id="message" class="status">Checking administrator account...</div>
+
+  <section id="adminDashboard" class="hidden">
+
+    <div class="card">
+      <h2>Admin Control</h2>
+      <p>Manage host poster upload permissions and review submitted show posters.</p>
+      <button id="refreshButton">Refresh Dashboard</button>
+      <button id="logoutButton" class="reject">Sign Out</button>
+    </div>
+
+    <div class="card">
+      <h2>Host Poster Upload Permissions</h2>
+      <p class="small">Enable poster uploads for approved hosts. Disabling permission prevents future uploads but does not delete existing posters.</p>
+      <div id="hostList">Loading hosts...</div>
+    </div>
+
+    <div class="card">
+      <h2>Poster Submissions</h2>
+      <div id="posterList">Loading poster submissions...</div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  Melody Magic Digital Auditorium<br>
+  Administrator Control Panel
+</footer>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  ref,
+  get,
+  set,
+  update
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
+
+const message = document.getElementById("message");
+const dashboard = document.getElementById("adminDashboard");
+const hostList = document.getElementById("hostList");
+const posterList = document.getElementById("posterList");
+
+let adminUser = null;
+
+function showMessage(text) {
+  message.textContent = text;
+  message.classList.remove("hidden");
+}
+
+function setStatus(text) {
+  message.textContent = text;
+  message.classList.remove("hidden");
+}
+
+function formatDate(value) {
+  if (!value) return "Not available";
+
+  const date = new Date(value + "T00:00:00");
+
+  if (Number.isNaN(date.getTime())) return "Not available";
+
+  return date.toLocaleDateString("en-IN", {
+    day:"2-digit",
+    month:"short",
+    year:"numeric"
+  });
+}
+
+function formatTime(value) {
+  if (!value) return "Not available";
+
+  const date = new Date(Number(value));
+
+  if (Number.isNaN(date.getTime())) return "Not available";
+
+  return date.toLocaleString("en-IN");
+}
+
+function hostName(data) {
+  return data.name ||
+         data.fullName ||
+         data.hostName ||
+         "Host";
+}
+
+function hostMobile(data) {
+  return data.mobile ||
+         data.phone ||
+         data.phoneNumber ||
+         data.contactNumber ||
+         "Not provided";
+}
+
+/* AUTHENTICATION */
+
+onAuthStateChanged(auth, async user => {
+
+  if (!user) {
+    showMessage("Please sign in with your administrator account.");
+    setTimeout(() => {
+      window.location.href = "host-login.html";
+    }, 1500);
+    return;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+    showMessage("Access denied. Administrator account required.");
+    await signOut(auth);
+    return;
+  }
+
+  adminUser = user;
+  dashboard.classList.remove("hidden");
+  message.classList.add("hidden");
+
+  await loadAdminData();
+});
+
+/* LOAD ALL ADMIN DATA */
+
+async function loadAdminData() {
+  setStatus("Loading administrator dashboard...");
+
+  await Promise.all([
+    loadHosts(),
+    loadPosters()
+  ]);
+
+  message.classList.add("hidden");
+}
+
+/* HOST PERMISSIONS */
+
+async function loadHosts() {
+  hostList.textContent = "Loading hosts...";
+
+  try {
+    const [hostSnapshot, permissionSnapshot] = await Promise.all([
+      get(ref(db, "hostApplications")),
+      get(ref(db, "posterUploadPermissions"))
+    ]);
+
+    hostList.innerHTML = "";
+
+    if (!hostSnapshot.exists()) {
+      hostList.textContent = "No host applications found.";
+      return;
+    }
+
+    const hosts = hostSnapshot.val();
+    const permissions = permissionSnapshot.exists()
+      ? permissionSnapshot.val()
+      : {};
+
+    const approvedHosts = Object.entries(hosts)
+      .filter(([uid, host]) => host && host.status === "Approved");
+
+    if (!approvedHosts.length) {
+      hostList.textContent = "No approved hosts found.";
+      return;
+    }
+
+    for (const [uid, host] of approvedHosts) {
+      const permissionValue = permissions[uid];
+
+      const enabled =
+        permissionValue === true ||
+        permissionValue === "true" ||
+        (permissionValue && typeof permissionValue === "object" &&
+         (permissionValue.enabled === true ||
+          permissionValue.allowed === true));
+
+      const row = document.createElement("div");
+      row.className = "host-row";
+
+      const name = document.createElement("h3");
+      name.textContent = hostName(host);
+
+      const details = document.createElement("p");
+      details.className = "small";
+      details.textContent =
+        "Email: " + (host.email || "Not provided") +
+        " | Mobile: " + hostMobile(host);
+
+      const state = document.createElement("p");
+      state.textContent = enabled
+        ? "Poster upload: ENABLED"
+        : "Poster upload: DISABLED";
+
+      const toggleButton = document.createElement("button");
+      toggleButton.textContent = enabled
+        ? "Disable Poster Upload"
+        : "Enable Poster Upload";
+
+      toggleButton.className = enabled ? "reject" : "approve";
+
+      toggleButton.addEventListener("click", async () => {
+        toggleButton.disabled = true;
+
+        try {
+          await set(
+            ref(db, "posterUploadPermissions/" + uid),
+            !enabled
+          );
+
+          await loadHosts();
+
+          setStatus(
+            !enabled
+              ? "Poster upload permission enabled for " + hostName(host) + "."
+              : "Poster upload permission disabled for " + hostName(host) + "."
+          );
+
+        } catch (error) {
+          console.error(error);
+          alert("Unable to change poster permission. Check Firebase rules.");
+          toggleButton.disabled = false;
+        }
+      });
+
+      row.append(name, details, state, toggleButton);
+      hostList.appendChild(row);
+    }
+
+  } catch (error) {
+    console.error(error);
+    hostList.textContent =
+      "Unable to load hosts. Check administrator Firebase permissions.";
+  }
+}
+
+/* LOAD POSTERS */
+
+async function loadPosters() {
+  posterList.textContent = "Loading poster submissions...";
+
+  try {
+    const [posterSnapshot, showSnapshot] = await Promise.all([
+      get(ref(db, "showPosters")),
+      get(ref(db, "shows"))
+    ]);
+
+    posterList.innerHTML = "";
+
+    if (!posterSnapshot.exists()) {
+      posterList.textContent = "No poster submissions yet.";
+      return;
+    }
+
+    const posters = posterSnapshot.val();
+    const shows = showSnapshot.exists() ? showSnapshot.val() : {};
+
+    const entries = Object.entries(posters)
+      .filter(([id, poster]) => poster && poster.imageData)
+      .sort((a, b) =>
+        Number(b[1].submittedAt || 0) -
+        Number(a[1].submittedAt || 0)
+      );
+
+    if (!entries.length) {
+      posterList.textContent = "No poster submissions yet.";
+      return;
+    }
+
+    for (const [showId, poster] of entries) {
+      renderPosterCard(showId, poster, shows[showId] || {});
+    }
+
+  } catch (error) {
+    console.error(error);
+    posterList.textContent =
+      "Unable to load posters. Check Firebase administrator permissions.";
+  }
+}
+
+/* POSTER REVIEW CARD */
+
+function renderPosterCard(showId, poster, show) {
+  const card = document.createElement("div");
+  card.className = "poster-card";
+
+  const title = document.createElement("h3");
+  title.textContent = show.title || "Show: " + showId;
+
+  const host = document.createElement("p");
+  host.className = "small";
+  host.textContent =
+    "Host: " + (show.hostName || poster.hostUid || "Not available");
+
+  const date = document.createElement("p");
+  date.className = "small";
+  date.textContent =
+    "Show date: " + formatDate(show.date);
+
+  const submitted = document.createElement("p");
+  submitted.className = "small";
+  submitted.textContent =
+    "Submitted: " + formatTime(poster.submittedAt);
+
+  const status = document.createElement("span");
+  status.className = "badge";
+  status.textContent = poster.status || "Pending";
+
+  const image = document.createElement("img");
+  image.className = "poster-image";
+  image.src = poster.imageData;
+  image.alt = "Poster for " + (show.title || "show");
+
+  const feedbackLabel = document.createElement("label");
+  feedbackLabel.textContent = "Rejection feedback (optional)";
+
+  const feedback = document.createElement("textarea");
+  feedback.placeholder = "Explain why this poster is rejected...";
+
+  const actions = document.createElement("div");
+
+  const approveButton = document.createElement("button");
+  approveButton.textContent = "Approve Poster";
+  approveButton.className = "approve";
+
+  const rejectButton = document.createElement("button");
+  rejectButton.textContent = "Reject Poster";
+  rejectButton.className = "reject";
+
+  approveButton.addEventListener("click", async () => {
+    const confirmed = confirm(
+      "Approve this poster and make it available for public display?"
+    );
+
+    if (!confirmed) return;
+
+    approveButton.disabled = true;
+    rejectButton.disabled = true;
+
+    try {
+      const approvedRecord = {
+        showId,
+        hostUid: poster.hostUid,
+        title: show.title || "Show",
+        date: show.date || "",
+        time: show.time || "",
+        imageData: poster.imageData,
+        approvedAt: Date.now()
+      };
+
+      // Update both database paths together.
+      const changes = {};
+
+      changes["showPosters/" + showId + "/status"] = "Approved";
+      changes["showPosters/" + showId + "/approvedAt"] = Date.now();
+      changes["showPosters/" + showId + "/rejectionReason"] = null;
+
+      changes["approvedPosters/" + showId] = approvedRecord;
+
+      await update(ref(db), changes);
+
+      setStatus("Poster approved successfully.");
+      await loadPosters();
+
+    } catch (error) {
+      console.error(error);
+      alert("Unable to approve poster. Check Firebase rules.");
+      approveButton.disabled = false;
+      rejectButton.disabled = false;
+    }
+  });
+
+  rejectButton.addEventListener("click", async () => {
+    const reason = feedback.value.trim();
+
+    if (!reason) {
+      alert("Please enter a reason before rejecting the poster.");
+      feedback.focus();
+      return;
+    }
+
+    const confirmed = confirm("Reject this poster?");
+
+    if (!confirmed) return;
+
+    approveButton.disabled = true;
+    rejectButton.disabled = true;
+
+    try {
+      const changes = {};
+
+      changes["showPosters/" + showId + "/status"] = "Rejected";
+      changes["showPosters/" + showId + "/rejectionReason"] = reason;
+      changes["showPosters/" + showId + "/reviewedAt"] = Date.now();
+
+      // Remove an old approved copy, if one exists.
+      changes["approvedPosters/" + showId] = null;
+
+      await update(ref(db), changes);
+
+      setStatus("Poster rejected. Host can upload a replacement.");
+      await loadPosters();
+
+    } catch (error) {
+      console.error(error);
+      alert("Unable to reject poster. Check Firebase rules.");
+      approveButton.disabled = false;
+      rejectButton.disabled = false;
+    }
+  });
+
+  actions.append(approveButton, rejectButton);
+
+  card.append(
+    title,
+    host,
+    date,
+    submitted,
+    status,
+    image
+  );
+
+  if (poster.status !== "Approved") {
+    card.append(feedbackLabel, feedback, actions);
+  }
+
+  posterList.appendChild(card);
+}
+
+/* REFRESH */
+
+document.getElementById("refreshButton").addEventListener("click", async () => {
+  const button = document.getElementById("refreshButton");
+  button.disabled = true;
+
+  try {
+    await loadAdminData();
+  } finally {
+    button.disabled = false;
+  }
+});
+
+/* SIGN OUT */
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "host-login.html";
+  } catch (error) {
+    console.error(error);
+    alert("Unable to sign out.");
+  }
+});
+</script>
+
+</body>
+</html>
