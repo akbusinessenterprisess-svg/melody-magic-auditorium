@@ -51,11 +51,11 @@ Enter your name and location to register for this show.
 <div id="paymentArea" class="payment-box hidden">
 <strong style="color:#e7bd68">PAID SHOW – PAYMENT INSTRUCTIONS</strong>
 <p class="muted">
-Please contact the host using the button below to confirm payment details. After making payment, enter your UPI transaction ID / UTR number below and submit your application.
+Contact the host using the button below to confirm payment details. After making payment, enter your UPI transaction ID / UTR number below and submit your application.
 </p>
 <a id="hostContact" class="contact-link hidden" target="_blank" rel="noopener">CONTACT HOST ON WHATSAPP</a>
 <p class="location-note">
-Your application will remain pending until the host verifies your payment and approves your entry.
+Your application will remain pending until the host verifies your payment and approves your entry. Submitting a transaction reference does not itself confirm payment.
 </p>
 </div>
 
@@ -85,7 +85,7 @@ Click the button and allow location permission. You can also fill in the fields 
 <label for="paymentReference">Payment Transaction ID / UTR Number</label>
 <input id="paymentReference" type="text" maxlength="100" placeholder="Enter your UPI transaction ID / UTR number">
 <p class="location-note">
-Enter the reference number shown in your payment app. Do not enter your UPI PIN, password or bank details.
+Enter the reference number shown in your payment app. Never enter your UPI PIN, password or bank details.
 </p>
 </div>
 
@@ -122,7 +122,7 @@ Your location is used for audience registration. Automatic detection requires yo
 import {db,auth} from "./firebase.js";
 
 import {
- ref,get,push,set
+ ref,get,push,update
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 import {
@@ -142,12 +142,15 @@ const hostContact=document.getElementById("hostContact");
 const detectButton=document.getElementById("detectLocation");
 const locationStatus=document.getElementById("locationStatus");
 
+const nameInput=document.getElementById("audienceName");
 const areaInput=document.getElementById("audienceArea");
 const cityInput=document.getElementById("audienceCity");
 const stateInput=document.getElementById("audienceState");
+const acceptRules=document.getElementById("acceptRules");
 
 let selectedShow=null;
 let isPaidShow=false;
+let submitting=false;
 
 function showMessage(text,type){
  message.textContent=text;
@@ -190,9 +193,13 @@ detectButton.addEventListener("click",()=>{
     "&zoom=18"+
     "&addressdetails=1";
 
-   const response=await fetch(url,{headers:{"Accept":"application/json"}});
+   const response=await fetch(url,{
+    headers:{"Accept":"application/json"}
+   });
 
-   if(!response.ok) throw new Error("Location address service is unavailable.");
+   if(!response.ok){
+    throw new Error("Location address service is unavailable.");
+   }
 
    const result=await response.json();
    const address=result.address||{};
@@ -235,9 +242,14 @@ detectButton.addEventListener("click",()=>{
   }
  },(error)=>{
   let errorText="Could not detect your location.";
-  if(error.code===1) errorText="Location permission was denied. Please allow location access or enter your location manually.";
-  else if(error.code===2) errorText="Your location is currently unavailable. Please enter it manually.";
-  else if(error.code===3) errorText="Location detection timed out. Please try again or enter it manually.";
+
+  if(error.code===1){
+   errorText="Location permission was denied. Please allow location access or enter your location manually.";
+  }else if(error.code===2){
+   errorText="Your location is currently unavailable. Please enter it manually.";
+  }else if(error.code===3){
+   errorText="Location detection timed out. Please try again or enter it manually.";
+  }
 
   setLocationStatus(errorText,"error");
   detectButton.disabled=false;
@@ -252,10 +264,15 @@ detectButton.addEventListener("click",()=>{
 // LOAD SELECTED SHOW
 async function loadShow(){
  try{
-  if(!showId) throw new Error("No show selected. Please return to the homepage.");
+  if(!showId){
+   throw new Error("No show selected. Please return to the homepage.");
+  }
 
   const snapshot=await get(ref(db,"shows/"+showId));
-  if(!snapshot.exists()) throw new Error("This show could not be found.");
+
+  if(!snapshot.exists()){
+   throw new Error("This show could not be found.");
+  }
 
   selectedShow=snapshot.val();
 
@@ -299,7 +316,9 @@ async function loadShow(){
     selectedShow.hostWhatsApp||
     selectedShow.hostWhatsapp||
     selectedShow.contactWhatsApp||
-    selectedShow.mobile
+    selectedShow.whatsappNumber||
+    selectedShow.mobile||
+    selectedShow.hostPhone
    );
 
    if(phone){
@@ -308,9 +327,10 @@ async function loadShow(){
    }else{
     const note=document.createElement("p");
     note.className="error";
-    note.textContent="The host has not added a WhatsApp contact number. Please contact the host through the show organiser.";
+    note.textContent="The host has not added a WhatsApp contact number. Please contact the show organiser.";
     paymentArea.appendChild(note);
    }
+
   }else{
    document.getElementById("formHeading").textContent="Free Audience Entry";
    document.getElementById("formIntroduction").textContent=
@@ -326,20 +346,43 @@ async function loadShow(){
  }
 }
 
+// CHECK EXISTING REGISTRATION FOR THIS USER
+async function findExistingRegistration(uid){
+ const snapshot=await get(ref(db,"audienceEntryRequests/"+showId));
+
+ if(!snapshot.exists()) return null;
+
+ const requests=snapshot.val();
+
+ for(const [requestId,request] of Object.entries(requests)){
+  if(request && request.audienceUid===uid){
+   const status=String(request.status||"").toLowerCase();
+
+   if(status==="approved"||status==="pending"){
+    return {requestId,request};
+   }
+  }
+ }
+
+ return null;
+}
+
 // AUDIENCE REGISTRATION
 form.addEventListener("submit",async(event)=>{
  event.preventDefault();
+
+ if(submitting) return;
 
  if(!selectedShow){
   showMessage("Show details are not available.","error");
   return;
  }
 
- const name=document.getElementById("audienceName").value.trim();
+ const name=nameInput.value.trim();
  const area=areaInput.value.trim();
  const city=cityInput.value.trim();
  const state=stateInput.value.trim();
- const accepted=document.getElementById("acceptRules").checked;
+ const accepted=acceptRules.checked;
  const reference=paymentReference.value.trim();
 
  if(!name||!area||!city||!state||!accepted){
@@ -354,6 +397,7 @@ form.addEventListener("submit",async(event)=>{
 
  const locationName=[area,city,state].filter(Boolean).join(", ");
 
+ submitting=true;
  button.disabled=true;
  button.textContent="PLEASE WAIT...";
  detectButton.disabled=true;
@@ -361,34 +405,53 @@ form.addEventListener("submit",async(event)=>{
 
  try{
   let user=auth.currentUser;
+
   if(!user){
    const result=await signInAnonymously(auth);
    user=result.user;
   }
 
   // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
-  const blockRef=ref(db,"audienceBlocks/"+showId+"/"+user.uid);
-  const blockSnapshot=await get(blockRef);
+  const blockSnapshot=await get(
+   ref(db,"audienceBlocks/"+showId+"/"+user.uid)
+  );
 
   if(blockSnapshot.exists()&&blockSnapshot.val()?.blocked===true){
-   showMessage("You are blocked from entering this show. Please contact the host if you think this is a mistake.","error");
-   return;
+   throw new Error("You are blocked from entering this show. Please contact the host if you think this is a mistake.");
   }
 
   // RECHECK SHOW STATUS AND ENTRY TYPE
-  const latestShow=await get(ref(db,"shows/"+showId));
+  const latestShowSnapshot=await get(ref(db,"shows/"+showId));
 
-  if(!latestShow.exists()||latestShow.val().status!=="Published"){
+  if(!latestShowSnapshot.exists()||
+     latestShowSnapshot.val().status!=="Published"){
    throw new Error("This show is no longer available for registration.");
   }
 
-  const latestIsPaid=String(latestShow.val().entryType||"Free").toLowerCase()==="paid";
+  const latestShow=latestShowSnapshot.val();
+  const latestIsPaid=String(latestShow.entryType||"Free").toLowerCase()==="paid";
 
   if(latestIsPaid!==isPaidShow){
    throw new Error("The show entry type has changed. Please refresh this page and try again.");
   }
 
+  // CHECK FOR AN EXISTING PENDING OR APPROVED APPLICATION
+  const existing=await findExistingRegistration(user.uid);
+
+  if(existing){
+   const existingStatus=String(existing.request.status||"").toLowerCase();
+
+   if(existingStatus==="approved"){
+    throw new Error("You are already registered and approved for this show. Please use your existing entry.");
+   }
+
+   if(existingStatus==="pending"){
+    throw new Error("Your application is already pending with the host. Please wait for the host to review it.");
+   }
+  }
+
   const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
+  const requestId=requestRef.key;
   const now=Date.now();
 
   const registration={
@@ -399,10 +462,10 @@ form.addEventListener("submit",async(event)=>{
    city:city,
    state:state,
    showId:showId,
-   showTitle:selectedShow.title||"",
-   hostUid:selectedShow.hostUid||"",
+   showTitle:latestShow.title||"",
+   hostUid:latestShow.hostUid||"",
    entryType:isPaidShow?"Paid":"Free",
-   entryFee:isPaidShow?Number(selectedShow.entryFee||0):0,
+   entryFee:isPaidShow?Number(latestShow.entryFee||0):0,
    rulesAccepted:true,
    rulesAcceptedAt:now,
    status:isPaidShow?"Pending":"Approved",
@@ -414,16 +477,25 @@ form.addEventListener("submit",async(event)=>{
    registration.paymentStatus="Submitted for host verification";
   }
 
-  await set(requestRef,registration);
+  // WRITE THE REGISTRATION AND FREE ACCESS MARKER TOGETHER
+  const updates={};
+
+  updates["audienceEntryRequests/"+showId+"/"+requestId]=registration;
+
+  if(!isPaidShow){
+   updates["audienceAccess/"+showId+"/"+user.uid]=true;
+  }
+
+  await update(ref(db),updates);
 
   if(isPaidShow){
    showMessage(
-    "Your paid-show application has been submitted successfully. Your entry is PENDING. The host will verify your payment and approve or reject your application. You can enter only after approval.",
+    "Your paid-show application has been submitted successfully. Your entry is PENDING. The host must verify your payment and approve your application. You can enter only after approval.",
     "success"
    );
   }else{
    showMessage(
-    "Your free-show registration is confirmed! You do not need host approval. Please enter the auditorium when the show starts.",
+    "Your free-show registration is confirmed! Your entry is automatically approved. Please enter the auditorium when the show starts.",
     "success"
    );
   }
@@ -435,6 +507,7 @@ form.addEventListener("submit",async(event)=>{
   console.error("Audience entry error:",error);
   showMessage("Registration failed: "+error.message,"error");
  }finally{
+  submitting=false;
   button.disabled=false;
   button.textContent=isPaidShow?"SUBMIT PAID SHOW APPLICATION":"JOIN FREE SHOW";
   detectButton.disabled=false;
