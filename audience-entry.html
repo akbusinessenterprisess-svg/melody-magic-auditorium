@@ -161,6 +161,23 @@ function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
 
+// NEW AUDIENCE FEE FIELD WITH OLD-FIELD COMPATIBILITY
+function getAudienceEntryType(show){
+ return String(
+  show.audienceEntryType||
+  show.entryType||
+  "free"
+ ).toLowerCase();
+}
+
+function getAudienceEntryFee(show){
+ return Number(
+  show.audienceEntryFee??
+  show.entryFee??
+  0
+ );
+}
+
 function setLocationStatus(text,type="normal"){
  locationStatus.textContent=text;
  locationStatus.style.color=
@@ -280,7 +297,8 @@ async function loadShow(){
    throw new Error("This show is not currently available.");
   }
 
-  isPaidShow=String(selectedShow.entryType||"Free").toLowerCase()==="paid";
+  // USE AUDIENCE FEE, NOT PERFORMER FEE
+  isPaidShow=getAudienceEntryType(selectedShow)==="paid";
 
   const title=document.createElement("h3");
   title.textContent=selectedShow.title||"Live Show";
@@ -296,15 +314,15 @@ async function loadShow(){
 
   const fee=document.createElement("p");
   fee.textContent=isPaidShow
-   ?"Entry Fee: ₹"+(selectedShow.entryFee||0)
-   :"Entry: FREE";
+   ?"Audience Entry Fee: ₹"+getAudienceEntryFee(selectedShow)
+   :"Audience Entry: FREE";
 
   showDetails.replaceChildren(title,date,time,host,fee);
 
   if(isPaidShow){
-   document.getElementById("formHeading").textContent="Paid Show Registration";
+   document.getElementById("formHeading").textContent="Paid Audience Registration";
    document.getElementById("formIntroduction").textContent=
-    "Complete the details below to apply for entry. Your application will be reviewed by the host.";
+    "Complete the details below to apply for audience entry. Your application will be reviewed by the host.";
 
    paymentArea.classList.remove("hidden");
    paymentReferenceArea.classList.remove("hidden");
@@ -426,7 +444,7 @@ form.addEventListener("submit",async(event)=>{
    throw new Error("You are blocked from entering this show. Please contact the host if you think this is a mistake.");
   }
 
-  // RECHECK SHOW
+  // RECHECK SHOW AND AUDIENCE FEE
   const latestShowSnapshot=await get(ref(db,"shows/"+showId));
 
   if(!latestShowSnapshot.exists()||
@@ -435,11 +453,15 @@ form.addEventListener("submit",async(event)=>{
   }
 
   const latestShow=latestShowSnapshot.val();
-  const latestIsPaid=String(latestShow.entryType||"Free").toLowerCase()==="paid";
+
+  const latestIsPaid=
+   getAudienceEntryType(latestShow)==="paid";
 
   if(latestIsPaid!==isPaidShow){
-   throw new Error("The show entry type has changed. Please refresh this page and try again.");
+   throw new Error("The audience entry type has changed. Please refresh this page and try again.");
   }
+
+  const latestAudienceFee=getAudienceEntryFee(latestShow);
 
   // CHECK EXISTING APPLICATIONS PRIVATELY
   const existing=await findExistingRegistration(user.uid);
@@ -471,7 +493,9 @@ form.addEventListener("submit",async(event)=>{
    showTitle:latestShow.title||"",
    hostUid:latestShow.hostUid||"",
    entryType:isPaidShow?"Paid":"Free",
-   entryFee:isPaidShow?Number(latestShow.entryFee||0):0,
+   entryFee:isPaidShow?latestAudienceFee:0,
+   audienceEntryType:isPaidShow?"paid":"free",
+   audienceEntryFee:isPaidShow?latestAudienceFee:0,
    rulesAccepted:true,
    rulesAcceptedAt:now,
    status:isPaidShow?"Pending":"Approved",
@@ -496,12 +520,12 @@ form.addEventListener("submit",async(event)=>{
 
   if(isPaidShow){
    showMessage(
-    "Your paid-show application has been submitted successfully. Your entry is PENDING. The host must verify your payment and approve your application. You can enter only after approval.",
+    "Your paid audience application has been submitted successfully. Your entry is PENDING. The host must verify your payment and approve your application. You can enter only after approval.",
     "success"
    );
   }else{
    showMessage(
-    "Your free-show registration is confirmed! Your entry is automatically approved. Please enter the auditorium when the show starts.",
+    "Your free audience registration is confirmed! Your entry is automatically approved. Please enter the auditorium when the show starts.",
     "success"
    );
   }
