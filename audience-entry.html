@@ -5,52 +5,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Melody Magic - Audience Entry</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:20px;background:#090807;color:white;font-family:Arial,sans-serif}
+body{
+ margin:0;padding:20px;background:#090807;
+ color:white;font-family:Arial,sans-serif
+}
 .container{max-width:600px;margin:25px auto}
 h1,h2{color:#e7bd68}
-.card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
-label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
-input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
-button{display:block;width:100%;padding:14px;margin-top:20px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;cursor:pointer}
+.card{
+ background:#191510;border:1px solid #705322;
+ border-radius:12px;padding:22px;margin:18px 0
+}
+label{
+ display:block;color:#e7bd68;
+ margin-top:15px;font-size:14px
+}
+input{
+ width:100%;padding:13px;margin-top:7px;
+ background:#0d0b08;color:white;
+ border:1px solid #57452c;border-radius:6px;
+ font-size:16px
+}
+button{
+ display:block;width:100%;padding:14px;
+ margin-top:15px;background:#e7bd68;
+ color:#171009;border:0;border-radius:7px;
+ font-size:16px;font-weight:bold;cursor:pointer
+}
 button:disabled{opacity:.5;cursor:wait}
+.detect{
+ background:#273c2b;color:#d8f5dc;
+ border:1px solid #527b58
+}
 .muted{color:#c2b7a6;line-height:1.6}
 .success{color:#8ee29a;line-height:1.6}
 .error{color:#ff9999;line-height:1.6}
-.rules{background:#0d0b08;border:1px solid #57452c;border-radius:8px;padding:15px;margin-top:18px;color:#ddd;line-height:1.7}
-.check{display:flex;gap:10px;align-items:flex-start;color:#e7bd68;line-height:1.5}
-.check input{width:18px;height:18px;margin:2px 0;flex-shrink:0}
+.location-status{
+ color:#c2b7a6;font-size:13px;
+ line-height:1.5;margin-top:10px
+}
+.rules{
+ background:#0d0b08;border:1px solid #57452c;
+ border-radius:8px;padding:15px;
+ margin-top:18px;color:#ddd;line-height:1.7
+}
+.check{
+ display:flex;gap:10px;align-items:flex-start;
+ color:#e7bd68;line-height:1.5
+}
+.check input{
+ width:18px;height:18px;margin:2px 0;flex-shrink:0
+}
+.location-note{
+ font-size:12px;color:#aaa;margin-top:10px;
+ line-height:1.5
+}
 </style>
 </head>
+
 <body>
 <div class="container">
+
 <h1>MELODY MAGIC</h1>
 <p class="muted">DIGITAL AUDITORIUM</p>
 
 <div class="card">
 <h2>Selected Show</h2>
-<div id="showDetails" class="muted">Loading show details...</div>
+<div id="showDetails" class="muted">
+Loading show details...
+</div>
 </div>
 
 <div class="card">
 <h2>Free Audience Entry</h2>
+
 <p class="muted">
-Enter your name and city to join this free show.
+Enter your name and location to join this free show.
+You can detect your location automatically or enter it manually.
 No mobile number or host approval is required.
 </p>
 
 <form id="entryForm">
-<label for="audienceName">Full Name</label>
-<input id="audienceName" type="text"
-placeholder="Enter your full name" maxlength="80" required>
 
-<label for="audienceLocation">City / Location</label>
-<input id="audienceLocation" type="text"
-placeholder="Example: Panvel, Navi Mumbai" maxlength="100" required>
+<label for="audienceName">Full Name</label>
+<input
+ id="audienceName"
+ type="text"
+ placeholder="Enter your full name"
+ maxlength="80"
+ autocomplete="name"
+ required
+>
+
+<h3 style="color:#e7bd68;margin-top:25px">
+Your Location
+</h3>
+
+<button
+ type="button"
+ id="detectLocation"
+ class="detect"
+>
+📍 DETECT MY LOCATION
+</button>
+
+<div
+ id="locationStatus"
+ class="location-status"
+ aria-live="polite"
+>
+Click the button and allow location permission.
+You can also fill in the fields manually.
+</div>
+
+<label for="audienceArea">Area / Locality</label>
+<input
+ id="audienceArea"
+ type="text"
+ placeholder="Example: Sector 11, New Panvel"
+ maxlength="100"
+ autocomplete="address-level3"
+ required
+>
+
+<label for="audienceCity">City / Town</label>
+<input
+ id="audienceCity"
+ type="text"
+ placeholder="Example: Panvel"
+ maxlength="100"
+ autocomplete="address-level2"
+ required
+>
+
+<label for="audienceState">State</label>
+<input
+ id="audienceState"
+ type="text"
+ placeholder="Example: Maharashtra"
+ maxlength="100"
+ autocomplete="address-level1"
+ required
+>
+
+<p class="location-note">
+Your location is used for audience registration.
+Automatic detection requires your browser's permission.
+You can edit the detected details before submitting.
+Location lookup is provided by OpenStreetMap.
+</p>
 
 <div class="rules">
-<strong style="color:#e7bd68">AUDITORIUM RULES – PLEASE READ</strong>
+<strong style="color:#e7bd68">
+AUDITORIUM RULES – PLEASE READ
+</strong>
+
 <ol>
 <li>Respect the host, singers and all participants.</li>
 <li>No abusive language, harassment or inappropriate behaviour.</li>
@@ -67,50 +178,225 @@ placeholder="Example: Panvel, Navi Mumbai" maxlength="100" required>
 <span>I have read and agree to follow all auditorium rules.</span>
 </label>
 
-<button id="submitButton" type="submit">JOIN FREE SHOW</button>
+<button id="submitButton" type="submit">
+JOIN FREE SHOW
+</button>
+
 </form>
 
 <div id="message" aria-live="polite"></div>
 <div id="paymentArea"></div>
+
 </div>
 </div>
 
 <script type="module">
+
 import {db,auth} from "./firebase.js";
-import {ref,get,push,set}
-from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-import {signInAnonymously}
-from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+import {
+ ref,get,push,set
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+import {
+ signInAnonymously
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
 
 const showId=new URLSearchParams(location.search).get("showId");
+
 const showDetails=document.getElementById("showDetails");
 const form=document.getElementById("entryForm");
 const message=document.getElementById("message");
 const button=document.getElementById("submitButton");
 const paymentArea=document.getElementById("paymentArea");
 
+const detectButton=document.getElementById("detectLocation");
+const locationStatus=document.getElementById("locationStatus");
+
+const areaInput=document.getElementById("audienceArea");
+const cityInput=document.getElementById("audienceCity");
+const stateInput=document.getElementById("audienceState");
+
 let selectedShow=null;
+
 
 function showMessage(text,type){
  message.textContent=text;
  message.className=type;
 }
 
+
 function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
 
+
+function setLocationStatus(text,type="normal"){
+ locationStatus.textContent=text;
+ locationStatus.style.color=
+  type==="success" ? "#8ee29a" :
+  type==="error" ? "#ff9999" : "#c2b7a6";
+}
+
+
+// AUTOMATIC LOCATION DETECTION
+
+detectButton.addEventListener("click",()=>{
+
+ if(!navigator.geolocation){
+  setLocationStatus(
+   "Your browser does not support location detection. Please enter your location manually.",
+   "error"
+  );
+  return;
+ }
+
+ detectButton.disabled=true;
+ detectButton.textContent="DETECTING LOCATION...";
+
+ setLocationStatus(
+  "Please wait. Getting your location..."
+ );
+
+ navigator.geolocation.getCurrentPosition(
+
+  async(position)=>{
+
+   try{
+
+    const latitude=position.coords.latitude;
+    const longitude=position.coords.longitude;
+
+    setLocationStatus(
+     "Location detected. Finding your area, city and state..."
+    );
+
+    const url=
+     "https://nominatim.openstreetmap.org/reverse"+
+     "?format=jsonv2"+
+     "&lat="+encodeURIComponent(latitude)+
+     "&lon="+encodeURIComponent(longitude)+
+     "&zoom=18"+
+     "&addressdetails=1";
+
+    const response=await fetch(url,{
+     headers:{
+      "Accept":"application/json"
+     }
+    });
+
+    if(!response.ok){
+     throw new Error("Location address service is unavailable.");
+    }
+
+    const result=await response.json();
+    const address=result.address||{};
+
+    const area=
+     address.neighbourhood||
+     address.suburb||
+     address.residential||
+     address.quarter||
+     address.city_district||
+     address.village||
+     address.hamlet||
+     address.town||
+     "";
+
+    const city=
+     address.city||
+     address.town||
+     address.village||
+     address.municipality||
+     address.county||
+     "";
+
+    const state=address.state||"";
+
+    if(!city&&!state&&!area){
+     throw new Error("Could not identify your address. Please enter it manually.");
+    }
+
+    areaInput.value=area||city;
+    cityInput.value=city||area;
+    stateInput.value=state;
+
+    setLocationStatus(
+     "Location detected successfully! Please check the details and edit them if necessary.",
+     "success"
+    );
+
+   }catch(error){
+
+    console.error("Location lookup error:",error);
+
+    setLocationStatus(
+     error.message+
+     " You can enter your area, city and state manually.",
+     "error"
+    );
+
+   }finally{
+
+    detectButton.disabled=false;
+    detectButton.textContent="📍 DETECT MY LOCATION";
+
+   }
+
+  },
+
+  (error)=>{
+
+   let errorText="Could not detect your location.";
+
+   if(error.code===1){
+    errorText="Location permission was denied. Please allow location access or enter your location manually.";
+   }else if(error.code===2){
+    errorText="Your location is currently unavailable. Please enter it manually.";
+   }else if(error.code===3){
+    errorText="Location detection timed out. Please try again or enter it manually.";
+   }
+
+   setLocationStatus(errorText,"error");
+
+   detectButton.disabled=false;
+   detectButton.textContent="📍 DETECT MY LOCATION";
+
+  },
+
+  {
+   enableHighAccuracy:false,
+   timeout:15000,
+   maximumAge:300000
+  }
+
+ );
+
+});
+
+
+// LOAD SELECTED SHOW
+
 async function loadShow(){
+
  try{
-  if(!showId) throw new Error("No show selected. Please return to the homepage.");
+
+  if(!showId){
+   throw new Error("No show selected. Please return to the homepage.");
+  }
 
   const snapshot=await get(ref(db,"shows/"+showId));
-  if(!snapshot.exists()) throw new Error("This show could not be found.");
+
+  if(!snapshot.exists()){
+   throw new Error("This show could not be found.");
+  }
 
   selectedShow=snapshot.val();
 
-  if(selectedShow.status!=="Published")
+  if(selectedShow.status!=="Published"){
    throw new Error("This show is not currently available.");
+  }
 
   const title=document.createElement("h3");
   title.textContent=selectedShow.title||"Live Show";
@@ -124,9 +410,11 @@ async function loadShow(){
   const host=document.createElement("p");
   host.textContent="Host: "+(selectedShow.hostName||"Host");
 
-  const paid=String(selectedShow.entryType||"Free").toLowerCase()==="paid";
+  const paid=
+   String(selectedShow.entryType||"Free").toLowerCase()==="paid";
 
   const fee=document.createElement("p");
+
   fee.textContent=paid
    ?"Entry Fee: ₹"+(selectedShow.entryFee||0)
    :"Entry: FREE";
@@ -134,7 +422,9 @@ async function loadShow(){
   showDetails.replaceChildren(title,date,time,host,fee);
 
   if(paid){
+
    form.style.display="none";
+
    const phone=cleanPhone(
     selectedShow.hostMobile||
     selectedShow.hostWhatsApp||
@@ -144,28 +434,51 @@ async function loadShow(){
 
    const info=document.createElement("p");
    info.className="muted";
-   info.textContent="This is a paid show. Please contact the host for payment and entry details.";
+
+   info.textContent=
+    "This is a paid show. Please contact the host for payment and entry details.";
+
    paymentArea.appendChild(info);
 
    if(phone){
+
     const link=document.createElement("a");
-    link.href="https://wa.me/"+(phone.length===10?"91"+phone:phone);
+
+    link.href=
+     "https://wa.me/"+
+     (phone.length===10?"91"+phone:phone);
+
     link.target="_blank";
     link.rel="noopener";
+
     link.textContent="CONTACT HOST FOR PAYMENT";
-    link.style.cssText="display:block;padding:14px;margin-top:18px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold";
+
+    link.style.cssText=
+     "display:block;padding:14px;margin-top:18px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold";
+
     paymentArea.appendChild(link);
+
    }
+
   }
+
  }catch(error){
+
   showDetails.textContent=error.message;
   showDetails.className="error";
   form.style.display="none";
+
   console.error(error);
+
  }
+
 }
 
+
+// FREE AUDIENCE REGISTRATION
+
 form.addEventListener("submit",async(event)=>{
+
  event.preventDefault();
 
  if(!selectedShow){
@@ -178,20 +491,40 @@ form.addEventListener("submit",async(event)=>{
   return;
  }
 
- const name=document.getElementById("audienceName").value.trim();
- const locationName=document.getElementById("audienceLocation").value.trim();
- const accepted=document.getElementById("acceptRules").checked;
+ const name=
+  document.getElementById("audienceName").value.trim();
 
- if(!name||!locationName||!accepted){
-  showMessage("Enter your name and location, and accept the auditorium rules.","error");
+ const area=areaInput.value.trim();
+ const city=cityInput.value.trim();
+ const state=stateInput.value.trim();
+
+ const accepted=
+  document.getElementById("acceptRules").checked;
+
+ if(!name||!area||!city||!state||!accepted){
+
+  showMessage(
+   "Please enter your name, area, city and state, and accept the auditorium rules.",
+   "error"
+  );
+
   return;
+
  }
+
+ const locationName=[area,city,state]
+  .filter(Boolean)
+  .join(", ");
 
  button.disabled=true;
  button.textContent="PLEASE WAIT...";
+
+ detectButton.disabled=true;
+
  showMessage("Checking your entry...","muted");
 
  try{
+
   let user=auth.currentUser;
 
   if(!user){
@@ -199,29 +532,64 @@ form.addEventListener("submit",async(event)=>{
    user=result.user;
   }
 
-  const blockRef=ref(db,"audienceBlocks/"+showId+"/"+user.uid);
+  // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
+
+  const blockRef=
+   ref(db,"audienceBlocks/"+showId+"/"+user.uid);
+
   const blockSnapshot=await get(blockRef);
 
-  if(blockSnapshot.exists() && blockSnapshot.val()?.blocked===true){
-   showMessage("You are blocked from entering this show. Please contact the host if you think this is a mistake.","error");
+  if(
+   blockSnapshot.exists()&&
+   blockSnapshot.val()?.blocked===true
+  ){
+
+   showMessage(
+    "You are blocked from entering this show. Please contact the host if you think this is a mistake.",
+    "error"
+   );
+
    return;
+
   }
 
-  const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
+  // SAVE REGISTRATION
+
+  const requestRef=
+   push(ref(db,"audienceEntryRequests/"+showId));
+
+  const now=Date.now();
 
   await set(requestRef,{
+
    audienceUid:user.uid,
-   name,
+
+   name:name,
+
    location:locationName,
-   showId,
+
+   area:area,
+   city:city,
+   state:state,
+
+   showId:showId,
+
    showTitle:selectedShow.title||"",
+
    hostUid:selectedShow.hostUid||"",
+
    entryType:"Free",
+
    entryFee:0,
+
    rulesAccepted:true,
-   rulesAcceptedAt:Date.now(),
+
+   rulesAcceptedAt:now,
+
    status:"Approved",
-   createdAt:Date.now()
+
+   createdAt:now
+
   });
 
   showMessage(
@@ -233,15 +601,28 @@ form.addEventListener("submit",async(event)=>{
   form.style.display="none";
 
  }catch(error){
+
   console.error("Audience entry error:",error);
-  showMessage("Registration failed: "+error.message,"error");
+
+  showMessage(
+   "Registration failed: "+error.message,
+   "error"
+  );
+
  }finally{
+
   button.disabled=false;
   button.textContent="JOIN FREE SHOW";
+
+  detectButton.disabled=false;
+
  }
+
 });
 
+
 loadShow();
+
 </script>
 </body>
 </html>
