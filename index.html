@@ -12,28 +12,51 @@
 html{scroll-behavior:smooth}
 body{margin:0;background:#080808;color:#fff;font-family:Arial,Helvetica,sans-serif}
 :root{--gold:#e8c36c;--gold2:#b88a36;--muted:#c9c2b4}
+
 header{padding:19px 15px;text-align:center;border-bottom:1px solid #705726;background:#090909}
 .logo{color:var(--gold);font-size:27px;font-weight:900;letter-spacing:3px}
 .tagline{color:#c9b98f;font-size:12px;margin-top:7px;letter-spacing:2px}
+
 nav{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:22px;padding:15px;background:#111;position:sticky;top:0;z-index:20;border-bottom:1px solid #493a20}
 nav a{color:var(--gold);text-decoration:none;font-size:13px}
 nav a:hover{color:white}
-.hero{min-height:540px;display:flex;align-items:center;justify-content:center;text-align:center;padding:65px 20px;background:linear-gradient(90deg,rgba(0,0,0,.91),rgba(0,0,0,.55),rgba(0,0,0,.88)),url("https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1800&q=85");background-size:cover;background-position:center;border-bottom:1px solid #80612b}
+
+.hero{
+ min-height:540px;display:flex;align-items:center;
+ justify-content:center;text-align:center;padding:65px 20px;
+ background:
+ linear-gradient(90deg,rgba(0,0,0,.91),rgba(0,0,0,.55),rgba(0,0,0,.88)),
+ url("https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1800&q=85");
+ background-size:cover;background-position:center;
+ border-bottom:1px solid #80612b;
+}
 .hero-content{max-width:850px}
 .hero-tag{color:var(--gold);letter-spacing:4px;font-size:12px;margin-bottom:18px;font-weight:bold}
 .hero h1{font-size:clamp(34px,7vw,65px);line-height:1.12;color:#f4d78e;margin:0 0 20px;text-shadow:0 3px 15px #000}
 .hero p{max-width:680px;margin:0 auto 28px;color:#eee;font-size:17px;line-height:1.8}
-.btn{display:inline-block;background:linear-gradient(135deg,#f3d78c,#bd8c36);color:#171006;padding:14px 22px;border-radius:7px;text-decoration:none;font-weight:bold;margin:6px;transition:.2s;border:1px solid #e8c36c}
+
+.btn{
+ display:inline-block;background:linear-gradient(135deg,#f3d78c,#bd8c36);
+ color:#171006;padding:14px 22px;border-radius:7px;
+ text-decoration:none;font-weight:bold;margin:6px;
+ transition:.2s;border:1px solid #e8c36c;
+}
 .btn:hover{transform:translateY(-3px);box-shadow:0 7px 20px #9c792e55}
 .btn.outline{background:transparent;color:var(--gold)}
-.btn.dark{background:#181818;color:var(--gold)}
+
 section{padding:55px 18px;text-align:center}
 .section-tag{color:#b88a36;letter-spacing:3px;font-size:11px;font-weight:bold}
 h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
 .section-intro{color:var(--muted);line-height:1.8;max-width:700px;margin:0 auto 25px;font-size:14px}
+
 .roles{background:linear-gradient(180deg,#100e0a,#080808)}
 .role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;max-width:1050px;margin:32px auto 0}
-.role-card{position:relative;overflow:hidden;border:1px solid #765a29;border-radius:14px;min-height:300px;text-align:left;display:flex;align-items:flex-end;background-size:cover;background-position:center;transition:.25s}
+.role-card{
+ position:relative;overflow:hidden;border:1px solid #765a29;
+ border-radius:14px;min-height:300px;text-align:left;
+ display:flex;align-items:flex-end;background-size:cover;
+ background-position:center;transition:.25s;
+}
 .role-card:hover{transform:translateY(-5px);border-color:#f1d28a}
 .role-card:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.15))}
 .performer{background-image:url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=85")}
@@ -44,6 +67,7 @@ h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
 .role-card h3{font-size:23px;margin:10px 0;color:#f4d78e}
 .role-card p{color:#eee;font-size:13px;line-height:1.6}
 .role-card .btn{margin:8px 0 0}
+
 .shows-section{background:linear-gradient(180deg,#080808,#15110a,#080808)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,320px));justify-content:center;gap:22px;margin:30px auto;max-width:1100px}
 .show-card{background:#151515;border:1px solid #80612b;border-radius:13px;overflow:hidden;text-align:left;transition:.2s}
@@ -54,26 +78,42 @@ h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
 .show-card h3{color:var(--gold);font-size:21px;margin:13px 0}
 .show-card p{color:#c9c2b4;font-size:13px;line-height:1.65;margin:8px 0}
 .show-entry{color:#f0ce78!important;font-weight:bold;font-size:15px!important}
-.show-button{display:block;text-align:center;background:linear-gradient(135deg,#f3d78c,#bd8c36);color:#171006;padding:12px 10px;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:11px;font-size:12px}
+.show-button{
+ display:block;text-align:center;
+ background:linear-gradient(135deg,#f3d78c,#bd8c36);
+ color:#171006;padding:12px 10px;border-radius:6px;
+ text-decoration:none;font-weight:bold;margin-top:11px;font-size:12px;
+}
 .show-button.secondary{background:transparent;border:1px solid var(--gold);color:var(--gold)}
 .show-button.disabled{opacity:.55;pointer-events:none}
 .show-message{color:#c9c2b4;line-height:1.7;padding:25px}
 .show-error{color:#ffaaaa}
+
 .features{background:#100e0a}
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));max-width:1000px;margin:30px auto;gap:15px}
 .feature{background:#191714;border:1px solid #493a20;padding:22px 15px;border-radius:10px}
 .feature .symbol{font-size:30px}
 .feature h3{color:var(--gold);font-size:16px}
 .feature p{color:var(--muted);font-size:13px;line-height:1.6}
+
 .about{max-width:850px;margin:auto;color:var(--muted);line-height:1.9;font-size:15px}
 .contact-strip{background:linear-gradient(120deg,#30220d,#100e0a);border-top:1px solid #765a29;border-bottom:1px solid #765a29}
 footer{text-align:center;padding:27px 15px;color:#aaa;border-top:1px solid #493a20;font-size:12px;line-height:2}
 footer a{color:var(--gold);text-decoration:none}
-@media(max-width:600px){nav{gap:13px}nav a{font-size:12px}.hero{min-height:470px;padding:50px 15px}.hero p{font-size:14px}.role-card{min-height:270px}section{padding:43px 14px}}
+
+@media(max-width:600px){
+ nav{gap:13px}
+ nav a{font-size:12px}
+ .hero{min-height:470px;padding:50px 15px}
+ .hero p{font-size:14px}
+ .role-card{min-height:270px}
+ section{padding:43px 14px}
+}
 </style>
 </head>
 
 <body>
+
 <header>
  <div class="logo">MELODY MAGIC</div>
  <div class="tagline">DIGITAL AUDITORIUM • SING • CONNECT • CELEBRATE</div>
@@ -102,7 +142,9 @@ footer a{color:var(--gold);text-decoration:none}
  <div class="section-tag">CHOOSE YOUR EXPERIENCE</div>
  <h2>HOW WOULD YOU LIKE TO JOIN?</h2>
  <p class="section-intro">Whether you love singing, enjoy listening or want to host your own show, there is a place for you at Melody Magic.</p>
+
  <div class="role-grid">
+
   <div class="role-card performer">
    <div class="role-content">
     <div class="role-number">01 • SING YOUR HEART OUT</div>
@@ -111,14 +153,16 @@ footer a{color:var(--gold);text-decoration:none}
     <a class="btn" href="#shows">FIND A SHOW</a>
    </div>
   </div>
+
   <div class="role-card audience">
    <div class="role-content">
     <div class="role-number">02 • ENJOY THE MUSIC</div>
     <h3>JOIN AS AUDIENCE</h3>
-    <p>Request entry to shows and enjoy the musical experience.</p>
+    <p>Join free shows directly or contact the host for paid show entry.</p>
     <a class="btn" href="#shows">EXPLORE SHOWS</a>
    </div>
   </div>
+
   <div class="role-card host">
    <div class="role-content">
     <div class="role-number">03 • CREATE YOUR EVENT</div>
@@ -127,13 +171,15 @@ footer a{color:var(--gold);text-decoration:none}
     <a class="btn" href="https://wa.me/919920360237?text=Hello%2C%20I%20want%20to%20become%20a%20host%20on%20Melody%20Magic%20Digital%20Auditorium.">CONTACT ADMIN</a>
    </div>
   </div>
+
  </div>
 </section>
 
 <section class="shows-section" id="shows">
  <div class="section-tag">DISCOVER THE MUSIC</div>
  <h2>UPCOMING LIVE SINGING SHOWS</h2>
- <p class="section-intro">Choose your favourite show. Performers can register and audience members can request entry directly.</p>
+ <p class="section-intro">Choose your favourite show. Free audience entry is available through registration. Paid audience entry is handled by the host.</p>
+
  <div class="cards" id="publishedShows">
   <div class="show-message">Loading published shows...</div>
  </div>
@@ -142,6 +188,7 @@ footer a{color:var(--gold);text-decoration:none}
 <section class="features">
  <div class="section-tag">THE DIGITAL MUSIC EXPERIENCE</div>
  <h2>MORE THAN JUST A SHOW</h2>
+
  <div class="feature-grid">
   <div class="feature"><div class="symbol">🎤</div><h3>Live Performances</h3><p>Give singers an opportunity to showcase their talent.</p></div>
   <div class="feature"><div class="symbol">🎧</div><h3>Watch & Listen</h3><p>Enjoy performances from the comfort of your home.</p></div>
@@ -171,9 +218,15 @@ footer a{color:var(--gold);text-decoration:none}
 </footer>
 
 <script type="module">
-import { auth, db } from "./firebase.js";
-import {ref,onValue} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {auth,db} from "./firebase.js";
+
+import {
+ ref,onValue
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+import {
+ onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 const ADMIN_UID="PI8sswS9a3ZBU001D3SBejMBJyO2";
 const showsContainer=document.getElementById("publishedShows");
@@ -189,15 +242,24 @@ let approvedPosters={};
 function normaliseWhatsApp(number){
  if(!number)return "";
  let digits=String(number).replace(/\D/g,"");
+
  if(digits.length===10)digits="91"+digits;
- else if(digits.length===11&&digits.startsWith("0"))digits="91"+digits.substring(1);
+ else if(digits.length===11&&digits.startsWith("0"))
+  digits="91"+digits.substring(1);
+
  return digits;
 }
 
 function getHostWhatsApp(show){
  return normaliseWhatsApp(
-  show.hostWhatsApp||show.hostWhatsapp||show.contactWhatsApp||
-  show.whatsappNumber||show.hostPhone||show.hostMobile||show.mobile||""
+  show.hostWhatsApp||
+  show.hostWhatsapp||
+  show.contactWhatsApp||
+  show.whatsappNumber||
+  show.hostPhone||
+  show.hostMobile||
+  show.mobile||
+  ""
  );
 }
 
@@ -210,8 +272,10 @@ function makeShowCard(show,showId){
  image.className="show-image";
  image.alt=(show.title||"Singing show")+" poster";
  image.loading="lazy";
+
  image.src=(poster&&poster.imageData)||show.posterUrl||
   "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=85";
+
  image.onerror=()=>{
   image.src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80";
  };
@@ -219,9 +283,11 @@ function makeShowCard(show,showId){
  const info=document.createElement("div");
  info.className="show-info";
 
+ const paid=String(show.entryType||"Free").toLowerCase()==="paid";
+
  const label=document.createElement("span");
  label.className="show-label";
- label.textContent=String(show.entryType||"Free").toLowerCase()==="paid"?"PAID ENTRY SHOW":"FREE ENTRY SHOW";
+ label.textContent=paid?"PAID ENTRY SHOW":"FREE ENTRY SHOW";
 
  const title=document.createElement("h3");
  title.textContent=show.title||"Untitled Show";
@@ -230,42 +296,57 @@ function makeShowCard(show,showId){
  host.textContent="Host: "+(show.hostName||"Approved Host");
 
  const dateTime=document.createElement("p");
- dateTime.textContent="Date: "+(show.date||"Not specified")+" | Time: "+(show.time||"Not specified");
+ dateTime.textContent="Date: "+(show.date||"Not specified")+
+  " | Time: "+(show.time||"Not specified");
 
  const description=document.createElement("p");
  description.textContent=show.description||"Join this live musical experience.";
 
- const paid=String(show.entryType||"Free").toLowerCase()==="paid";
  const entry=document.createElement("p");
  entry.className="show-entry";
- entry.textContent=paid?"Audience Entry Fee: ₹"+Number(show.entryFee||0):"Audience Entry: FREE";
+ entry.textContent=paid
+  ?"Audience Entry Fee: ₹"+Number(show.entryFee||0)
+  :"Audience Entry: FREE";
 
  const performerButton=document.createElement("a");
  performerButton.className="show-button";
  performerButton.textContent="REGISTER AS PERFORMER";
  performerButton.href="join-auditorium.html?showId="+encodeURIComponent(showId);
 
- // AUDIENCE BUTTON NOW OPENS FIREBASE REGISTRATION PAGE
  const audienceButton=document.createElement("a");
  audienceButton.className="show-button secondary";
- audienceButton.textContent="REQUEST AUDIENCE ENTRY";
- audienceButton.href="audience-entry.html?showId="+encodeURIComponent(showId);
 
- // WhatsApp is retained separately for paid-show payment enquiries
- info.append(label,title,host,dateTime,description,entry,performerButton,audienceButton);
+ if(!paid){
+  // FREE SHOW: DIRECT AUDIENCE REGISTRATION
+  audienceButton.textContent="JOIN FREE AS AUDIENCE";
+  audienceButton.href="audience-entry.html?showId="+encodeURIComponent(showId);
+ }else{
+  // PAID SHOW: CONTACT HOST THROUGH WHATSAPP
+  const hostNumber=getHostWhatsApp(show);
 
- const hostNumber=getHostWhatsApp(show);
- if(paid&&hostNumber){
-  const contactButton=document.createElement("a");
-  contactButton.className="show-button secondary";
-  contactButton.textContent="CONTACT HOST FOR PAYMENT";
-  const message="Hello, I want to attend your show: "+(show.title||"Singing Show")+
-   ". Please guide me about payment and audience entry.";
-  contactButton.href="https://wa.me/"+hostNumber+"?text="+encodeURIComponent(message);
-  contactButton.target="_blank";
-  contactButton.rel="noopener noreferrer";
-  info.appendChild(contactButton);
+  if(hostNumber){
+   audienceButton.textContent="PAY & JOIN SHOW";
+
+   const message="Hello, I want to join your paid show: "+
+    (show.title||"Singing Show")+
+    ". Please share payment details and audience entry instructions.";
+
+   audienceButton.href="https://wa.me/"+hostNumber+
+    "?text="+encodeURIComponent(message);
+
+   audienceButton.target="_blank";
+   audienceButton.rel="noopener noreferrer";
+  }else{
+   audienceButton.textContent="HOST WHATSAPP NOT AVAILABLE";
+   audienceButton.classList.add("disabled");
+   audienceButton.removeAttribute("href");
+  }
  }
+
+ info.append(
+  label,title,host,dateTime,description,entry,
+  performerButton,audienceButton
+ );
 
  card.append(image,info);
  return card;
@@ -292,7 +373,9 @@ function renderShows(){
   return;
  }
 
- shows.forEach(show=>showsContainer.appendChild(makeShowCard(show,show.id)));
+ shows.forEach(show=>{
+  showsContainer.appendChild(makeShowCard(show,show.id));
+ });
 }
 
 onValue(ref(db,"shows"),snapshot=>{
@@ -310,5 +393,6 @@ onValue(ref(db,"approvedPosters"),snapshot=>{
  console.error("Poster loading error:",error);
 });
 </script>
+
 </body>
 </html>
