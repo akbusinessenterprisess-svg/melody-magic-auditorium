@@ -3,127 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Host Dashboard | Melody Magic</title>
+<title>Host Dashboard | Melody Magic Digital Auditorium</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:#f5f0df;font-family:Arial,sans-serif}
-header{padding:24px 18px;text-align:center;background:#15120b;border-bottom:1px solid #b89542}
-.brand{color:#e5bd60;font-size:23px;font-weight:bold}
-header p{color:#c9b98e;font-size:13px}
-main{max-width:900px;margin:auto;padding:20px}
-h2{color:#e5bd60}
-.notice,.card{background:#171717;border:1px solid #51401f;border-radius:12px;padding:18px;margin-bottom:16px}
-.notice{background:#211b0e;border-color:#9c7832;line-height:1.6}
-.status{display:inline-block;color:#f1cb70;background:#30250e;padding:7px 12px;border-radius:20px;font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.card h3{color:#e5bd60;margin-top:0}
-.card p{color:#c8c3b6;line-height:1.5;font-size:14px}
-button{background:#d5ad50;color:#17120a;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;cursor:pointer}
+body{
+  margin:0;
+  background:#080808;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+header{
+  padding:22px 15px;
+  text-align:center;
+  background:#111;
+  border-bottom:1px solid #b89445;
+}
+.brand{
+  color:#e6c16a;
+  font-size:25px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+.subtitle{color:#ccc;margin-top:7px;font-size:13px}
+main{max-width:1050px;margin:25px auto;padding:0 15px}
+.card{
+  background:#151515;
+  border:1px solid #383027;
+  border-radius:13px;
+  padding:20px;
+  margin-bottom:20px;
+}
+h2{color:#e6c16a;margin-top:0}
+h3{color:#e6c16a}
+input,textarea,select{
+  width:100%;
+  padding:13px;
+  margin:7px 0 15px;
+  border:1px solid #555;
+  border-radius:7px;
+  background:#090909;
+  color:#fff;
+  font-size:15px;
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;color:#ddd;font-size:14px}
+button,.button-link{
+  display:inline-block;
+  padding:12px 17px;
+  border:0;
+  border-radius:7px;
+  background:#c49b45;
+  color:#111;
+  font-weight:bold;
+  cursor:pointer;
+  text-decoration:none;
+  margin:5px 5px 5px 0;
+  font-size:14px;
+}
+button:hover,.button-link:hover{opacity:.88}
 button:disabled{opacity:.5;cursor:not-allowed}
-footer{text-align:center;padding:25px;color:#928b7b;font-size:12px}
+.whatsapp{
+  background:#168c4a;
+  color:white;
+}
+.danger{background:#a83232;color:white}
+.secondary{background:#444;color:white}
+.small{font-size:13px;color:#aaa;line-height:1.5}
+.status{
+  padding:12px;
+  border-radius:7px;
+  background:#202020;
+  margin:12px 0;
+  color:#e6c16a;
+  line-height:1.5;
+}
+.show-card{
+  background:#101010;
+  border:1px solid #444;
+  border-radius:10px;
+  padding:16px;
+  margin:15px 0;
+}
+.show-card p{line-height:1.5;color:#ddd}
+.registration{
+  border-top:1px solid #333;
+  padding:12px 0;
+  margin-top:10px;
+}
+.badge{
+  display:inline-block;
+  background:#333;
+  color:#e6c16a;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+}
 .hidden{display:none!important}
-#message,#publishMessage{overflow-wrap:anywhere}
-label{display:block;margin-top:14px;margin-bottom:6px;color:#e5bd60;font-size:13px}
-input,textarea,select{width:100%;padding:12px;border-radius:7px;border:1px solid #51401f;background:#090909;color:#fff;margin-bottom:8px;font-size:14px}
-textarea{min-height:85px;resize:vertical}
-.form-help{font-size:12px;color:#b9b09d}
+footer{
+  text-align:center;
+  padding:25px;
+  color:#888;
+  font-size:12px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
   <div class="brand">MELODY MAGIC</div>
-  <h2>Digital Auditorium</h2>
-  <p>HOST CONTROL DASHBOARD</p>
+  <div class="subtitle">DIGITAL AUDITORIUM — HOST CONTROL DASHBOARD</div>
 </header>
 
 <main>
-  <div id="message" class="notice">Checking your host account...</div>
+
+  <div id="message" class="status">Checking host account...</div>
 
   <section id="activeDashboard" class="hidden">
-    <div class="notice">
-      <span class="status">APPROVED · SUBSCRIPTION ACTIVE</span>
-      <h2>Welcome, <span id="hostName">Host</span>!</h2>
-      <p id="hostEmail"></p>
-      <p>Plan: <strong id="hostPlan"></strong></p>
-      <p>Subscription expires: <strong id="expiryDate"></strong></p>
+
+    <div class="card">
+      <h2>Host Account</h2>
+      <p><strong>Host:</strong> <span id="hostName">—</span></p>
+      <p><strong>Email:</strong> <span id="hostEmail">—</span></p>
+      <p><strong>Subscription:</strong> <span id="hostPlan">—</span></p>
+      <p><strong>Valid until:</strong> <span id="hostExpiry">—</span></p>
+      <p><strong>WhatsApp number:</strong> <span id="hostMobileDisplay">—</span></p>
     </div>
 
-    <h2>Host Control Centre</h2>
-    <div class="grid">
-      <div class="card">
-        <h3>Create and Publish a Show</h3>
-        <p>Enter your show details and publish it for singers.</p>
+    <div class="card">
+      <h2>Create a New Show</h2>
 
-        <form id="createShowForm">
-          <label for="showTitle">Show Name</label>
-          <input id="showTitle" type="text" maxlength="100" placeholder="Example: Bollywood Singing Night" required>
+      <form id="createShowForm">
 
-          <label for="showDate">Show Date</label>
-          <input id="showDate" type="date" required>
+        <label>Show name</label>
+        <input id="showTitle" type="text"
+               placeholder="Example: Bollywood Retro Night" required>
 
-          <label for="showTime">Show Time</label>
-          <input id="showTime" type="time" required>
+        <label>Show date</label>
+        <input id="showDate" type="date" required>
 
-          <label for="showDescription">Show Description</label>
-          <textarea id="showDescription" maxlength="1000" placeholder="Tell singers about your show"></textarea>
+        <label>Show time</label>
+        <input id="showTime" type="time" required>
 
-          <label for="entryType">Singer Entry Type</label>
-          <select id="entryType" required>
-            <option value="free">Free Entry</option>
-            <option value="paid">Paid Entry</option>
-          </select>
+        <label>Show description</label>
+        <textarea id="showDescription"
+          placeholder="Write about your show, theme, singers and special attractions..."
+          required></textarea>
 
-          <div id="feeSection" class="hidden">
-            <label for="entryFee">Singer Entry Fee (₹)</label>
-            <input id="entryFee" type="number" min="1" step="1" placeholder="Example: 100">
+        <label>Host WhatsApp number</label>
+        <input id="hostMobile" type="tel"
+          placeholder="10-digit mobile number" required>
+        <p class="small">
+          Singers will use this number to contact you directly on WhatsApp.
+          Include the correct mobile number.
+        </p>
 
-            <label for="hostUpi">Your UPI ID</label>
-            <input id="hostUpi" type="text" maxlength="100" placeholder="yourname@upi">
-            <p class="form-help">Your UPI ID will be visible to singers for payment.</p>
-          </div>
+        <label>Entry type</label>
+        <select id="entryType">
+          <option value="free">Free Entry</option>
+          <option value="paid">Paid Entry</option>
+        </select>
 
-          <button type="submit" id="publishButton" disabled>Publish Show</button>
-          <p id="publishMessage" role="status"></p>
-        </form>
-      </div>
-
-      <div class="card">
-        <h3>Manage Singers</h3>
-        <p>Manage registrations and the performance queue.</p>
-        <p><strong>Coming in the next development step.</strong></p>
-      </div>
-
-      <div class="card">
-        <h3>Promotional Poster</h3>
-        <p>Create and share a poster for your show.</p>
-        <p><strong>Coming in the next development step.</strong></p>
-      </div>
-
-      <div class="card">
-        <h3>Live Auditorium</h3>
-        <p>Host your online singing session with live audio and video.</p>
-        <p><strong>Coming in the next development step.</strong></p>
-      </div>
-
-      <div class="card">
-        <h3>Manage Singers</h3>
-        <p>View singers registered for your shows.</p>
-        <div id="singerRegistrations">
-          <p>Loading registered singers...</p>
+        <div id="feeSection" class="hidden">
+          <label>Entry fee (₹)</label>
+          <input id="entryFee" type="number" min="0"
+                 placeholder="Enter entry fee">
+          <p class="small">
+            Payment arrangements will be handled directly between the
+            singer and host. No QR code or online payment is collected here.
+          </p>
         </div>
+
+        <button id="publishButton" type="submit">Publish Show</button>
+      </form>
+
+      <div id="createMessage" class="small"></div>
+    </div>
+
+    <div class="card">
+      <h2>My Published Shows</h2>
+      <div id="myShows">
+        Loading your shows...
       </div>
     </div>
 
-    <button id="logoutButton" type="button">Sign Out</button>
+    <button id="logoutButton" class="danger">Sign Out</button>
+
   </section>
 </main>
 
 <footer>
-  © Melody Magic Digital Auditorium
-  <br>Created by Melody Magic Music Studio
+  Melody Magic Digital Auditorium<br>
+  Powered by Melody Magic Music Studio
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+
 <script type="module">
 import { auth, db } from "./firebase.js";
 
@@ -140,27 +214,558 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-const message = document.getElementById("message");
-const dashboard = document.getElementById("activeDashboard");
-const showForm = document.getElementById("createShowForm");
-const entryType = document.getElementById("entryType");
-const feeSection = document.getElementById("feeSection");
-const feeInput = document.getElementById("entryFee");
-const upiInput = document.getElementById("hostUpi");
-const publishButton = document.getElementById("publishButton");
-const publishMessage = document.getElementById("publishMessage");
-const singerRegistrations = document.getElementById("singerRegistrations");
 
-let currentHostUser = null;
-let currentHostApplication = null;
+const messageBox = document.getElementById("message");
+const dashboard = document.getElementById("activeDashboard");
+const createForm = document.getElementById("createShowForm");
+const createMessage = document.getElementById("createMessage");
+const myShows = document.getElementById("myShows");
+
+let currentUser = null;
+let currentHost = null;
+
+
+/* -------------------------------
+   GENERAL HELPERS
+-------------------------------- */
 
 function showMessage(text) {
-  message.textContent = text;
-  message.classList.remove("hidden");
-  dashboard.classList.add("hidden");
+  messageBox.textContent = text;
+  messageBox.classList.remove("hidden");
 }
 
-async function generateShowPoster(show) {
+function hideMessage() {
+  messageBox.classList.add("hidden");
+}
+
+function safeText(value) {
+  return String(value ?? "");
+}
+
+function formatDate(value) {
+  if (!value) return "Not specified";
+
+  const date = new Date(value + "T00:00:00");
+
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function formatTimestamp(value) {
+  if (!value) return "Not available";
+
+  let number = Number(value);
+
+  // Convert seconds to milliseconds if necessary.
+  if (number > 0 && number < 100000000000) {
+    number *= 1000;
+  }
+
+  const date = new Date(number);
+
+  if (Number.isNaN(date.getTime())) return "Not available";
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function getHostName(data, user) {
+  return data.name ||
+         data.fullName ||
+         data.hostName ||
+         user.displayName ||
+         "Host";
+}
+
+function getHostMobile(data, user) {
+  return data.mobile ||
+         data.phone ||
+         data.phoneNumber ||
+         data.contactNumber ||
+         user.phoneNumber ||
+         "";
+}
+
+
+/* -------------------------------
+   WHATSAPP LINK
+-------------------------------- */
+
+function getWhatsAppLink(show) {
+  let number = String(show.hostMobile || "").replace(/\D/g, "");
+
+  // Indian 10-digit mobile number.
+  if (number.length === 10) {
+    number = "91" + number;
+  }
+
+  // Indian number entered with leading zero.
+  else if (number.length === 11 && number.startsWith("0")) {
+    number = "91" + number.substring(1);
+  }
+
+  if (number.length < 10 || number.length > 15) {
+    throw new Error("The host WhatsApp number is invalid. Please update it.");
+  }
+
+  const text =
+    "Hello, I am interested in registering for " +
+    (show.title || "your show") +
+    ". Please share the details.";
+
+  return "https://wa.me/" + number + "?text=" +
+         encodeURIComponent(text);
+}
+
+
+/* -------------------------------
+   AUTHENTICATION AND HOST CHECK
+-------------------------------- */
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    showMessage("Please log in with your host account.");
+    setTimeout(() => {
+      window.location.href = "host-login.html";
+    }, 1500);
+    return;
+  }
+
+  currentUser = user;
+
+  try {
+    const hostSnapshot = await get(
+      ref(db, "hostApplications/" + user.uid)
+    );
+
+    if (!hostSnapshot.exists()) {
+      showMessage("Host application not found.");
+      return;
+    }
+
+    const hostData = hostSnapshot.val();
+    currentHost = hostData;
+
+    if (hostData.status !== "Approved") {
+      showMessage("Your host account is not approved yet.");
+      return;
+    }
+
+    const startAt = Number(hostData.subscriptionStartAt || 0);
+    const endAt = Number(hostData.subscriptionEndAt || 0);
+    const now = Date.now();
+
+    if (!startAt || !endAt || now < startAt || now > endAt) {
+      showMessage("Your host subscription is not currently active. Please contact the administrator.");
+      return;
+    }
+
+    const hostName = getHostName(hostData, user);
+    const hostMobile = getHostMobile(hostData, user);
+
+    document.getElementById("hostName").textContent = hostName;
+    document.getElementById("hostEmail").textContent =
+      user.email || hostData.email || "—";
+
+    document.getElementById("hostPlan").textContent =
+      hostData.plan || hostData.subscriptionPlan || "Active";
+
+    document.getElementById("hostExpiry").textContent =
+      formatTimestamp(endAt);
+
+    document.getElementById("hostMobileDisplay").textContent =
+      hostMobile || "Not provided";
+
+    document.getElementById("hostMobile").value = hostMobile;
+
+    dashboard.classList.remove("hidden");
+    hideMessage();
+
+    await loadHostShows(user.uid);
+
+  } catch (error) {
+    console.error(error);
+    showMessage("Unable to verify your host account. Please try again.");
+  }
+});
+
+
+/* -------------------------------
+   FREE / PAID ENTRY
+-------------------------------- */
+
+document.getElementById("entryType").addEventListener("change", () => {
+  const isPaid =
+    document.getElementById("entryType").value === "paid";
+
+  document.getElementById("feeSection")
+    .classList.toggle("hidden", !isPaid);
+});
+
+
+/* -------------------------------
+   CREATE / PUBLISH SHOW
+-------------------------------- */
+
+createForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!currentUser || !currentHost) return;
+
+  const title = document.getElementById("showTitle").value.trim();
+  const date = document.getElementById("showDate").value;
+  const time = document.getElementById("showTime").value;
+  const description =
+    document.getElementById("showDescription").value.trim();
+
+  const hostMobile =
+    document.getElementById("hostMobile").value.trim();
+
+  const entryType = document.getElementById("entryType").value;
+
+  const entryFee =
+    entryType === "paid"
+      ? Number(document.getElementById("entryFee").value || 0)
+      : 0;
+
+  if (!title || !date || !time || !description || !hostMobile) {
+    createMessage.textContent = "Please complete all required fields.";
+    return;
+  }
+
+  if (entryType === "paid" && entryFee <= 0) {
+    createMessage.textContent = "Please enter a valid entry fee.";
+    return;
+  }
+
+  const mobileDigits = hostMobile.replace(/\D/g, "");
+
+  if (mobileDigits.length < 10 || mobileDigits.length > 15) {
+    createMessage.textContent = "Please enter a valid WhatsApp number.";
+    return;
+  }
+
+  const publishButton = document.getElementById("publishButton");
+  publishButton.disabled = true;
+  publishButton.textContent = "Publishing...";
+
+  try {
+    const newShowRef = push(ref(db, "shows"));
+
+    const showData = {
+      showId: newShowRef.key,
+      title,
+      date,
+      time,
+      description,
+      entryType,
+      entryFee,
+      hostMobile,
+      hostUid: currentUser.uid,
+      hostName: getHostName(currentHost, currentUser),
+      hostEmail: currentUser.email || "",
+      status: "Published",
+      createdAt: Date.now()
+    };
+
+    await set(newShowRef, showData);
+
+    createMessage.textContent = "Your show has been published successfully.";
+
+    createForm.reset();
+    document.getElementById("hostMobile").value = hostMobile;
+    document.getElementById("feeSection").classList.add("hidden");
+
+    await loadHostShows(currentUser.uid);
+
+  } catch (error) {
+    console.error(error);
+    createMessage.textContent = "Could not publish your show. Please try again.";
+  } finally {
+    publishButton.disabled = false;
+    publishButton.textContent = "Publish Show";
+  }
+});
+
+
+/* -------------------------------
+   LOAD HOST SHOWS
+-------------------------------- */
+
+async function loadHostShows(hostUid) {
+  myShows.textContent = "Loading your shows...";
+
+  try {
+    const snapshot = await get(ref(db, "shows"));
+
+    myShows.innerHTML = "";
+
+    if (!snapshot.exists()) {
+      myShows.textContent = "You have not published any shows yet.";
+      return;
+    }
+
+    const allShows = snapshot.val();
+
+    const hostShows = Object.values(allShows)
+      .filter(show => show && show.hostUid === hostUid)
+      .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+    if (!hostShows.length) {
+      myShows.textContent = "You have not published any shows yet.";
+      return;
+    }
+
+    for (const show of hostShows) {
+      await renderShowCard(show);
+    }
+
+  } catch (error) {
+    console.error(error);
+    myShows.textContent = "Unable to load your shows.";
+  }
+}
+
+
+/* -------------------------------
+   RENDER SHOW AND REGISTRATIONS
+-------------------------------- */
+
+async function renderShowCard(show) {
+  const card = document.createElement("div");
+  card.className = "show-card";
+
+  const title = document.createElement("h3");
+  title.textContent = show.title || "Untitled Show";
+
+  const details = document.createElement("p");
+  details.textContent =
+    "Date: " + formatDate(show.date) +
+    " | Time: " + (show.time || "Not specified");
+
+  const entry = document.createElement("p");
+  entry.textContent =
+    show.entryType === "paid"
+      ? "Entry Fee: ₹" + Number(show.entryFee || 0)
+      : "Free Entry";
+
+  const status = document.createElement("span");
+  status.className = "badge";
+  status.textContent = show.status || "Published";
+
+  const posterDownload = document.createElement("button");
+  posterDownload.textContent = "Download Poster PNG";
+  posterDownload.addEventListener("click", () => {
+    generateShowPoster(show, "download");
+  });
+
+  const posterShare = document.createElement("button");
+  posterShare.textContent = "Share Poster";
+  posterShare.addEventListener("click", () => {
+    generateShowPoster(show, "share");
+  });
+
+  const whatsappButton = document.createElement("a");
+  whatsappButton.className = "button-link whatsapp";
+  whatsappButton.textContent = "WhatsApp Registration Link";
+
+  try {
+    whatsappButton.href = getWhatsAppLink(show);
+    whatsappButton.target = "_blank";
+    whatsappButton.rel = "noopener noreferrer";
+  } catch (error) {
+    whatsappButton.href = "#";
+    whatsappButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      alert(error.message);
+    });
+  }
+
+  const copyLinkButton = document.createElement("button");
+  copyLinkButton.className = "secondary";
+  copyLinkButton.textContent = "Copy WhatsApp Link";
+
+  copyLinkButton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(getWhatsAppLink(show));
+      copyLinkButton.textContent = "Link Copied!";
+    } catch (error) {
+      alert(error.message || "Unable to copy the link.");
+    }
+  });
+
+  const registrationHeading = document.createElement("h3");
+  registrationHeading.textContent = "Singer Registrations";
+
+  const registrationArea = document.createElement("div");
+  registrationArea.className = "small";
+  registrationArea.textContent = "Loading registrations...";
+
+  card.append(
+    title,
+    details,
+    entry,
+    status,
+    document.createElement("br"),
+    posterDownload,
+    posterShare,
+    whatsappButton,
+    copyLinkButton,
+    registrationHeading,
+    registrationArea
+  );
+
+  myShows.appendChild(card);
+
+  await loadRegistrations(show, registrationArea);
+}
+
+
+/* -------------------------------
+   LOAD SINGER REGISTRATIONS
+-------------------------------- */
+
+async function loadRegistrations(show, container) {
+  try {
+    const snapshot = await get(
+      ref(db, "showRegistrations/" + show.showId)
+    );
+
+    container.innerHTML = "";
+
+    if (!snapshot.exists()) {
+      container.textContent = "No singer registrations yet.";
+      return;
+    }
+
+    const registrations = snapshot.val();
+
+    for (const [registrationId, singer] of Object.entries(registrations)) {
+      const row = document.createElement("div");
+      row.className = "registration";
+
+      const singerName = document.createElement("strong");
+      singerName.textContent =
+        singer.singerName || singer.name || "Singer";
+
+      const singerDetails = document.createElement("p");
+      singerDetails.textContent =
+        "Email: " + (singer.email || "Not provided") +
+        " | Phone: " + (singer.phone || singer.mobile || "Not provided");
+
+      const singerStatus = document.createElement("span");
+      singerStatus.className = "badge";
+      singerStatus.textContent = singer.status || "Pending";
+
+      row.append(singerName, singerDetails, singerStatus);
+
+      const actions = [
+        { label: "Approve", value: "Approved", className: "" },
+        { label: "Reject", value: "Rejected", className: "danger" },
+        { label: "Add to Queue", value: "Queued", className: "secondary" },
+        { label: "Mark Completed", value: "Completed", className: "secondary" }
+      ];
+
+      for (const action of actions) {
+        const button = document.createElement("button");
+        button.textContent = action.label;
+        if (action.className) button.className = action.className;
+
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+
+          try {
+            await update(
+              ref(db, "showRegistrations/" + show.showId + "/" + registrationId),
+              {
+                status: action.value,
+                updatedAt: Date.now()
+              }
+            );
+
+            singerStatus.textContent = action.value;
+
+          } catch (error) {
+            console.error(error);
+            alert("Unable to update registration.");
+          } finally {
+            button.disabled = false;
+          }
+        });
+
+        row.appendChild(button);
+      }
+
+      container.appendChild(row);
+    }
+
+  } catch (error) {
+    console.error(error);
+    container.textContent = "Unable to load registrations.";
+  }
+}
+
+
+/* -------------------------------
+   POSTER TEXT WRAPPING
+-------------------------------- */
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+  const words = String(text || "").split(/\s+/);
+  let line = "";
+  let lines = 0;
+
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line ? line + " " + words[i] : words[i];
+
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      y += lineHeight;
+      lines++;
+
+      if (lines >= maxLines) {
+        return y;
+      }
+
+      line = words[i];
+    } else {
+      line = testLine;
+    }
+  }
+
+  if (line && lines < maxLines) {
+    ctx.fillText(line, x, y);
+    y += lineHeight;
+  }
+
+  return y;
+}
+
+
+/* -------------------------------
+   GENERATE SHOW POSTER
+-------------------------------- */
+
+async function generateShowPoster(show, mode = "download") {
+
+  let whatsappUrl;
+
+  try {
+    whatsappUrl = getWhatsAppLink(show);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1350;
@@ -170,494 +775,236 @@ async function generateShowPoster(show) {
   // Background
   const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
   gradient.addColorStop(0, "#080808");
-  gradient.addColorStop(0.5, "#241a08");
-  gradient.addColorStop(1, "#080808");
+  gradient.addColorStop(1, "#242016");
 
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1080, 1350);
 
   // Gold border
-  ctx.strokeStyle = "#e5bd60";
-  ctx.lineWidth = 8;
-  ctx.strokeRect(30, 30, 1020, 1290);
+  ctx.strokeStyle = "#d6ad55";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(35, 35, 1010, 1280);
 
-  // Brand
+  ctx.strokeStyle = "#8e6c2d";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(55, 55, 970, 1240);
+
   ctx.textAlign = "center";
-  ctx.fillStyle = "#f5ce69";
-  ctx.font = "bold 65px Arial";
-  ctx.fillText("MELODY MAGIC", 540, 145);
 
-  ctx.font = "bold 42px Arial";
+  // Branding
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 48px Arial";
+  ctx.fillText("MELODY MAGIC", 540, 135);
+
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("DIGITAL AUDITORIUM", 540, 210);
-
-  ctx.strokeStyle = "#d5ad50";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(130, 250);
-  ctx.lineTo(950, 250);
-  ctx.stroke();
+  ctx.font = "25px Arial";
+  ctx.fillText("DIGITAL AUDITORIUM PRESENTS", 540, 185);
 
   // Show title
-  ctx.fillStyle = "#f5ce69";
-  ctx.font = "bold 62px Arial";
+  ctx.fillStyle = "#f4d68b";
+  ctx.font = "bold 64px Arial";
 
-  const words = (show.title || "Singing Show").split(" ");
-  let line = "";
-  let y = 390;
+  const titleLines = [];
+  const titleWords = String(show.title || "SPECIAL SHOW").split(/\s+/);
+  let titleLine = "";
 
-  for (const word of words) {
-    const test = line + word + " ";
+  for (const word of titleWords) {
+    const test = titleLine ? titleLine + " " + word : word;
 
-    if (ctx.measureText(test).width > 850) {
-      ctx.fillText(line.trim(), 540, y);
-      line = word + " ";
-      y += 80;
+    if (ctx.measureText(test).width > 900 && titleLine) {
+      titleLines.push(titleLine);
+      titleLine = word;
     } else {
-      line = test;
+      titleLine = test;
     }
   }
 
-  if (line.trim()) {
-    ctx.fillText(line.trim(), 540, y);
-  }
+  if (titleLine) titleLines.push(titleLine);
 
-  // Show description
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "30px Arial";
-  ctx.fillText("YOU ARE INVITED!", 540, y + 115);
+  let titleY = 310;
 
-  // Date and time
-  ctx.fillStyle = "#f5ce69";
-  ctx.font = "bold 40px Arial";
-
-  const date = new Date(show.date + "T00:00:00")
-    .toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    });
-
-  ctx.fillText("DATE: " + date, 540, y + 205);
-  ctx.fillText("TIME: " + show.time, 540, y + 275);
+  titleLines.slice(0, 2).forEach(line => {
+    ctx.fillText(line, 540, titleY);
+    titleY += 78;
+  });
 
   // Description
   ctx.fillStyle = "#ffffff";
-  ctx.font = "28px Arial";
-  ctx.fillText(
-    (show.description || "Join us for a musical celebration!").substring(0, 75),
+  ctx.font = "27px Arial";
+
+  const description = String(show.description || "");
+  const descriptionEndY = wrapCanvasText(
+    ctx,
+    description,
     540,
-    y + 355
+    titleY + 35,
+    850,
+    40,
+    3
   );
 
-  // Entry information
-  const entryText = show.entryType === "paid"
-    ? "SINGER ENTRY FEE: ₹" + show.entryFee
-    : "SINGER ENTRY: FREE";
+  // Show information
+  const infoY = Math.max(descriptionEndY + 45, 570);
 
-  ctx.fillStyle = "#f5ce69";
-  ctx.font = "bold 42px Arial";
-  ctx.fillText(entryText, 540, y + 465);
-
-  // UPI payment QR code for paid shows
-  if (show.entryType === "paid" && show.hostUpi) {
-
-    const upiLink =
-      "upi://pay?pa=" + encodeURIComponent(show.hostUpi) +
-      "&pn=" + encodeURIComponent(show.hostName || "Host") +
-      "&am=" + encodeURIComponent(show.entryFee) +
-      "&cu=INR" +
-      "&tn=" + encodeURIComponent(show.title);
-
-    const qrData = await QRCode.toDataURL(upiLink, {
-      width: 240,
-      margin: 2
-    });
-
-    const qrImage = new Image();
-    qrImage.src = qrData;
-
-    await new Promise((resolve, reject) => {
-      qrImage.onload = resolve;
-      qrImage.onerror = reject;
-    });
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(400, y + 520, 280, 280);
-    ctx.drawImage(qrImage, 420, y + 540, 240, 240);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "25px Arial";
-    ctx.fillText("SCAN TO PAY ENTRY FEE", 540, y + 840);
-    ctx.fillText("UPI: " + show.hostUpi, 540, y + 885);
-  }
-
-  // Footer
-  ctx.fillStyle = "#f5ce69";
-  ctx.font = "bold 35px Arial";
-  ctx.fillText("SING • CELEBRATE • ENJOY", 540, 1200);
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 38px Arial";
+  ctx.fillText("DATE", 540, infoY);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "26px Arial";
-  ctx.fillText("Created by Melody Magic Music Studio", 540, 1260);
+  ctx.font = "34px Arial";
+  ctx.fillText(formatDate(show.date), 540, infoY + 48);
+
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 38px Arial";
+  ctx.fillText("TIME", 540, infoY + 115);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "34px Arial";
+  ctx.fillText(show.time || "Time to be announced", 540, infoY + 163);
+
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 38px Arial";
+  ctx.fillText("ENTRY", 540, infoY + 230);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "34px Arial";
+  ctx.fillText(
+    show.entryType === "paid"
+      ? "Entry Fee: ₹" + Number(show.entryFee || 0)
+      : "FREE ENTRY",
+    540,
+    infoY + 278
+  );
+
+  // Host contact
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 30px Arial";
+  ctx.fillText("CONTACT THE HOST", 540, infoY + 355);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 32px Arial";
+  ctx.fillText(String(show.hostMobile || ""), 540, infoY + 400);
+
+  // Green WhatsApp-style visual button
+  const buttonY = Math.min(infoY + 445, 1080);
+
+  ctx.fillStyle = "#168c4a";
+  ctx.beginPath();
+  ctx.roundRect(260, buttonY, 560, 95, 22);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 35px Arial";
+  ctx.fillText("WHATSAPP TO REGISTER", 540, buttonY + 59);
+
+  ctx.font = "22px Arial";
+  ctx.fillStyle = "#d9f5e4";
+  ctx.fillText("Contact the host directly", 540, buttonY + 130);
+
+  // Footer
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 27px Arial";
+  ctx.fillText("MELODY MAGIC DIGITAL AUDITORIUM", 540, 1245);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "21px Arial";
+  ctx.fillText("Sing • Connect • Celebrate", 540, 1280);
+
 
   // Convert poster to PNG
-  const blob = await new Promise(resolve =>
-    canvas.toBlob(resolve, "image/png")
-  );
+  canvas.toBlob(async (blob) => {
 
-  if (!blob) {
-    throw new Error("Could not generate poster image.");
-  }
-
-  const file = new File(
-    [blob],
-    "Melody-Magic-Show-Poster.png",
-    { type: "image/png" }
-  );
-
-  // Share poster if supported, otherwise download
-  if (
-    navigator.canShare &&
-    navigator.canShare({ files: [file] }) &&
-    navigator.share
-  ) {
-    await navigator.share({
-      title: show.title,
-      text: "Join our Melody Magic Digital Auditorium show!",
-      files: [file]
-    });
-  } else {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "Melody-Magic-Show-Poster.png";
-    link.click();
-
-    URL.revokeObjectURL(url);
-  }
-}
-
-async function loadHostRegistrations(hostUid) {
-  singerRegistrations.textContent = "Loading registered singers...";
-
-  try {
-    const showsSnapshot = await get(ref(db, "shows"));
-
-    if (!showsSnapshot.exists()) {
-      singerRegistrations.textContent = "You have not published any shows yet.";
+    if (!blob) {
+      alert("Could not generate poster.");
       return;
     }
 
-    const shows = Object.entries(showsSnapshot.val())
-      .filter(([id, show]) => show.hostUid === hostUid);
+    const file = new File(
+      [blob],
+      "Melody-Magic-" + String(show.title || "Show").replace(/[^a-z0-9]/gi, "-") + ".png",
+      { type: "image/png" }
+    );
 
-    if (shows.length === 0) {
-      singerRegistrations.textContent = "You have not published any shows yet.";
-      return;
-    }
+    const shareText =
+      "Join " + show.title + " at Melody Magic Digital Auditorium.\n\n" +
+      "Date: " + formatDate(show.date) + "\n" +
+      "Time: " + (show.time || "") + "\n\n" +
+      "WhatsApp registration link:\n" + whatsappUrl;
 
-    singerRegistrations.textContent = "";
-
-    for (const [showId, show] of shows) {
-      const heading = document.createElement("h4");
-      heading.textContent = show.title || "Singing Show";
-      singerRegistrations.appendChild(heading);
-
-const posterButton = document.createElement("button");
-
-posterButton.type = "button";
-posterButton.textContent = "Generate & Share Poster";
-posterButton.style.marginBottom = "15px";
-
-posterButton.addEventListener("click", async () => {
-  posterButton.disabled = true;
-  posterButton.textContent = "Generating Poster...";
-
-  try {
-    await generateShowPoster(show);
-    posterButton.textContent = "Generate & Share Poster";
-  } catch (error) {
-    alert("Poster generation failed: " + error.message);
-    posterButton.textContent = "Generate & Share Poster";
-  } finally {
-    posterButton.disabled = false;
-  }
-});
-
-singerRegistrations.appendChild(posterButton);
-
-      // Generate the unique singer registration link for this show.
-      const joinUrl = new URL("join-auditorium.html", window.location.href);
-      joinUrl.searchParams.set("showId", showId);
-
-      const joinRow = document.createElement("div");
-      joinRow.style.margin = "8px 0 14px";
-      joinRow.style.display = "flex";
-      joinRow.style.flexWrap = "wrap";
-      joinRow.style.gap = "8px";
-      joinRow.style.alignItems = "center";
-
-      const joinLink = document.createElement("a");
-      joinLink.href = joinUrl.href;
-      joinLink.textContent = "Open Singer Registration Page";
-      joinLink.target = "_blank";
-      joinLink.rel = "noopener noreferrer";
-      joinLink.style.color = "#e5bd60";
-      joinLink.style.overflowWrap = "anywhere";
-
-      const copyButton = document.createElement("button");
-      copyButton.type = "button";
-      copyButton.textContent = "Copy Join Link";
-
-      copyButton.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(joinUrl.href);
-          copyButton.textContent = "Link Copied!";
-        } catch (error) {
-          window.prompt("Copy this singer registration link:", joinUrl.href);
+    if (
+      mode === "share" &&
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      try {
+        await navigator.share({
+          title: show.title || "Melody Magic Show",
+          text: shareText,
+          files: [file]
+        });
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error(error);
+          downloadPoster(file);
         }
-      });
-
-      joinRow.appendChild(joinLink);
-      joinRow.appendChild(copyButton);
-      singerRegistrations.appendChild(joinRow);
-
-      const snapshot = await get(
-        ref(db, "showRegistrations/" + showId)
-      );
-
-      if (!snapshot.exists()) {
-        const empty = document.createElement("p");
-        empty.textContent = "No singers registered for this show yet.";
-        singerRegistrations.appendChild(empty);
-        continue;
       }
 
-      Object.entries(snapshot.val()).forEach(([registrationId, singer]) => {
-        const card = document.createElement("div");
-        card.style.padding = "12px";
-        card.style.margin = "10px 0";
-        card.style.border = "1px solid #705322";
-        card.style.borderRadius = "8px";
+    } else {
+      downloadPoster(file);
 
-        const details = document.createElement("p");
-        details.textContent =
-          "Name: " + (singer.name || "N/A") +
-          " | Mobile: " + (singer.mobile || "N/A") +
-          " | Song: " + (singer.song || "N/A") +
-          " | Language: " + (singer.language || "N/A") +
-          " | Status: " + (singer.status || "N/A");
-
-        card.appendChild(details);
-
-        const actions = [
-          ["Approve", "Approved"],
-          ["Reject", "Rejected"],
-          ["Add to Queue", "Queued"],
-          ["Mark Completed", "Completed"]
-        ];
-
-        actions.forEach(([label, status]) => {
-          const button = document.createElement("button");
-          button.textContent = label;
-          button.style.margin = "4px";
-
-          button.addEventListener("click", async () => {
-            button.disabled = true;
-
-            try {
-              await update(
-                ref(db, "showRegistrations/" + showId + "/" + registrationId),
-                { status: status }
-              );
-
-              await loadHostRegistrations(hostUid);
-            } catch (error) {
-              alert("Could not update singer status: " + error.message);
-              button.disabled = false;
-            }
+      if (mode === "share" && navigator.share) {
+        try {
+          await navigator.share({
+            title: show.title || "Melody Magic Show",
+            text: shareText,
+            url: whatsappUrl
           });
-
-          card.appendChild(button);
-        });
-
-        singerRegistrations.appendChild(card);
-      });
+        } catch (error) {
+          if (error.name !== "AbortError") console.error(error);
+        }
+      } else if (mode === "share") {
+        try {
+          await navigator.clipboard.writeText(shareText);
+          alert("Poster downloaded. WhatsApp registration link and show details copied. You can paste them when sharing the poster.");
+        } catch (error) {
+          alert("Poster downloaded. Copy the WhatsApp link using the dashboard button.");
+        }
+      }
     }
 
-  } catch (error) {
-    console.error("Registration loading error:", error);
-    singerRegistrations.textContent =
-      "Could not load registrations: " + error.message;
-  }
+  }, "image/png");
 }
 
-function updateEntryFields() {
-  const paid = entryType.value === "paid";
-  feeSection.classList.toggle("hidden", !paid);
-  feeInput.required = paid;
-  upiInput.required = paid;
+
+function downloadPoster(file) {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-entryType.addEventListener("change", updateEntryFields);
-updateEntryFields();
 
-onAuthStateChanged(auth, async (user) => {
-  publishButton.disabled = true;
-  currentHostUser = null;
-  currentHostApplication = null;
-
-  if (!user) {
-    window.location.href = "host-login.html";
-    return;
-  }
-
-  try {
-    const snapshot = await get(ref(db, "hostApplications/" + user.uid));
-
-    if (!snapshot.exists()) {
-      showMessage("Host application not found. Please contact the administrator.");
-      return;
-    }
-
-    const application = snapshot.val();
-
-    if (application.status !== "Approved") {
-      showMessage("Your host application is not approved yet. Please contact the administrator.");
-      return;
-    }
-
-    const start = Number(application.subscriptionStartAt);
-    const end = Number(application.subscriptionEndAt);
-    const now = Date.now();
-
-    if (!start || !end || now < start || now >= end) {
-      showMessage("Your subscription is not active or has expired. Please contact the administrator.");
-      return;
-    }
-
-    currentHostUser = user;
-    currentHostApplication = application;
-
-    document.getElementById("hostName").textContent =
-      application.name || user.displayName || "Host";
-
-    document.getElementById("hostEmail").textContent = user.email || "";
-
-    document.getElementById("hostPlan").textContent =
-      application.plan || "Host subscription";
-
-    document.getElementById("expiryDate").textContent =
-      new Date(end).toLocaleString("en-IN");
-
-    message.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-    await loadHostRegistrations(user.uid);
-    publishButton.disabled = false;
-
-  } catch (error) {
-    showMessage("Unable to check your account: " + error.message);
-  }
-});
-
-showForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  publishMessage.textContent = "";
-
-  if (!currentHostUser || !currentHostApplication) {
-    publishMessage.textContent =
-      "Your host account has not been verified. Please refresh and sign in again.";
-    return;
-  }
-
-  const subscriptionEnd = Number(currentHostApplication.subscriptionEndAt);
-
-  if (currentHostApplication.status !== "Approved" ||
-      !subscriptionEnd || Date.now() >= subscriptionEnd) {
-    publishMessage.textContent =
-      "Your host subscription is not active. Please contact the administrator.";
-    publishButton.disabled = true;
-    return;
-  }
-
-  const title = document.getElementById("showTitle").value.trim();
-  const date = document.getElementById("showDate").value;
-  const time = document.getElementById("showTime").value;
-  const description = document.getElementById("showDescription").value.trim();
-  const type = entryType.value;
-  const fee = type === "paid" ? Number(feeInput.value) : 0;
-  const upi = type === "paid" ? upiInput.value.trim() : "";
-
-  if (!title || !date || !time) {
-    publishMessage.textContent =
-      "Please complete the show name, date and time.";
-    return;
-  }
-
-  if (type === "paid" && (!Number.isFinite(fee) || fee < 1 || !upi)) {
-    publishMessage.textContent =
-      "Enter a valid singer entry fee and UPI ID.";
-    return;
-  }
-
-  const showDateTime = new Date(`${date}T${time}`);
-
-  if (Number.isNaN(showDateTime.getTime()) ||
-      showDateTime.getTime() <= Date.now()) {
-    publishMessage.textContent =
-      "Please select a future show date and time.";
-    return;
-  }
-
-  publishButton.disabled = true;
-  publishMessage.textContent = "Publishing your show...";
-
-  try {
-    const newShowRef = push(ref(db, "shows"));
-
-    await set(newShowRef, {
-      showId: newShowRef.key,
-      title: title,
-      date: date,
-      time: time,
-      description: description,
-      entryType: type,
-      entryFee: fee,
-      hostUpi: upi,
-      hostUid: currentHostUser.uid,
-      hostName: currentHostApplication.name ||
-                currentHostUser.displayName || "Host",
-      status: "Published",
-      createdAt: Date.now()
-    });
-
-    publishMessage.textContent =
-      "SUCCESS! Your show has been published. Your singer join link is shown below.";
-
-    await loadHostRegistrations(currentHostUser.uid);
-
-    showForm.reset();
-    entryType.value = "free";
-    updateEntryFields();
-
-  } catch (error) {
-    publishMessage.textContent =
-      "Could not publish show: " + error.message;
-  } finally {
-    publishButton.disabled = false;
-  }
-});
+/* -------------------------------
+   SIGN OUT
+-------------------------------- */
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
   try {
     await signOut(auth);
     window.location.href = "host-login.html";
   } catch (error) {
-    showMessage("Unable to sign out: " + error.message);
+    console.error(error);
+    alert("Unable to sign out. Please try again.");
   }
 });
+
 </script>
 
 </body>
