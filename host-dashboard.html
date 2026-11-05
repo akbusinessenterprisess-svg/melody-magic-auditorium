@@ -39,6 +39,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .audience-panel{border:1px solid #51452e;background:#14120e;padding:14px;border-radius:9px;margin:15px 0}
 .audience-row{border-top:1px solid #383838;padding:14px 0;margin-top:8px}
 .audience-row p{margin:7px 0;color:#ddd;line-height:1.5}
+.link-panel{background:#19170f;border:1px solid #80652f;border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
+.link-text{color:#e6c16a;font-size:13px;line-height:1.6}
 footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
@@ -53,6 +55,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
   <div id="message" class="status">Checking host account...</div>
 
   <section id="activeDashboard" class="hidden">
+
     <div class="card">
       <h2>Host Account</h2>
       <p><strong>Host:</strong> <span id="hostName">—</span></p>
@@ -65,6 +68,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
     <div class="card">
       <h2>Create a New Show</h2>
       <form id="createShowForm">
+
         <label>Show name</label>
         <input id="showTitle" type="text" placeholder="Example: Bollywood Retro Night" required>
 
@@ -79,7 +83,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
 
         <label>Host WhatsApp number</label>
         <input id="hostMobile" type="tel" placeholder="10-digit mobile number" required>
-        <p class="small">Singers and audience members can use this number to contact you directly on WhatsApp.</p>
+        <p class="small">Singers and audience members can use this number to contact you directly.</p>
 
         <label>Entry type</label>
         <select id="entryType">
@@ -90,7 +94,7 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
         <div id="feeSection" class="hidden">
           <label>Entry fee (₹)</label>
           <input id="entryFee" type="number" min="1" placeholder="Enter entry fee">
-          <p class="small">Payment arrangements are handled directly between the audience member and host. No online payment is collected here.</p>
+          <p class="small">Payment is arranged directly between the audience member and host. The host verifies payment before approving paid audience members.</p>
         </div>
 
         <button id="publishButton" type="submit">Publish Show</button>
@@ -153,38 +157,44 @@ function formatDate(value) {
   if (!value) return "Not specified";
   const date = new Date(value + "T00:00:00");
   if (Number.isNaN(date.getTime())) return value;
-
   return date.toLocaleDateString("en-IN", {
-    day:"2-digit", month:"short", year:"numeric"
+    day:"2-digit",month:"short",year:"numeric"
   });
 }
 
 function formatTimestamp(value) {
   if (!value) return "Not available";
-
   let number = Number(value);
   if (number > 0 && number < 100000000000) number *= 1000;
-
   const date = new Date(number);
   if (Number.isNaN(date.getTime())) return "Not available";
-
   return date.toLocaleDateString("en-IN", {
-    day:"2-digit", month:"short", year:"numeric"
+    day:"2-digit",month:"short",year:"numeric"
   });
 }
 
-function getHostName(data, user) {
+function getHostName(data,user) {
   return data.name || data.fullName || data.hostName ||
     user.displayName || "Host";
 }
 
-function getHostMobile(data, user) {
+function getHostMobile(data,user) {
   return data.mobile || data.phone || data.phoneNumber ||
     data.contactNumber || user.phoneNumber || "";
 }
 
+function isPaidShow(show) {
+  return String(show.entryType || "").toLowerCase() === "paid";
+}
+
+function getPublicShowLink(show) {
+  const url = new URL("audience-entry.html",window.location.href);
+  url.searchParams.set("showId",show.showId);
+  return url.href;
+}
+
 function getWhatsAppLink(show) {
-  let number = String(show.hostMobile || "").replace(/\D/g, "");
+  let number = String(show.hostMobile || "").replace(/\D/g,"");
 
   if (number.length === 10) {
     number = "91" + number;
@@ -197,19 +207,32 @@ function getWhatsAppLink(show) {
   }
 
   const text = "Hello, I am interested in registering for " +
-    (show.title || "your show") + ". Please share the details.";
+    (show.title || "your show") +
+    ". Please share the details.";
 
   return "https://wa.me/" + number + "?text=" + encodeURIComponent(text);
 }
 
+async function copyShowLink(show,button) {
+  const link = getPublicShowLink(show);
+
+  try {
+    await navigator.clipboard.writeText(link);
+    button.textContent = "Link Copied!";
+    setTimeout(() => button.textContent = "Copy Public Show Link",2500);
+  } catch (error) {
+    window.prompt("Copy this public show link:",link);
+  }
+}
+
 /* HOST AUTHENTICATION */
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth,async user => {
   if (!user) {
     showMessage("Please log in with your host account.");
     setTimeout(() => {
       window.location.href = "host-login.html";
-    }, 1500);
+    },1500);
     return;
   }
 
@@ -218,7 +241,7 @@ onAuthStateChanged(auth, async (user) => {
 
   try {
     const hostSnapshot = await get(
-      ref(db, "hostApplications/" + user.uid)
+      ref(db,"hostApplications/" + user.uid)
     );
 
     if (!hostSnapshot.exists()) {
@@ -243,7 +266,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     document.getElementById("hostName").textContent =
-      getHostName(currentHost, user);
+      getHostName(currentHost,user);
 
     document.getElementById("hostEmail").textContent =
       user.email || currentHost.email || "—";
@@ -254,11 +277,9 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("hostExpiry").textContent =
       formatTimestamp(endAt);
 
-    const mobile = getHostMobile(currentHost, user);
-
+    const mobile = getHostMobile(currentHost,user);
     document.getElementById("hostMobileDisplay").textContent =
       mobile || "Not provided";
-
     document.getElementById("hostMobile").value = mobile;
 
     dashboard.classList.remove("hidden");
@@ -267,7 +288,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadHostShows(user.uid);
 
   } catch (error) {
-    console.error("Host account check failed:", error);
+    console.error("Host account check failed:",error);
     showMessage(
       "Unable to verify your host account: " +
       (error.message || "Please check your internet connection and Firebase rules.")
@@ -277,16 +298,15 @@ onAuthStateChanged(auth, async (user) => {
 
 /* FREE / PAID ENTRY */
 
-document.getElementById("entryType").addEventListener("change", () => {
+document.getElementById("entryType").addEventListener("change",() => {
   const paid = document.getElementById("entryType").value === "paid";
-  document.getElementById("feeSection").classList.toggle("hidden", !paid);
+  document.getElementById("feeSection").classList.toggle("hidden",!paid);
 });
 
 /* CREATE SHOW */
 
-createForm.addEventListener("submit", async (event) => {
+createForm.addEventListener("submit",async event => {
   event.preventDefault();
-
   if (!currentUser || !currentHost) return;
 
   const title = document.getElementById("showTitle").value.trim();
@@ -310,8 +330,7 @@ createForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  const mobileDigits = hostMobile.replace(/\D/g, "");
-
+  const mobileDigits = hostMobile.replace(/\D/g,"");
   if (mobileDigits.length < 10 || mobileDigits.length > 15) {
     createMessage.textContent = "Please enter a valid WhatsApp number.";
     return;
@@ -322,7 +341,7 @@ createForm.addEventListener("submit", async (event) => {
   button.textContent = "Publishing...";
 
   try {
-    const newShowRef = push(ref(db, "shows"));
+    const newShowRef = push(ref(db,"shows"));
 
     const showData = {
       showId:newShowRef.key,
@@ -334,16 +353,15 @@ createForm.addEventListener("submit", async (event) => {
       entryFee,
       hostMobile,
       hostUid:currentUser.uid,
-      hostName:getHostName(currentHost, currentUser),
+      hostName:getHostName(currentHost,currentUser),
       hostEmail:currentUser.email || "",
       status:"Published",
       createdAt:Date.now()
     };
 
-    await set(newShowRef, showData);
+    await set(newShowRef,showData);
 
     createMessage.textContent = "Your show has been published successfully.";
-
     createForm.reset();
     document.getElementById("hostMobile").value = hostMobile;
     document.getElementById("feeSection").classList.add("hidden");
@@ -351,7 +369,7 @@ createForm.addEventListener("submit", async (event) => {
     await loadHostShows(currentUser.uid);
 
   } catch (error) {
-    console.error("Show publishing failed:", error);
+    console.error("Show publishing failed:",error);
     createMessage.textContent =
       "Could not publish show: " + (error.message || "Please try again.");
   } finally {
@@ -366,7 +384,7 @@ async function loadHostShows(hostUid) {
   myShows.textContent = "Loading your shows...";
 
   try {
-    const snapshot = await get(ref(db, "shows"));
+    const snapshot = await get(ref(db,"shows"));
     myShows.innerHTML = "";
 
     if (!snapshot.exists()) {
@@ -376,7 +394,7 @@ async function loadHostShows(hostUid) {
 
     const hostShows = Object.values(snapshot.val())
       .filter(show => show && show.hostUid === hostUid)
-      .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+      .sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
     if (!hostShows.length) {
       myShows.textContent = "You have not published any shows yet.";
@@ -388,7 +406,7 @@ async function loadHostShows(hostUid) {
     }
 
   } catch (error) {
-    console.error("Loading shows failed:", error);
+    console.error("Loading shows failed:",error);
     myShows.textContent = "Unable to load your shows: " + error.message;
   }
 }
@@ -407,7 +425,7 @@ async function renderShowCard(show) {
     " | Time: " + (show.time || "Not specified");
 
   const entry = document.createElement("p");
-  entry.textContent = show.entryType === "paid"
+  entry.textContent = isPaidShow(show)
     ? "Entry Fee: ₹" + Number(show.entryFee || 0)
     : "Free Entry";
 
@@ -417,19 +435,37 @@ async function renderShowCard(show) {
 
   const downloadButton = document.createElement("button");
   downloadButton.textContent = "Download Poster PNG";
-  downloadButton.addEventListener("click", () => {
-    generateShowPoster(show, "download");
-  });
+  downloadButton.addEventListener("click",() => generateShowPoster(show,"download"));
 
   const shareButton = document.createElement("button");
   shareButton.textContent = "Share Poster";
-  shareButton.addEventListener("click", () => {
-    generateShowPoster(show, "share");
-  });
+  shareButton.addEventListener("click",() => generateShowPoster(show,"share"));
+
+  const inviteButton = document.createElement("button");
+  inviteButton.className = "success";
+  inviteButton.textContent = "Copy Public Show Link";
+  inviteButton.addEventListener("click",() => copyShowLink(show,inviteButton));
+
+  const publicLinkPanel = document.createElement("div");
+  publicLinkPanel.className = "link-panel";
+
+  const linkHeading = document.createElement("strong");
+  linkHeading.textContent = "Public Invitation Link";
+
+  const linkText = document.createElement("p");
+  linkText.className = "link-text";
+  linkText.textContent = getPublicShowLink(show);
+
+  const linkInfo = document.createElement("p");
+  linkInfo.className = "small";
+  linkInfo.textContent =
+    "Anyone can share this link. People receiving it can view show details and register.";
+
+  publicLinkPanel.append(linkHeading,linkText,linkInfo);
 
   const whatsappButton = document.createElement("a");
   whatsappButton.className = "button-link whatsapp";
-  whatsappButton.textContent = "WhatsApp Registration Link";
+  whatsappButton.textContent = "Contact Host on WhatsApp";
 
   try {
     whatsappButton.href = getWhatsAppLink(show);
@@ -437,7 +473,7 @@ async function renderShowCard(show) {
     whatsappButton.rel = "noopener noreferrer";
   } catch (error) {
     whatsappButton.href = "#";
-    whatsappButton.addEventListener("click", event => {
+    whatsappButton.addEventListener("click",event => {
       event.preventDefault();
       alert(error.message);
     });
@@ -452,8 +488,8 @@ async function renderShowCard(show) {
   const posterInfo = document.createElement("p");
   posterInfo.className = "small";
 
-  posterPanel.append(posterHeading, posterInfo);
-  await renderPosterUpload(show, posterPanel, posterInfo);
+  posterPanel.append(posterHeading,posterInfo);
+  await renderPosterUpload(show,posterPanel,posterInfo);
 
   const registrationHeading = document.createElement("h3");
   registrationHeading.textContent = "Singer Registrations";
@@ -461,8 +497,6 @@ async function renderShowCard(show) {
   const registrationArea = document.createElement("div");
   registrationArea.className = "small";
   registrationArea.textContent = "Loading registrations...";
-
-  /* NEW: AUDIENCE MANAGEMENT AREA */
 
   const audiencePanel = document.createElement("div");
   audiencePanel.className = "audience-panel";
@@ -472,40 +506,34 @@ async function renderShowCard(show) {
 
   const audienceInfo = document.createElement("p");
   audienceInfo.className = "small";
-  audienceInfo.textContent =
-    "Review audience entry requests. Approve or reject requests. You can remove and block an approved audience member.";
+  audienceInfo.textContent = isPaidShow(show)
+    ? "Paid show: verify payment clearance and approve or reject applicants. You can remove and block approved audience members."
+    : "Free show: audience registration is automatically approved. You can remove and block participants who break the show rules.";
 
   const audienceArea = document.createElement("div");
   audienceArea.className = "small";
   audienceArea.textContent = "Loading audience requests...";
 
-  audiencePanel.append(audienceHeading, audienceInfo, audienceArea);
+  audiencePanel.append(audienceHeading,audienceInfo,audienceArea);
 
   card.append(
-    title,
-    details,
-    entry,
-    status,
+    title,details,entry,status,
     document.createElement("br"),
-    downloadButton,
-    shareButton,
-    whatsappButton,
-    posterPanel,
-    registrationHeading,
-    registrationArea,
-    audiencePanel
+    inviteButton,downloadButton,shareButton,whatsappButton,
+    publicLinkPanel,posterPanel,
+    registrationHeading,registrationArea,audiencePanel
   );
 
   myShows.appendChild(card);
 
-  await loadRegistrations(show, registrationArea);
-  await loadAudienceRequests(show, audienceArea);
+  await loadRegistrations(show,registrationArea);
+  await loadAudienceRequests(show,audienceArea);
 }
 
 /* IMAGE COMPRESSION */
 
 function compressPoster(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve,reject) => {
     if (!file || !file.type.startsWith("image/")) {
       reject(new Error("Please select a valid image."));
       return;
@@ -523,18 +551,17 @@ function compressPoster(file) {
       try {
         const maxDimension = 1400;
         const scale = Math.min(
-          1,
-          maxDimension / Math.max(image.width, image.height)
+          1,maxDimension / Math.max(image.width,image.height)
         );
 
         const canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(image.width * scale));
-        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.width = Math.max(1,Math.round(image.width * scale));
+        canvas.height = Math.max(1,Math.round(image.height * scale));
 
         const ctx = canvas.getContext("2d");
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(image,0,0,canvas.width,canvas.height);
 
         let quality = 0.75;
 
@@ -572,7 +599,7 @@ function compressPoster(file) {
             };
 
             reader.readAsDataURL(blob);
-          }, "image/jpeg", quality);
+          },"image/jpeg",quality);
         }
 
         tryQuality();
@@ -594,20 +621,14 @@ function compressPoster(file) {
 
 /* POSTER UPLOAD AND STATUS */
 
-async function renderPosterUpload(show, panel, info) {
+async function renderPosterUpload(show,panel,info) {
   let posterData = null;
 
   try {
-    const snapshot = await get(
-      ref(db, "showPosters/" + show.showId)
-    );
-
-    if (snapshot.exists()) {
-      posterData = snapshot.val();
-    }
-
+    const snapshot = await get(ref(db,"showPosters/" + show.showId));
+    if (snapshot.exists()) posterData = snapshot.val();
   } catch (error) {
-    console.error("Poster status check failed:", error);
+    console.error("Poster status check failed:",error);
     info.textContent = "Unable to check poster status. Firebase read permission may be missing.";
     return;
   }
@@ -623,7 +644,6 @@ async function renderPosterUpload(show, panel, info) {
   if (posterData && posterData.status) {
     const statusLine = document.createElement("p");
     const statusValue = String(posterData.status);
-
     statusLine.textContent = "Poster status: " + statusValue;
 
     statusLine.className =
@@ -677,7 +697,7 @@ async function renderPosterUpload(show, panel, info) {
   const uploadMessage = document.createElement("p");
   uploadMessage.className = "small";
 
-  uploadButton.addEventListener("click", async () => {
+  uploadButton.addEventListener("click",async () => {
     const file = fileInput.files && fileInput.files[0];
 
     if (!file) {
@@ -690,9 +710,7 @@ async function renderPosterUpload(show, panel, info) {
     uploadMessage.textContent = "Please wait. Preparing your poster...";
 
     try {
-      const showSnapshot = await get(
-        ref(db, "shows/" + show.showId)
-      );
+      const showSnapshot = await get(ref(db,"shows/" + show.showId));
 
       if (!showSnapshot.exists() ||
           showSnapshot.val().hostUid !== currentUser.uid) {
@@ -700,12 +718,11 @@ async function renderPosterUpload(show, panel, info) {
       }
 
       const currentPosterSnapshot = await get(
-        ref(db, "showPosters/" + show.showId)
+        ref(db,"showPosters/" + show.showId)
       );
 
       if (currentPosterSnapshot.exists()) {
         const existing = currentPosterSnapshot.val();
-
         if (existing.status !== "Rejected") {
           throw new Error("A poster already exists. Only a rejected poster can be replaced.");
         }
@@ -729,18 +746,15 @@ async function renderPosterUpload(show, panel, info) {
         contentType:"image/jpeg"
       };
 
-      await set(
-        ref(db, "showPosters/" + show.showId),
-        posterRecord
-      );
+      await set(ref(db,"showPosters/" + show.showId),posterRecord);
 
       uploadMessage.textContent =
         "Poster submitted successfully! Waiting for administrator approval.";
 
-      await renderShowCardRefresh(show, panel);
+      await renderShowCardRefresh(show,panel);
 
     } catch (error) {
-      console.error("Poster upload failed:", error);
+      console.error("Poster upload failed:",error);
       uploadMessage.textContent =
         error.message || "Poster upload failed. Please try again.";
     } finally {
@@ -749,28 +763,25 @@ async function renderPosterUpload(show, panel, info) {
     }
   });
 
-  panel.append(fileLabel, fileInput, uploadButton, uploadMessage);
+  panel.append(fileLabel,fileInput,uploadButton,uploadMessage);
 }
 
-async function renderShowCardRefresh(show, panel) {
+async function renderShowCardRefresh(show,panel) {
   panel.innerHTML = "";
-
   const heading = document.createElement("h3");
   heading.textContent = "External Show Poster";
-
   const info = document.createElement("p");
   info.className = "small";
-
-  panel.append(heading, info);
-  await renderPosterUpload(show, panel, info);
+  panel.append(heading,info);
+  await renderPosterUpload(show,panel,info);
 }
 
 /* SINGER REGISTRATIONS */
 
-async function loadRegistrations(show, container) {
+async function loadRegistrations(show,container) {
   try {
     const snapshot = await get(
-      ref(db, "showRegistrations/" + show.showId)
+      ref(db,"showRegistrations/" + show.showId)
     );
 
     container.innerHTML = "";
@@ -780,7 +791,7 @@ async function loadRegistrations(show, container) {
       return;
     }
 
-    for (const [registrationId, singer] of Object.entries(snapshot.val())) {
+    for (const [registrationId,singer] of Object.entries(snapshot.val())) {
       const row = document.createElement("div");
       row.className = "registration";
 
@@ -796,7 +807,7 @@ async function loadRegistrations(show, container) {
       singerStatus.className = "badge";
       singerStatus.textContent = singer.status || "Waiting";
 
-      row.append(singerName, singerDetails, singerStatus);
+      row.append(singerName,singerDetails,singerStatus);
 
       const actions = [
         {label:"Approve",value:"Approved",className:""},
@@ -809,22 +820,18 @@ async function loadRegistrations(show, container) {
         const button = document.createElement("button");
         button.type = "button";
         button.textContent = action.label;
-
         if (action.className) button.className = action.className;
 
-        button.addEventListener("click", async () => {
+        button.addEventListener("click",async () => {
           button.disabled = true;
-
           try {
             await update(
-              ref(db, "showRegistrations/" + show.showId + "/" + registrationId),
-              {status:action.value, updatedAt:Date.now()}
+              ref(db,"showRegistrations/" + show.showId + "/" + registrationId),
+              {status:action.value,updatedAt:Date.now()}
             );
-
             singerStatus.textContent = action.value;
-
           } catch (error) {
-            console.error("Registration update failed:", error);
+            console.error("Registration update failed:",error);
             alert("Unable to update registration: " + error.message);
           } finally {
             button.disabled = false;
@@ -838,46 +845,40 @@ async function loadRegistrations(show, container) {
     }
 
   } catch (error) {
-    console.error("Registration loading failed:", error);
+    console.error("Registration loading failed:",error);
     container.textContent = "Unable to load registrations: " + error.message;
   }
 }
 
-/* NEW: AUDIENCE REQUEST MANAGEMENT */
+/* AUDIENCE MANAGEMENT */
 
-async function loadAudienceRequests(show, container) {
+async function loadAudienceRequests(show,container) {
   container.textContent = "Loading audience requests...";
 
   try {
     const snapshot = await get(
-      ref(db, "audienceEntryRequests/" + show.showId)
+      ref(db,"audienceEntryRequests/" + show.showId)
     );
 
     container.innerHTML = "";
 
     if (!snapshot.exists()) {
-      container.textContent = "No audience entry requests yet.";
+      container.textContent = "No audience registrations yet.";
       return;
     }
 
     const requests = Object.entries(snapshot.val())
-      .sort((a, b) =>
+      .sort((a,b) =>
         Number(b[1].createdAt || 0) - Number(a[1].createdAt || 0)
       );
-
-    if (!requests.length) {
-      container.textContent = "No audience entry requests yet.";
-      return;
-    }
 
     let pendingCount = 0;
     let approvedCount = 0;
     let rejectedCount = 0;
     let removedCount = 0;
 
-    for (const [, request] of requests) {
+    for (const [,request] of requests) {
       const status = String(request.status || "Pending");
-
       if (status === "Pending") pendingCount++;
       if (status === "Approved") approvedCount++;
       if (status === "Rejected") rejectedCount++;
@@ -895,43 +896,61 @@ async function loadAudienceRequests(show, container) {
 
     container.appendChild(summary);
 
-    for (const [requestId, audience] of requests) {
+    for (const [requestId,audience] of requests) {
       const row = document.createElement("div");
       row.className = "audience-row";
 
       const name = document.createElement("strong");
       name.textContent = audience.name || "Audience member";
 
+      const location = [
+        audience.area,
+        audience.city,
+        audience.state
+      ].filter(Boolean).join(", ") || audience.location || "Not provided";
+
       const details = document.createElement("p");
       details.textContent =
-        "Mobile: " + (audience.mobile || "Not provided") +
+        "Location: " + location +
         " | Entry: " +
-        (audience.entryType === "paid"
-          ? "Paid ₹" + Number(audience.entryFee || 0)
-          : "Free");
+        (isPaidShow(show)
+          ? "Paid ₹" + Number(show.entryFee || 0)
+          : "Free") +
+        (audience.paymentStatus
+          ? " | Payment: " + audience.paymentStatus
+          : "");
 
       const statusBadge = document.createElement("span");
       statusBadge.className = "badge";
       statusBadge.textContent = audience.status || "Pending";
 
-      row.append(name, details, statusBadge);
+      row.append(name,details,statusBadge);
 
       const buttons = document.createElement("div");
 
-      if ((audience.status || "Pending") === "Pending") {
+      /* ONLY PAID SHOWS REQUIRE HOST APPROVAL */
+
+      if (
+        isPaidShow(show) &&
+        (audience.status || "Pending") === "Pending"
+      ) {
         const approveButton = document.createElement("button");
         approveButton.type = "button";
         approveButton.className = "success";
-        approveButton.textContent = "Approve";
+        approveButton.textContent = "Approve Payment & Entry";
 
-        approveButton.addEventListener("click", async () => {
+        approveButton.addEventListener("click",async () => {
+          const confirmed = confirm(
+            "Have you verified payment clearance for " +
+            (audience.name || "this audience member") +
+            "? Approve their entry?"
+          );
+
+          if (!confirmed) return;
+
           await updateAudienceStatus(
-            show.showId,
-            requestId,
-            "Approved",
-            approveButton,
-            container,
-            show
+            show.showId,requestId,"Approved",
+            approveButton,container,show
           );
         });
 
@@ -940,18 +959,14 @@ async function loadAudienceRequests(show, container) {
         rejectButton.className = "danger";
         rejectButton.textContent = "Reject";
 
-        rejectButton.addEventListener("click", async () => {
+        rejectButton.addEventListener("click",async () => {
           await updateAudienceStatus(
-            show.showId,
-            requestId,
-            "Rejected",
-            rejectButton,
-            container,
-            show
+            show.showId,requestId,"Rejected",
+            rejectButton,container,show
           );
         });
 
-        buttons.append(approveButton, rejectButton);
+        buttons.append(approveButton,rejectButton);
       }
 
       if ((audience.status || "") === "Approved") {
@@ -960,20 +975,16 @@ async function loadAudienceRequests(show, container) {
         removeButton.className = "danger";
         removeButton.textContent = "Remove & Block";
 
-        removeButton.addEventListener("click", async () => {
+        removeButton.addEventListener("click",async () => {
           const confirmed = confirm(
             "Remove and block " + (audience.name || "this audience member") +
-            " from this show? They will not be able to submit another request using this account."
+            " from this show?"
           );
 
           if (!confirmed) return;
 
           await removeAndBlockAudience(
-            show,
-            requestId,
-            audience,
-            removeButton,
-            container
+            show,requestId,audience,removeButton,container
           );
         });
 
@@ -981,17 +992,24 @@ async function loadAudienceRequests(show, container) {
       }
 
       if (audience.status === "Removed") {
-        const removedNote = document.createElement("p");
-        removedNote.className = "small";
-        removedNote.textContent = "This audience member has been removed and blocked for this show.";
-        row.appendChild(removedNote);
+        const note = document.createElement("p");
+        note.className = "small";
+        note.textContent = "This audience member has been removed and blocked for this show.";
+        row.appendChild(note);
       }
 
       if (audience.status === "Rejected") {
-        const rejectedNote = document.createElement("p");
-        rejectedNote.className = "small";
-        rejectedNote.textContent = "This request was rejected.";
-        row.appendChild(rejectedNote);
+        const note = document.createElement("p");
+        note.className = "small";
+        note.textContent = "This request was rejected.";
+        row.appendChild(note);
+      }
+
+      if (!isPaidShow(show) && audience.status === "Pending") {
+        const note = document.createElement("p");
+        note.className = "small";
+        note.textContent = "This is a free show. Registration should be automatically approved by the audience registration page.";
+        row.appendChild(note);
       }
 
       row.appendChild(buttons);
@@ -999,7 +1017,7 @@ async function loadAudienceRequests(show, container) {
     }
 
   } catch (error) {
-    console.error("Audience request loading failed:", error);
+    console.error("Audience request loading failed:",error);
     container.textContent =
       "Unable to load audience requests: " + error.message +
       ". Check your Firebase audienceEntryRequests read rules.";
@@ -1007,39 +1025,30 @@ async function loadAudienceRequests(show, container) {
 }
 
 async function updateAudienceStatus(
-  showId,
-  requestId,
-  newStatus,
-  button,
-  container,
-  show
+  showId,requestId,newStatus,button,container,show
 ) {
   button.disabled = true;
 
   try {
     await update(
-      ref(db, "audienceEntryRequests/" + showId + "/" + requestId),
+      ref(db,"audienceEntryRequests/" + showId + "/" + requestId),
       {
         status:newStatus,
         updatedAt:Date.now()
       }
     );
 
-    await loadAudienceRequests(show, container);
+    await loadAudienceRequests(show,container);
 
   } catch (error) {
-    console.error("Audience status update failed:", error);
+    console.error("Audience status update failed:",error);
     alert("Unable to update audience request: " + error.message);
     button.disabled = false;
   }
 }
 
 async function removeAndBlockAudience(
-  show,
-  requestId,
-  audience,
-  button,
-  container
+  show,requestId,audience,button,container
 ) {
   if (!currentUser || !audience.audienceUid) {
     alert("Audience account information is missing. Cannot block this request.");
@@ -1061,14 +1070,13 @@ async function removeAndBlockAudience(
       blockedAt:Date.now()
     };
 
-    /* First block the account, then mark the request Removed. */
     await set(
-      ref(db, "audienceBlocks/" + show.showId + "/" + audience.audienceUid),
+      ref(db,"audienceBlocks/" + show.showId + "/" + audience.audienceUid),
       blockRecord
     );
 
     await update(
-      ref(db, "audienceEntryRequests/" + show.showId + "/" + requestId),
+      ref(db,"audienceEntryRequests/" + show.showId + "/" + requestId),
       {
         status:"Removed",
         updatedAt:Date.now()
@@ -1076,16 +1084,11 @@ async function removeAndBlockAudience(
     );
 
     alert("Audience member removed and blocked for this show.");
-
-    await loadAudienceRequests(show, container);
+    await loadAudienceRequests(show,container);
 
   } catch (error) {
-    console.error("Audience removal/block failed:", error);
-    alert(
-      "Unable to remove and block this audience member: " +
-      error.message
-    );
-
+    console.error("Audience removal/block failed:",error);
+    alert("Unable to remove and block this audience member: " + error.message);
     button.disabled = false;
     button.textContent = "Remove & Block";
   }
@@ -1093,7 +1096,7 @@ async function removeAndBlockAudience(
 
 /* POSTER TEXT WRAPPING */
 
-function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines=3) {
   const words = String(text || "").split(/\s+/);
   let line = "";
   let lines = 0;
@@ -1102,10 +1105,9 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
     const test = line ? line + " " + word : word;
 
     if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line, x, y);
+      ctx.fillText(line,x,y);
       y += lineHeight;
       lines++;
-
       if (lines >= maxLines) return y;
       line = word;
     } else {
@@ -1114,7 +1116,7 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
   }
 
   if (line && lines < maxLines) {
-    ctx.fillText(line, x, y);
+    ctx.fillText(line,x,y);
     y += lineHeight;
   }
 
@@ -1123,15 +1125,8 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
 
 /* GENERATE SHOW POSTER */
 
-async function generateShowPoster(show, mode = "download") {
-  let whatsappUrl;
-
-  try {
-    whatsappUrl = getWhatsAppLink(show);
-  } catch (error) {
-    alert(error.message);
-    return;
-  }
+async function generateShowPoster(show,mode="download") {
+  const publicLink = getPublicShowLink(show);
 
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
@@ -1139,30 +1134,30 @@ async function generateShowPoster(show, mode = "download") {
 
   const ctx = canvas.getContext("2d");
 
-  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-  gradient.addColorStop(0, "#080808");
-  gradient.addColorStop(1, "#242016");
+  const gradient = ctx.createLinearGradient(0,0,1080,1350);
+  gradient.addColorStop(0,"#080808");
+  gradient.addColorStop(1,"#242016");
 
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1080, 1350);
+  ctx.fillRect(0,0,1080,1350);
 
   ctx.strokeStyle = "#d6ad55";
   ctx.lineWidth = 10;
-  ctx.strokeRect(35, 35, 1010, 1280);
+  ctx.strokeRect(35,35,1010,1280);
 
   ctx.strokeStyle = "#8e6c2d";
   ctx.lineWidth = 2;
-  ctx.strokeRect(55, 55, 970, 1240);
+  ctx.strokeRect(55,55,970,1240);
 
   ctx.textAlign = "center";
 
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 48px Arial";
-  ctx.fillText("MELODY MAGIC", 540, 135);
+  ctx.fillText("MELODY MAGIC",540,135);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "25px Arial";
-  ctx.fillText("DIGITAL AUDITORIUM PRESENTS", 540, 185);
+  ctx.fillText("DIGITAL AUDITORIUM PRESENTS",540,185);
 
   ctx.fillStyle = "#f4d68b";
   ctx.font = "bold 64px Arial";
@@ -1173,7 +1168,6 @@ async function generateShowPoster(show, mode = "download") {
 
   for (const word of titleWords) {
     const test = titleLine ? titleLine + " " + word : word;
-
     if (ctx.measureText(test).width > 900 && titleLine) {
       titleLines.push(titleLine);
       titleLine = word;
@@ -1185,9 +1179,8 @@ async function generateShowPoster(show, mode = "download") {
   if (titleLine) titleLines.push(titleLine);
 
   let titleY = 310;
-
-  titleLines.slice(0, 2).forEach(line => {
-    ctx.fillText(line, 540, titleY);
+  titleLines.slice(0,2).forEach(line => {
+    ctx.fillText(line,540,titleY);
     titleY += 78;
   });
 
@@ -1195,83 +1188,76 @@ async function generateShowPoster(show, mode = "download") {
   ctx.font = "27px Arial";
 
   const descriptionEndY = wrapCanvasText(
-    ctx,
-    String(show.description || ""),
-    540,
-    titleY + 35,
-    850,
-    40,
-    3
+    ctx,String(show.description || ""),540,titleY + 35,850,40,3
   );
 
-  const infoY = Math.max(descriptionEndY + 45, 570);
+  const infoY = Math.max(descriptionEndY + 45,570);
 
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 38px Arial";
-  ctx.fillText("DATE", 540, infoY);
+  ctx.fillText("DATE",540,infoY);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "34px Arial";
-  ctx.fillText(formatDate(show.date), 540, infoY + 48);
+  ctx.fillText(formatDate(show.date),540,infoY + 48);
 
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 38px Arial";
-  ctx.fillText("TIME", 540, infoY + 115);
+  ctx.fillText("TIME",540,infoY + 115);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "34px Arial";
-  ctx.fillText(show.time || "Time to be announced", 540, infoY + 163);
+  ctx.fillText(show.time || "Time to be announced",540,infoY + 163);
 
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 38px Arial";
-  ctx.fillText("ENTRY", 540, infoY + 230);
+  ctx.fillText("ENTRY",540,infoY + 230);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "34px Arial";
   ctx.fillText(
-    show.entryType === "paid"
+    isPaidShow(show)
       ? "Entry Fee: Rs. " + Number(show.entryFee || 0)
       : "FREE ENTRY",
-    540,
-    infoY + 278
+    540,infoY + 278
   );
 
   ctx.fillStyle = "#e9c56f";
   ctx.font = "bold 30px Arial";
-  ctx.fillText("CONTACT THE HOST", 540, infoY + 355);
+  ctx.fillText("HOST",540,infoY + 355);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 32px Arial";
-  ctx.fillText(String(show.hostMobile || ""), 540, infoY + 400);
+  ctx.fillText(String(show.hostName || "Melody Magic Host"),540,infoY + 400);
 
-  const buttonY = Math.min(infoY + 445, 1080);
+  const buttonY = Math.min(infoY + 465,1080);
 
   ctx.fillStyle = "#168c4a";
   ctx.beginPath();
 
   if (typeof ctx.roundRect === "function") {
-    ctx.roundRect(260, buttonY, 560, 95, 22);
+    ctx.roundRect(260,buttonY,560,95,22);
   } else {
-    ctx.rect(260, buttonY, 560, 95);
+    ctx.rect(260,buttonY,560,95);
   }
 
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 35px Arial";
-  ctx.fillText("WHATSAPP TO REGISTER", 540, buttonY + 59);
-
-  ctx.font = "22px Arial";
-  ctx.fillStyle = "#d9f5e4";
-  ctx.fillText("Contact the host directly", 540, buttonY + 130);
-
-  ctx.fillStyle = "#e9c56f";
-  ctx.font = "bold 27px Arial";
-  ctx.fillText("MELODY MAGIC DIGITAL AUDITORIUM", 540, 1245);
+  ctx.fillText("SCAN / OPEN SHOW INVITATION",540,buttonY + 59);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "21px Arial";
-  ctx.fillText("Sing - Connect - Celebrate", 540, 1280);
+  ctx.fillText("Share the public show link with everyone",540,buttonY + 135);
+
+  ctx.fillStyle = "#e9c56f";
+  ctx.font = "bold 27px Arial";
+  ctx.fillText("MELODY MAGIC DIGITAL AUDITORIUM",540,1245);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "21px Arial";
+  ctx.fillText("Sing - Connect - Celebrate",540,1280);
 
   canvas.toBlob(async blob => {
     if (!blob) {
@@ -1282,7 +1268,7 @@ async function generateShowPoster(show, mode = "download") {
     const file = new File(
       [blob],
       "Melody-Magic-" +
-        String(show.title || "Show").replace(/[^a-z0-9]/gi, "-") +
+        String(show.title || "Show").replace(/[^a-z0-9]/gi,"-") +
         ".png",
       {type:"image/png"}
     );
@@ -1290,8 +1276,11 @@ async function generateShowPoster(show, mode = "download") {
     const shareText =
       "Join " + show.title + " at Melody Magic Digital Auditorium.\n\n" +
       "Date: " + formatDate(show.date) + "\n" +
-      "Time: " + (show.time || "") + "\n\n" +
-      "WhatsApp registration link:\n" + whatsappUrl;
+      "Time: " + (show.time || "") + "\n" +
+      "Entry: " + (isPaidShow(show)
+        ? "₹" + Number(show.entryFee || 0)
+        : "FREE") +
+      "\n\nPublic show invitation link:\n" + publicLink;
 
     if (
       mode === "share" &&
@@ -1319,16 +1308,21 @@ async function generateShowPoster(show, mode = "download") {
           await navigator.share({
             title:show.title || "Melody Magic Show",
             text:shareText,
-            url:whatsappUrl
+            url:publicLink
           });
         } catch (error) {
           if (error.name !== "AbortError") console.error(error);
         }
       } else if (mode === "share") {
-        alert("Poster downloaded. You can now attach it to a WhatsApp message and share it.");
+        try {
+          await navigator.clipboard.writeText(shareText);
+          alert("Poster downloaded and invitation message copied. Share both with your audience.");
+        } catch (error) {
+          window.prompt("Copy this invitation message:",shareText);
+        }
       }
     }
-  }, "image/png");
+  },"image/png");
 }
 
 function downloadPoster(file) {
@@ -1342,17 +1336,17 @@ function downloadPoster(file) {
   link.click();
   link.remove();
 
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setTimeout(() => URL.revokeObjectURL(url),2000);
 }
 
 /* SIGN OUT */
 
-document.getElementById("logoutButton").addEventListener("click", async () => {
+document.getElementById("logoutButton").addEventListener("click",async () => {
   try {
     await signOut(auth);
     window.location.href = "host-login.html";
   } catch (error) {
-    console.error("Sign out failed:", error);
+    console.error("Sign out failed:",error);
     alert("Unable to sign out. Please try again.");
   }
 });
