@@ -685,7 +685,6 @@ async function joinAuditorium() {
 
     await room.connect(LIVEKIT_URL, tokenData.token);
 
-    room.localParticipant.identity = currentUser.uid;
 
     addParticipant(currentUser.uid, singerName);
 
