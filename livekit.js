@@ -259,16 +259,60 @@ function makeSingerTile(identity, name) {
   return tile;
 }
 
-function showMainSinger(uid) {
+function showMainSinger(uids) {
   const stage = document.getElementById("mainStage");
   if (!stage) return;
 
   stage.innerHTML = "";
 
-  if (!uid) {
+  const singerList = Array.isArray(uids)
+    ? uids.filter(Boolean)
+    : uids ? [uids] : [];
+
+  if (singerList.length === 0) {
     stage.textContent = "Waiting for the host to select a singer...";
     return;
   }
+
+  stage.style.cssText =
+    "display:grid;grid-template-columns:repeat(" +
+    Math.min(singerList.length, 2) +
+    ",minmax(0,1fr));gap:12px;width:100%";
+
+  singerList.forEach(uid => {
+    const participant = participants.get(uid);
+
+    const singerBox = document.createElement("div");
+    singerBox.style.cssText =
+      "background:#181818;padding:10px;border-radius:10px;text-align:center;min-width:0";
+
+    const heading = document.createElement("p");
+    heading.textContent = "⭐ " + displayName(uid);
+    heading.style.cssText =
+      "color:#d6b45b;font-weight:bold;text-align:center";
+
+    singerBox.appendChild(heading);
+
+    if (!participant) {
+      const message = document.createElement("p");
+      message.textContent = "Singer is not connected yet.";
+      singerBox.appendChild(message);
+    } else if (participant.videoTrack) {
+      const video = participant.videoTrack.attach();
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.cssText =
+        "width:100%;max-height:450px;object-fit:contain";
+      singerBox.appendChild(video);
+    } else {
+      const message = document.createElement("p");
+      message.textContent = "Singer is on stage. Camera is off.";
+      singerBox.appendChild(message);
+    }
+
+    stage.appendChild(singerBox);
+  });
+}
 
   const participant = participants.get(uid);
 
