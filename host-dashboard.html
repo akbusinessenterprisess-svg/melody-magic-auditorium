@@ -129,7 +129,6 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
 const MAX_POSTER_DATA_LENGTH = 850000;
 
 const messageBox = document.getElementById("message");
@@ -140,7 +139,6 @@ const myShows = document.getElementById("myShows");
 
 let currentUser = null;
 let currentHost = null;
-let posterPermission = false;
 
 function showMessage(text) {
   messageBox.textContent = text;
@@ -252,9 +250,6 @@ onAuthStateChanged(auth, async (user) => {
 
     document.getElementById("hostMobile").value = mobile;
 
-    // Check whether administrator has enabled poster upload.
-    await loadPosterPermission();
-
     dashboard.classList.remove("hidden");
     hideMessage();
 
@@ -265,33 +260,6 @@ onAuthStateChanged(auth, async (user) => {
     showMessage("Unable to verify your host account. Please try again.");
   }
 });
-
-/* POSTER UPLOAD PERMISSION */
-
-async function loadPosterPermission() {
-  try {
-    const snapshot = await get(
-      ref(db, "posterUploadPermissions/" + currentUser.uid)
-    );
-
-    if (!snapshot.exists()) {
-      posterPermission = false;
-      return;
-    }
-
-    const value = snapshot.val();
-
-    posterPermission =
-      value === true ||
-      value === "true" ||
-      (value && typeof value === "object" &&
-       (value.enabled === true || value.allowed === true));
-
-  } catch (error) {
-    console.error("Poster permission check:", error);
-    posterPermission = false;
-  }
-}
 
 /* FREE / PAID ENTRY */
 
@@ -615,11 +583,6 @@ async function renderPosterUpload(show, panel, info) {
     }
   }
 
-  if (!posterPermission) {
-    info.textContent = "Poster upload is currently disabled. Please contact the administrator to enable permission.";
-    return;
-  }
-
   if (posterData && posterData.status === "Pending") {
     info.textContent = "Your poster has been submitted and is waiting for administrator approval.";
     return;
@@ -640,14 +603,17 @@ async function renderPosterUpload(show, panel, info) {
     : "Upload one poster for this show. Your poster will be reviewed by the administrator before public display.";
 
   const fileLabel = document.createElement("label");
-  fileLabel.textContent = "Choose poster image (JPG or PNG)";
+  fileLabel.textContent = "Choose poster image (JPG, PNG or WebP)";
 
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = "image/jpeg,image/png,image/webp";
 
   const uploadButton = document.createElement("button");
-  uploadButton.textContent = posterData ? "Upload Replacement Poster" : "Upload Poster";
+  uploadButton.textContent =
+    posterData && posterData.status === "Rejected"
+      ? "Upload Replacement Poster"
+      : "Upload Poster";
 
   const uploadMessage = document.createElement("p");
   uploadMessage.className = "small";
@@ -665,22 +631,27 @@ async function renderPosterUpload(show, panel, info) {
     uploadMessage.textContent = "Please wait. Preparing your poster...";
 
     try {
-      // Recheck permission before upload.
-      const permissionSnapshot = await get(
-        ref(db, "posterUploadPermissions/" + currentUser.uid)
+      // Verify that the host still owns this show.
+      const showSnapshot = await get(
+        ref(db, "shows/" + show.showId)
       );
 
-      const permissionValue = permissionSnapshot.val();
+      if (!showSnapshot.exists() ||
+          showSnapshot.val().hostUid !== currentUser.uid) {
+        throw new Error("You are not authorized to upload a poster for this show.");
+      }
 
-      const allowed =
-        permissionValue === true ||
-        permissionValue === "true" ||
-        (permissionValue && typeof permissionValue === "object" &&
-         (permissionValue.enabled === true || permissionValue.allowed === true));
+      // Recheck the current poster status to prevent accidental replacement.
+      const currentPosterSnapshot = await get(
+        ref(db, "showPosters/" + show.showId)
+      );
 
-      if (!allowed) {
-        posterPermission = false;
-        throw new Error("Poster upload permission has been disabled by the administrator.");
+      if (currentPosterSnapshot.exists()) {
+        const existing = currentPosterSnapshot.val();
+
+        if (existing.status !== "Rejected") {
+          throw new Error("A poster already exists. Only a rejected poster can be replaced.");
+        }
       }
 
       const compressedImage = await compressPoster(file);
@@ -702,13 +673,15 @@ async function renderPosterUpload(show, panel, info) {
         posterRecord
       );
 
-      uploadMessage.textContent = "Poster submitted successfully! Waiting for administrator approval.";
+      uploadMessage.textContent =
+        "Poster submitted successfully! Waiting for administrator approval.";
 
       await renderShowCardRefresh(show, panel);
 
     } catch (error) {
       console.error(error);
-      uploadMessage.textContent = error.message || "Poster upload failed. Please try again.";
+      uploadMessage.textContent =
+        error.message || "Poster upload failed. Please try again.";
     } finally {
       uploadButton.disabled = false;
       uploadButton.textContent = "Upload Poster";
@@ -719,7 +692,6 @@ async function renderPosterUpload(show, panel, info) {
 }
 
 async function renderShowCardRefresh(show, panel) {
-  // Refresh the poster area after a successful upload.
   panel.innerHTML = "";
 
   const heading = document.createElement("h3");
@@ -858,7 +830,7 @@ async function generateShowPoster(show, mode = "download") {
 
   const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
   gradient.addColorStop(0, "#080808");
-  gradient.addColorStop(1, "#242016");
+  gradient.addColorStop(1, "#242016);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1080, 1350);
 
