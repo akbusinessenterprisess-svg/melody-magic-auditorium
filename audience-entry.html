@@ -8,60 +8,26 @@
 
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;padding:20px;background:#090807;
- color:white;font-family:Arial,sans-serif
-}
+body{margin:0;padding:20px;background:#090807;color:white;font-family:Arial,sans-serif}
 .container{max-width:600px;margin:25px auto}
 h1,h2{color:#e7bd68}
-.card{
- background:#191510;border:1px solid #705322;
- border-radius:12px;padding:22px;margin:18px 0
-}
-label{
- display:block;color:#e7bd68;
- margin-top:15px;font-size:14px
-}
-input{
- width:100%;padding:13px;margin-top:7px;
- background:#0d0b08;color:white;
- border:1px solid #57452c;border-radius:6px;
- font-size:16px
-}
-button{
- display:block;width:100%;padding:14px;
- margin-top:15px;background:#e7bd68;
- color:#171009;border:0;border-radius:7px;
- font-size:16px;font-weight:bold;cursor:pointer
-}
+.card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
+label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
+input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
+button{display:block;width:100%;padding:14px;margin-top:15px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.5;cursor:wait}
-.detect{
- background:#273c2b;color:#d8f5dc;
- border:1px solid #527b58
-}
+.detect{background:#273c2b;color:#d8f5dc;border:1px solid #527b58}
 .muted{color:#c2b7a6;line-height:1.6}
 .success{color:#8ee29a;line-height:1.6}
 .error{color:#ff9999;line-height:1.6}
-.location-status{
- color:#c2b7a6;font-size:13px;
- line-height:1.5;margin-top:10px
-}
-.rules{
- background:#0d0b08;border:1px solid #57452c;
- border-radius:8px;padding:15px;
- margin-top:18px;color:#ddd;line-height:1.7
-}
-.check{
- display:flex;gap:10px;align-items:flex-start;
- color:#e7bd68;line-height:1.5
-}
-.check input{
- width:18px;height:18px;margin:2px 0;flex-shrink:0
-}
-.location-note{
- font-size:12px;color:#aaa;margin-top:10px;
- line-height:1.5
-}
+.location-status{color:#c2b7a6;font-size:13px;line-height:1.5;margin-top:10px}
+.rules{background:#0d0b08;border:1px solid #57452c;border-radius:8px;padding:15px;margin-top:18px;color:#ddd;line-height:1.7}
+.check{display:flex;gap:10px;align-items:flex-start;color:#e7bd68;line-height:1.5}
+.check input{width:18px;height:18px;margin:2px 0;flex-shrink:0}
+.location-note{font-size:12px;color:#aaa;margin-top:10px;line-height:1.5}
+.payment-box{background:#0d0b08;border:1px solid #705322;border-radius:8px;padding:15px;margin-top:18px}
+.contact-link{display:block;padding:14px;margin-top:15px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold}
+.hidden{display:none!important}
 </style>
 </head>
 
@@ -73,95 +39,62 @@ button:disabled{opacity:.5;cursor:wait}
 
 <div class="card">
 <h2>Selected Show</h2>
-<div id="showDetails" class="muted">
-Loading show details...
-</div>
+<div id="showDetails" class="muted">Loading show details...</div>
 </div>
 
 <div class="card">
-<h2>Free Audience Entry</h2>
-
-<p class="muted">
-Enter your name and location to join this free show.
-You can detect your location automatically or enter it manually.
-No mobile number or host approval is required.
+<h2 id="formHeading">Audience Registration</h2>
+<p id="formIntroduction" class="muted">
+Enter your name and location to register for this show.
 </p>
+
+<div id="paymentArea" class="payment-box hidden">
+<strong style="color:#e7bd68">PAID SHOW – PAYMENT INSTRUCTIONS</strong>
+<p class="muted">
+Please contact the host using the button below to confirm payment details. After making payment, enter your UPI transaction ID / UTR number below and submit your application.
+</p>
+<a id="hostContact" class="contact-link hidden" target="_blank" rel="noopener">CONTACT HOST ON WHATSAPP</a>
+<p class="location-note">
+Your application will remain pending until the host verifies your payment and approves your entry.
+</p>
+</div>
 
 <form id="entryForm">
 
 <label for="audienceName">Full Name</label>
-<input
- id="audienceName"
- type="text"
- placeholder="Enter your full name"
- maxlength="80"
- autocomplete="name"
- required
->
+<input id="audienceName" type="text" placeholder="Enter your full name" maxlength="80" autocomplete="name" required>
 
-<h3 style="color:#e7bd68;margin-top:25px">
-Your Location
-</h3>
+<h3 style="color:#e7bd68;margin-top:25px">Your Location</h3>
 
-<button
- type="button"
- id="detectLocation"
- class="detect"
->
-📍 DETECT MY LOCATION
-</button>
+<button type="button" id="detectLocation" class="detect">📍 DETECT MY LOCATION</button>
 
-<div
- id="locationStatus"
- class="location-status"
- aria-live="polite"
->
-Click the button and allow location permission.
-You can also fill in the fields manually.
+<div id="locationStatus" class="location-status" aria-live="polite">
+Click the button and allow location permission. You can also fill in the fields manually.
 </div>
 
 <label for="audienceArea">Area / Locality</label>
-<input
- id="audienceArea"
- type="text"
- placeholder="Example: Sector 11, New Panvel"
- maxlength="100"
- autocomplete="address-level3"
- required
->
+<input id="audienceArea" type="text" placeholder="Example: Sector 11, New Panvel" maxlength="100" autocomplete="address-level3" required>
 
 <label for="audienceCity">City / Town</label>
-<input
- id="audienceCity"
- type="text"
- placeholder="Example: Panvel"
- maxlength="100"
- autocomplete="address-level2"
- required
->
+<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100" autocomplete="address-level2" required>
 
 <label for="audienceState">State</label>
-<input
- id="audienceState"
- type="text"
- placeholder="Example: Maharashtra"
- maxlength="100"
- autocomplete="address-level1"
- required
->
+<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100" autocomplete="address-level1" required>
+
+<div id="paymentReferenceArea" class="hidden">
+<label for="paymentReference">Payment Transaction ID / UTR Number</label>
+<input id="paymentReference" type="text" maxlength="100" placeholder="Enter your UPI transaction ID / UTR number">
+<p class="location-note">
+Enter the reference number shown in your payment app. Do not enter your UPI PIN, password or bank details.
+</p>
+</div>
 
 <p class="location-note">
-Your location is used for audience registration.
-Automatic detection requires your browser's permission.
-You can edit the detected details before submitting.
-Location lookup is provided by OpenStreetMap.
+Your location is used for audience registration. Automatic detection requires your browser's permission. You can edit the detected details before submitting. Location lookup is provided by OpenStreetMap.
 </p>
 
 <div class="rules">
-<strong style="color:#e7bd68">
-AUDITORIUM RULES – PLEASE READ
-</strong>
-
+<strong style="color:#e7bd68">AUDITORIUM RULES – PLEASE READ</strong>
 <ol>
 <li>Respect the host, singers and all participants.</li>
 <li>No abusive language, harassment or inappropriate behaviour.</li>
@@ -178,20 +111,14 @@ AUDITORIUM RULES – PLEASE READ
 <span>I have read and agree to follow all auditorium rules.</span>
 </label>
 
-<button id="submitButton" type="submit">
-JOIN FREE SHOW
-</button>
-
+<button id="submitButton" type="submit">SUBMIT REGISTRATION</button>
 </form>
 
 <div id="message" aria-live="polite"></div>
-<div id="paymentArea"></div>
-
 </div>
 </div>
 
 <script type="module">
-
 import {db,auth} from "./firebase.js";
 
 import {
@@ -202,7 +129,6 @@ import {
  signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-
 const showId=new URLSearchParams(location.search).get("showId");
 
 const showDetails=document.getElementById("showDetails");
@@ -210,7 +136,9 @@ const form=document.getElementById("entryForm");
 const message=document.getElementById("message");
 const button=document.getElementById("submitButton");
 const paymentArea=document.getElementById("paymentArea");
-
+const paymentReferenceArea=document.getElementById("paymentReferenceArea");
+const paymentReference=document.getElementById("paymentReference");
+const hostContact=document.getElementById("hostContact");
 const detectButton=document.getElementById("detectLocation");
 const locationStatus=document.getElementById("locationStatus");
 
@@ -219,18 +147,16 @@ const cityInput=document.getElementById("audienceCity");
 const stateInput=document.getElementById("audienceState");
 
 let selectedShow=null;
-
+let isPaidShow=false;
 
 function showMessage(text,type){
  message.textContent=text;
  message.className=type;
 }
 
-
 function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
-
 
 function setLocationStatus(text,type="normal"){
  locationStatus.textContent=text;
@@ -239,164 +165,105 @@ function setLocationStatus(text,type="normal"){
   type==="error" ? "#ff9999" : "#c2b7a6";
 }
 
-
 // AUTOMATIC LOCATION DETECTION
-
 detectButton.addEventListener("click",()=>{
-
  if(!navigator.geolocation){
-  setLocationStatus(
-   "Your browser does not support location detection. Please enter your location manually.",
-   "error"
-  );
+  setLocationStatus("Your browser does not support location detection. Please enter your location manually.","error");
   return;
  }
 
  detectButton.disabled=true;
  detectButton.textContent="DETECTING LOCATION...";
+ setLocationStatus("Please wait. Getting your location...");
 
- setLocationStatus(
-  "Please wait. Getting your location..."
- );
+ navigator.geolocation.getCurrentPosition(async(position)=>{
+  try{
+   const latitude=position.coords.latitude;
+   const longitude=position.coords.longitude;
 
- navigator.geolocation.getCurrentPosition(
+   setLocationStatus("Location detected. Finding your area, city and state...");
 
-  async(position)=>{
+   const url="https://nominatim.openstreetmap.org/reverse"+
+    "?format=jsonv2"+
+    "&lat="+encodeURIComponent(latitude)+
+    "&lon="+encodeURIComponent(longitude)+
+    "&zoom=18"+
+    "&addressdetails=1";
 
-   try{
+   const response=await fetch(url,{headers:{"Accept":"application/json"}});
 
-    const latitude=position.coords.latitude;
-    const longitude=position.coords.longitude;
+   if(!response.ok) throw new Error("Location address service is unavailable.");
 
-    setLocationStatus(
-     "Location detected. Finding your area, city and state..."
-    );
+   const result=await response.json();
+   const address=result.address||{};
 
-    const url=
-     "https://nominatim.openstreetmap.org/reverse"+
-     "?format=jsonv2"+
-     "&lat="+encodeURIComponent(latitude)+
-     "&lon="+encodeURIComponent(longitude)+
-     "&zoom=18"+
-     "&addressdetails=1";
+   const area=
+    address.neighbourhood||
+    address.suburb||
+    address.residential||
+    address.quarter||
+    address.city_district||
+    address.village||
+    address.hamlet||
+    address.town||"";
 
-    const response=await fetch(url,{
-     headers:{
-      "Accept":"application/json"
-     }
-    });
+   const city=
+    address.city||
+    address.town||
+    address.village||
+    address.municipality||
+    address.county||"";
 
-    if(!response.ok){
-     throw new Error("Location address service is unavailable.");
-    }
+   const state=address.state||"";
 
-    const result=await response.json();
-    const address=result.address||{};
-
-    const area=
-     address.neighbourhood||
-     address.suburb||
-     address.residential||
-     address.quarter||
-     address.city_district||
-     address.village||
-     address.hamlet||
-     address.town||
-     "";
-
-    const city=
-     address.city||
-     address.town||
-     address.village||
-     address.municipality||
-     address.county||
-     "";
-
-    const state=address.state||"";
-
-    if(!city&&!state&&!area){
-     throw new Error("Could not identify your address. Please enter it manually.");
-    }
-
-    areaInput.value=area||city;
-    cityInput.value=city||area;
-    stateInput.value=state;
-
-    setLocationStatus(
-     "Location detected successfully! Please check the details and edit them if necessary.",
-     "success"
-    );
-
-   }catch(error){
-
-    console.error("Location lookup error:",error);
-
-    setLocationStatus(
-     error.message+
-     " You can enter your area, city and state manually.",
-     "error"
-    );
-
-   }finally{
-
-    detectButton.disabled=false;
-    detectButton.textContent="📍 DETECT MY LOCATION";
-
+   if(!city&&!state&&!area){
+    throw new Error("Could not identify your address. Please enter it manually.");
    }
 
-  },
+   areaInput.value=area||city;
+   cityInput.value=city||area;
+   stateInput.value=state;
 
-  (error)=>{
+   setLocationStatus("Location detected successfully! Please check the details and edit them if necessary.","success");
 
-   let errorText="Could not detect your location.";
-
-   if(error.code===1){
-    errorText="Location permission was denied. Please allow location access or enter your location manually.";
-   }else if(error.code===2){
-    errorText="Your location is currently unavailable. Please enter it manually.";
-   }else if(error.code===3){
-    errorText="Location detection timed out. Please try again or enter it manually.";
-   }
-
-   setLocationStatus(errorText,"error");
-
+  }catch(error){
+   console.error("Location lookup error:",error);
+   setLocationStatus(error.message+" You can enter your location manually.","error");
+  }finally{
    detectButton.disabled=false;
    detectButton.textContent="📍 DETECT MY LOCATION";
-
-  },
-
-  {
-   enableHighAccuracy:false,
-   timeout:15000,
-   maximumAge:300000
   }
+ },(error)=>{
+  let errorText="Could not detect your location.";
+  if(error.code===1) errorText="Location permission was denied. Please allow location access or enter your location manually.";
+  else if(error.code===2) errorText="Your location is currently unavailable. Please enter it manually.";
+  else if(error.code===3) errorText="Location detection timed out. Please try again or enter it manually.";
 
- );
-
+  setLocationStatus(errorText,"error");
+  detectButton.disabled=false;
+  detectButton.textContent="📍 DETECT MY LOCATION";
+ },{
+  enableHighAccuracy:false,
+  timeout:15000,
+  maximumAge:300000
+ });
 });
 
-
 // LOAD SELECTED SHOW
-
 async function loadShow(){
-
  try{
-
-  if(!showId){
-   throw new Error("No show selected. Please return to the homepage.");
-  }
+  if(!showId) throw new Error("No show selected. Please return to the homepage.");
 
   const snapshot=await get(ref(db,"shows/"+showId));
-
-  if(!snapshot.exists()){
-   throw new Error("This show could not be found.");
-  }
+  if(!snapshot.exists()) throw new Error("This show could not be found.");
 
   selectedShow=snapshot.val();
 
   if(selectedShow.status!=="Published"){
    throw new Error("This show is not currently available.");
   }
+
+  isPaidShow=String(selectedShow.entryType||"Free").toLowerCase()==="paid";
 
   const title=document.createElement("h3");
   title.textContent=selectedShow.title||"Live Show";
@@ -410,75 +277,57 @@ async function loadShow(){
   const host=document.createElement("p");
   host.textContent="Host: "+(selectedShow.hostName||"Host");
 
-  const paid=
-   String(selectedShow.entryType||"Free").toLowerCase()==="paid";
-
   const fee=document.createElement("p");
-
-  fee.textContent=paid
+  fee.textContent=isPaidShow
    ?"Entry Fee: ₹"+(selectedShow.entryFee||0)
    :"Entry: FREE";
 
   showDetails.replaceChildren(title,date,time,host,fee);
 
-  if(paid){
+  if(isPaidShow){
+   document.getElementById("formHeading").textContent="Paid Show Registration";
+   document.getElementById("formIntroduction").textContent=
+    "Complete the details below to apply for entry. Your application will be reviewed by the host.";
 
-   form.style.display="none";
+   paymentArea.classList.remove("hidden");
+   paymentReferenceArea.classList.remove("hidden");
+   paymentReference.required=true;
+   button.textContent="SUBMIT PAID SHOW APPLICATION";
 
    const phone=cleanPhone(
     selectedShow.hostMobile||
     selectedShow.hostWhatsApp||
     selectedShow.hostWhatsapp||
+    selectedShow.contactWhatsApp||
     selectedShow.mobile
    );
 
-   const info=document.createElement("p");
-   info.className="muted";
-
-   info.textContent=
-    "This is a paid show. Please contact the host for payment and entry details.";
-
-   paymentArea.appendChild(info);
-
    if(phone){
-
-    const link=document.createElement("a");
-
-    link.href=
-     "https://wa.me/"+
-     (phone.length===10?"91"+phone:phone);
-
-    link.target="_blank";
-    link.rel="noopener";
-
-    link.textContent="CONTACT HOST FOR PAYMENT";
-
-    link.style.cssText=
-     "display:block;padding:14px;margin-top:18px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold";
-
-    paymentArea.appendChild(link);
-
+    hostContact.href="https://wa.me/"+(phone.length===10?"91"+phone:phone);
+    hostContact.classList.remove("hidden");
+   }else{
+    const note=document.createElement("p");
+    note.className="error";
+    note.textContent="The host has not added a WhatsApp contact number. Please contact the host through the show organiser.";
+    paymentArea.appendChild(note);
    }
-
+  }else{
+   document.getElementById("formHeading").textContent="Free Audience Entry";
+   document.getElementById("formIntroduction").textContent=
+    "Enter your name and location to join this free show. Registration is automatically approved. No mobile number or host approval is required.";
+   button.textContent="JOIN FREE SHOW";
   }
 
  }catch(error){
-
   showDetails.textContent=error.message;
   showDetails.className="error";
   form.style.display="none";
-
   console.error(error);
-
  }
-
 }
 
-
-// FREE AUDIENCE REGISTRATION
-
+// AUDIENCE REGISTRATION
 form.addEventListener("submit",async(event)=>{
-
  event.preventDefault();
 
  if(!selectedShow){
@@ -486,143 +335,113 @@ form.addEventListener("submit",async(event)=>{
   return;
  }
 
- if(String(selectedShow.entryType||"Free").toLowerCase()==="paid"){
-  showMessage("This is a paid show. Please contact the host.","error");
-  return;
- }
-
- const name=
-  document.getElementById("audienceName").value.trim();
-
+ const name=document.getElementById("audienceName").value.trim();
  const area=areaInput.value.trim();
  const city=cityInput.value.trim();
  const state=stateInput.value.trim();
-
- const accepted=
-  document.getElementById("acceptRules").checked;
+ const accepted=document.getElementById("acceptRules").checked;
+ const reference=paymentReference.value.trim();
 
  if(!name||!area||!city||!state||!accepted){
-
-  showMessage(
-   "Please enter your name, area, city and state, and accept the auditorium rules.",
-   "error"
-  );
-
+  showMessage("Please enter your name, area, city and state, and accept the auditorium rules.","error");
   return;
-
  }
 
- const locationName=[area,city,state]
-  .filter(Boolean)
-  .join(", ");
+ if(isPaidShow&&!reference){
+  showMessage("Please enter your payment transaction ID / UTR number.","error");
+  return;
+ }
+
+ const locationName=[area,city,state].filter(Boolean).join(", ");
 
  button.disabled=true;
  button.textContent="PLEASE WAIT...";
-
  detectButton.disabled=true;
-
  showMessage("Checking your entry...","muted");
 
  try{
-
   let user=auth.currentUser;
-
   if(!user){
    const result=await signInAnonymously(auth);
    user=result.user;
   }
 
   // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
-
-  const blockRef=
-   ref(db,"audienceBlocks/"+showId+"/"+user.uid);
-
+  const blockRef=ref(db,"audienceBlocks/"+showId+"/"+user.uid);
   const blockSnapshot=await get(blockRef);
 
-  if(
-   blockSnapshot.exists()&&
-   blockSnapshot.val()?.blocked===true
-  ){
-
-   showMessage(
-    "You are blocked from entering this show. Please contact the host if you think this is a mistake.",
-    "error"
-   );
-
+  if(blockSnapshot.exists()&&blockSnapshot.val()?.blocked===true){
+   showMessage("You are blocked from entering this show. Please contact the host if you think this is a mistake.","error");
    return;
-
   }
 
-  // SAVE REGISTRATION
+  // RECHECK SHOW STATUS AND ENTRY TYPE
+  const latestShow=await get(ref(db,"shows/"+showId));
 
-  const requestRef=
-   push(ref(db,"audienceEntryRequests/"+showId));
+  if(!latestShow.exists()||latestShow.val().status!=="Published"){
+   throw new Error("This show is no longer available for registration.");
+  }
 
+  const latestIsPaid=String(latestShow.val().entryType||"Free").toLowerCase()==="paid";
+
+  if(latestIsPaid!==isPaidShow){
+   throw new Error("The show entry type has changed. Please refresh this page and try again.");
+  }
+
+  const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
   const now=Date.now();
 
-  await set(requestRef,{
-
+  const registration={
    audienceUid:user.uid,
-
    name:name,
-
    location:locationName,
-
    area:area,
    city:city,
    state:state,
-
    showId:showId,
-
    showTitle:selectedShow.title||"",
-
    hostUid:selectedShow.hostUid||"",
-
-   entryType:"Free",
-
-   entryFee:0,
-
+   entryType:isPaidShow?"Paid":"Free",
+   entryFee:isPaidShow?Number(selectedShow.entryFee||0):0,
    rulesAccepted:true,
-
    rulesAcceptedAt:now,
-
-   status:"Approved",
-
+   status:isPaidShow?"Pending":"Approved",
    createdAt:now
+  };
 
-  });
+  if(isPaidShow){
+   registration.paymentReference=reference;
+   registration.paymentStatus="Submitted for host verification";
+  }
 
-  showMessage(
-   "Your free-show registration is confirmed! You do not need host approval. Please enter the auditorium when the show starts.",
-   "success"
-  );
+  await set(requestRef,registration);
+
+  if(isPaidShow){
+   showMessage(
+    "Your paid-show application has been submitted successfully. Your entry is PENDING. The host will verify your payment and approve or reject your application. You can enter only after approval.",
+    "success"
+   );
+  }else{
+   showMessage(
+    "Your free-show registration is confirmed! You do not need host approval. Please enter the auditorium when the show starts.",
+    "success"
+   );
+  }
 
   form.reset();
   form.style.display="none";
 
  }catch(error){
-
   console.error("Audience entry error:",error);
-
-  showMessage(
-   "Registration failed: "+error.message,
-   "error"
-  );
-
+  showMessage("Registration failed: "+error.message,"error");
  }finally{
-
   button.disabled=false;
-  button.textContent="JOIN FREE SHOW";
-
+  button.textContent=isPaidShow?"SUBMIT PAID SHOW APPLICATION":"JOIN FREE SHOW";
   detectButton.disabled=false;
-
  }
-
 });
 
-
 loadShow();
-
 </script>
 </body>
 </html>
