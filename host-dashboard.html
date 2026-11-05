@@ -41,6 +41,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .audience-row p{margin:7px 0;color:#ddd;line-height:1.5}
 .link-panel{background:#19170f;border:1px solid #80652f;border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
 .link-text{color:#e6c16a;font-size:13px;line-height:1.6}
+.fee-box{background:#201c12;border:1px solid #594a2c;border-radius:8px;padding:14px;margin:15px 0}
+.fee-box h3{margin-bottom:8px}
 footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
@@ -85,16 +87,34 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
 <input id="hostMobile" type="tel" placeholder="Mobile number" required>
 <p class="small">Singers and audience members can use this number to contact you.</p>
 
-<label>Entry type</label>
-<select id="entryType">
-<option value="free">Free Entry</option>
-<option value="paid">Paid Entry</option>
+<div class="fee-box">
+<h3>1. Performer Entry Settings</h3>
+<label>Performer entry type</label>
+<select id="performerEntryType">
+<option value="free">Free Entry for Performers</option>
+<option value="paid">Paid Entry for Performers</option>
 </select>
 
-<div id="feeSection" class="hidden">
-<label>Entry fee (₹)</label>
-<input id="entryFee" type="number" min="1" placeholder="Enter entry fee">
-<p class="small">Payment is arranged directly between the audience member and host. You must verify payment before approving paid audience members.</p>
+<div id="performerFeeSection" class="hidden">
+<label>Performer registration fee (₹)</label>
+<input id="performerEntryFee" type="number" min="1" placeholder="Enter performer fee">
+<p class="small">This fee applies only to singers and performers registering for your show.</p>
+</div>
+</div>
+
+<div class="fee-box">
+<h3>2. Audience Entry Settings</h3>
+<label>Audience entry type</label>
+<select id="audienceEntryType">
+<option value="free">Free Entry for Audience</option>
+<option value="paid">Paid Entry for Audience</option>
+</select>
+
+<div id="audienceFeeSection" class="hidden">
+<label>Audience entry fee (₹)</label>
+<input id="audienceEntryFee" type="number" min="1" placeholder="Enter audience fee">
+<p class="small">This fee applies only to audience members. You must verify payment before approving paid audience registrations.</p>
+</div>
 </div>
 
 <button id="publishButton" type="submit">Publish Show</button>
@@ -120,8 +140,7 @@ Powered by Melody Magic Music Studio
 import {auth,db} from "./firebase.js";
 
 import {
-onAuthStateChanged,
-signOut
+onAuthStateChanged,signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -173,8 +192,20 @@ function getHostMobile(data,user){
 return data.mobile||data.phone||data.phoneNumber||data.contactNumber||user.phoneNumber||"";
 }
 
-function isPaidShow(show){
-return String(show.entryType||"").toLowerCase()==="paid";
+function isPaidAudience(show){
+return String(show.audienceEntryType||show.entryType||"free").toLowerCase()==="paid";
+}
+
+function isPaidPerformer(show){
+return String(show.performerEntryType||"free").toLowerCase()==="paid";
+}
+
+function getAudienceFee(show){
+return Number(show.audienceEntryFee??show.entryFee??0);
+}
+
+function getPerformerFee(show){
+return Number(show.performerEntryFee||0);
 }
 
 function getPublicShowLink(show){
@@ -203,7 +234,7 @@ window.prompt("Copy this public show link:",link);
 }
 }
 
-/* HOST AUTHENTICATION */
+/* AUTHENTICATION */
 
 onAuthStateChanged(auth,async user=>{
 if(!user){
@@ -258,11 +289,18 @@ showMessage("Unable to verify host account: "+(error.message||"Check Firebase co
 }
 });
 
-/* FREE / PAID ENTRY */
+/* INDEPENDENT FEE CONTROLS */
 
-document.getElementById("entryType").addEventListener("change",()=>{
-const paid=document.getElementById("entryType").value==="paid";
-document.getElementById("feeSection").classList.toggle("hidden",!paid);
+document.getElementById("performerEntryType").addEventListener("change",()=>{
+const paid=document.getElementById("performerEntryType").value==="paid";
+document.getElementById("performerFeeSection").classList.toggle("hidden",!paid);
+document.getElementById("performerEntryFee").required=paid;
+});
+
+document.getElementById("audienceEntryType").addEventListener("change",()=>{
+const paid=document.getElementById("audienceEntryType").value==="paid";
+document.getElementById("audienceFeeSection").classList.toggle("hidden",!paid);
+document.getElementById("audienceEntryFee").required=paid;
 });
 
 /* CREATE SHOW */
@@ -276,16 +314,28 @@ const date=document.getElementById("showDate").value;
 const time=document.getElementById("showTime").value;
 const description=document.getElementById("showDescription").value.trim();
 const hostMobile=document.getElementById("hostMobile").value.trim();
-const entryType=document.getElementById("entryType").value;
-const entryFee=entryType==="paid"?Number(document.getElementById("entryFee").value||0):0;
+
+const performerEntryType=document.getElementById("performerEntryType").value;
+const audienceEntryType=document.getElementById("audienceEntryType").value;
+
+const performerEntryFee=performerEntryType==="paid"
+?Number(document.getElementById("performerEntryFee").value||0):0;
+
+const audienceEntryFee=audienceEntryType==="paid"
+?Number(document.getElementById("audienceEntryFee").value||0):0;
 
 if(!title||!date||!time||!description||!hostMobile){
 createMessage.textContent="Please complete all required fields.";
 return;
 }
 
-if(entryType==="paid"&&entryFee<=0){
-createMessage.textContent="Please enter a valid entry fee.";
+if(performerEntryType==="paid"&&performerEntryFee<=0){
+createMessage.textContent="Please enter a valid performer fee.";
+return;
+}
+
+if(audienceEntryType==="paid"&&audienceEntryFee<=0){
+createMessage.textContent="Please enter a valid audience fee.";
 return;
 }
 
@@ -305,8 +355,18 @@ const newShowRef=push(ref(db,"shows"));
 const showData={
 showId:newShowRef.key,
 title,date,time,description,
-entryType,
-entryFee,
+
+performerEntryType,
+performerEntryFee,
+
+audienceEntryType,
+audienceEntryFee,
+
+/* Legacy fields retained for older pages.
+   entryType and entryFee now represent AUDIENCE entry. */
+entryType:audienceEntryType,
+entryFee:audienceEntryFee,
+
 hostMobile,
 hostUid:currentUser.uid,
 hostName:getHostName(currentHost,currentUser),
@@ -317,10 +377,14 @@ createdAt:Date.now()
 
 await set(newShowRef,showData);
 
-createMessage.textContent="Your show has been published successfully.";
+createMessage.textContent="Your show has been published successfully with separate performer and audience fees.";
+
 createForm.reset();
 document.getElementById("hostMobile").value=hostMobile;
-document.getElementById("feeSection").classList.add("hidden");
+document.getElementById("performerFeeSection").classList.add("hidden");
+document.getElementById("audienceFeeSection").classList.add("hidden");
+document.getElementById("performerEntryFee").required=false;
+document.getElementById("audienceEntryFee").required=false;
 
 await loadHostShows(currentUser.uid);
 
@@ -376,8 +440,13 @@ title.textContent=show.title||"Untitled Show";
 const details=document.createElement("p");
 details.textContent="Date: "+formatDate(show.date)+" | Time: "+(show.time||"Not specified");
 
-const entry=document.createElement("p");
-entry.textContent=isPaidShow(show)?"Entry Fee: ₹"+Number(show.entryFee||0):"Free Entry";
+const performerEntry=document.createElement("p");
+performerEntry.textContent="Performer Entry: "+
+(isPaidPerformer(show)?"PAID — ₹"+getPerformerFee(show):"FREE");
+
+const audienceEntry=document.createElement("p");
+audienceEntry.textContent="Audience Entry: "+
+(isPaidAudience(show)?"PAID — ₹"+getAudienceFee(show):"FREE");
 
 const status=document.createElement("span");
 status.className="badge";
@@ -440,7 +509,7 @@ posterPanel.append(posterHeading,posterInfo);
 await renderPosterUpload(show,posterPanel,posterInfo);
 
 const registrationHeading=document.createElement("h3");
-registrationHeading.textContent="Singer Registrations";
+registrationHeading.textContent="Performer Registrations";
 
 const registrationArea=document.createElement("div");
 registrationArea.className="small";
@@ -454,9 +523,9 @@ audienceHeading.textContent="Audience Management";
 
 const audienceInfo=document.createElement("p");
 audienceInfo.className="small";
-audienceInfo.textContent=isPaidShow(show)
-?"Paid show: verify payment clearance and approve or reject applicants. Approved participants receive access to this show's live stage."
-:"Free show: registration is automatically approved. You can remove and block participants who break the rules.";
+audienceInfo.textContent=isPaidAudience(show)
+?"Paid audience entry: verify audience payment and approve or reject applicants."
+:"Free audience entry: registration should be automatically approved. You can remove and block participants who break the rules.";
 
 const audienceArea=document.createElement("div");
 audienceArea.className="small";
@@ -465,7 +534,8 @@ audienceArea.textContent="Loading audience requests...";
 audiencePanel.append(audienceHeading,audienceInfo,audienceArea);
 
 card.append(
-title,details,entry,status,document.createElement("br"),
+title,details,performerEntry,audienceEntry,status,
+document.createElement("br"),
 inviteButton,downloadButton,shareButton,whatsappButton,
 publicLinkPanel,posterPanel,
 registrationHeading,registrationArea,audiencePanel
@@ -694,7 +764,7 @@ panel.append(heading,info);
 await renderPosterUpload(show,panel,info);
 }
 
-/* SINGER REGISTRATIONS */
+/* PERFORMER REGISTRATIONS */
 
 async function loadRegistrations(show,container){
 try{
@@ -702,7 +772,7 @@ const snapshot=await get(ref(db,"showRegistrations/"+show.showId));
 container.innerHTML="";
 
 if(!snapshot.exists()){
-container.textContent="No singer registrations yet.";
+container.textContent="No performer registrations yet.";
 return;
 }
 
@@ -711,16 +781,28 @@ const row=document.createElement("div");
 row.className="registration";
 
 const singerName=document.createElement("strong");
-singerName.textContent=singer.singerName||singer.name||"Singer";
+singerName.textContent=singer.singerName||singer.name||"Performer";
 
 const singerDetails=document.createElement("p");
 singerDetails.textContent="Email: "+(singer.email||"Not provided")+" | Phone: "+(singer.phone||singer.mobile||"Not provided");
+
+const feeDetails=document.createElement("p");
+feeDetails.textContent="Performer entry: "+
+(isPaidPerformer(show)?"Paid — ₹"+getPerformerFee(show):"Free");
+
+const paymentDetails=document.createElement("p");
+paymentDetails.textContent="Payment reference / UTR: "+
+(singer.paymentReference||singer.utr||singer.transactionId||"Not provided");
 
 const singerStatus=document.createElement("span");
 singerStatus.className="badge";
 singerStatus.textContent=singer.status||"Waiting";
 
-row.append(singerName,singerDetails,singerStatus);
+row.append(singerName,singerDetails,feeDetails);
+
+if(isPaidPerformer(show))row.appendChild(paymentDetails);
+
+row.appendChild(singerStatus);
 
 const actions=[
 {label:"Approve",value:"Approved",className:""},
@@ -758,7 +840,7 @@ container.appendChild(row);
 }
 }catch(error){
 console.error(error);
-container.textContent="Unable to load registrations: "+error.message;
+container.textContent="Unable to load performer registrations: "+error.message;
 }
 }
 
@@ -812,14 +894,14 @@ audience.area,audience.city,audience.state
 
 const details=document.createElement("p");
 details.textContent="Location: "+location+
-" | Entry: "+(isPaidShow(show)?"Paid ₹"+Number(show.entryFee||0):"Free");
+" | Audience entry: "+(isPaidAudience(show)?"Paid ₹"+getAudienceFee(show):"Free");
 
 row.append(name,details);
 
 const paymentReference=audience.paymentReference||audience.utr||audience.transactionId||"";
 const paymentNote=audience.paymentNote||audience.paymentRemark||"";
 
-if(isPaidShow(show)){
+if(isPaidAudience(show)){
 const payment=document.createElement("p");
 payment.textContent="Payment reference / UTR: "+(paymentReference||"Not submitted");
 row.appendChild(payment);
@@ -845,9 +927,7 @@ row.appendChild(statusBadge);
 const buttons=document.createElement("div");
 const currentStatus=audience.status||"Pending";
 
-/* PAID SHOW APPROVAL */
-
-if(isPaidShow(show)&&currentStatus==="Pending"){
+if(isPaidAudience(show)&&currentStatus==="Pending"){
 const approveButton=document.createElement("button");
 approveButton.type="button";
 approveButton.className="success";
@@ -888,8 +968,6 @@ rejectButton,container,show,audience.audienceUid
 buttons.append(approveButton,rejectButton);
 }
 
-/* REMOVE AND BLOCK APPROVED AUDIENCE */
-
 if(currentStatus==="Approved"){
 const removeButton=document.createElement("button");
 removeButton.type="button";
@@ -924,10 +1002,10 @@ note.textContent="This request was rejected. No live-stage access should be gran
 row.appendChild(note);
 }
 
-if(!isPaidShow(show)&&currentStatus==="Pending"){
+if(!isPaidAudience(show)&&currentStatus==="Pending"){
 const note=document.createElement("p");
 note.className="small";
-note.textContent="This is a free show. Registration should be automatically approved by the registration page.";
+note.textContent="This is a free audience show. Registration should be automatically approved by the registration page.";
 row.appendChild(note);
 }
 
@@ -942,13 +1020,7 @@ container.textContent="Unable to load audience requests: "+error.message+
 }
 }
 
-/*
-APPROVE / REJECT AUDIENCE
-
-Approval and access-marker changes are written together.
-This requires Firebase rules that authorize the host to update
-the request and the corresponding audienceAccess record.
-*/
+/* AUDIENCE APPROVAL */
 
 async function updateAudienceStatus(
 showId,requestId,newStatus,button,container,show,audienceUid
@@ -967,25 +1039,17 @@ newStatus==="Approved"?true:null;
 }
 
 await update(ref(db),updates);
-
 await loadAudienceRequests(show,container);
 
 }catch(error){
 console.error("Audience status update failed:",error);
-alert(
-"Unable to update audience request: "+error.message+
-"\n\nCheck that your Firebase rules authorize audienceAccess updates."
-);
+alert("Unable to update audience request: "+error.message+
+"\n\nCheck that your Firebase rules authorize audienceAccess updates.");
 button.disabled=false;
 }
 }
 
-/*
-REMOVE AND BLOCK AUDIENCE
-
-Block record, Removed status and access revocation
-are performed in one atomic database update.
-*/
+/* REMOVE AND BLOCK AUDIENCE */
 
 async function removeAndBlockAudience(
 show,requestId,audience,button,container
@@ -1023,10 +1087,8 @@ await loadAudienceRequests(show,container);
 
 }catch(error){
 console.error("Audience removal/block failed:",error);
-alert(
-"Unable to remove and block this audience member: "+error.message+
-"\n\nCheck your Firebase rules for audienceBlocks, audienceEntryRequests and audienceAccess."
-);
+alert("Unable to remove and block this audience member: "+error.message+
+"\n\nCheck your Firebase rules for audienceBlocks, audienceEntryRequests and audienceAccess.");
 button.disabled=false;
 button.textContent="Remove & Block";
 }
@@ -1139,40 +1201,47 @@ ctx.font="34px Arial";
 ctx.fillText(show.time||"Time to be announced",540,infoY+163);
 
 ctx.fillStyle="#e9c56f";
-ctx.font="bold 38px Arial";
-ctx.fillText("ENTRY",540,infoY+230);
+ctx.font="bold 32px Arial";
+ctx.fillText("PERFORMER ENTRY",540,infoY+230);
 
 ctx.fillStyle="#ffffff";
-ctx.font="34px Arial";
+ctx.font="30px Arial";
 ctx.fillText(
-isPaidShow(show)?"Entry Fee: Rs. "+Number(show.entryFee||0):"FREE ENTRY",
-540,infoY+278
+isPaidPerformer(show)?"Paid: Rs. "+getPerformerFee(show):"FREE",
+540,infoY+275
 );
 
 ctx.fillStyle="#e9c56f";
-ctx.font="bold 30px Arial";
-ctx.fillText("HOST",540,infoY+355);
+ctx.font="bold 32px Arial";
+ctx.fillText("AUDIENCE ENTRY",540,infoY+335);
 
 ctx.fillStyle="#ffffff";
-ctx.font="bold 32px Arial";
-ctx.fillText(String(show.hostName||"Melody Magic Host"),540,infoY+400);
+ctx.font="30px Arial";
+ctx.fillText(
+isPaidAudience(show)?"Paid: Rs. "+getAudienceFee(show):"FREE",
+540,infoY+380
+);
 
-const buttonY=Math.min(infoY+465,1080);
+ctx.fillStyle="#e9c56f";
+ctx.font="bold 27px Arial";
+ctx.fillText("HOST: "+String(show.hostName||"Melody Magic Host"),540,infoY+445);
+
+const buttonY=Math.min(infoY+500,1110);
 ctx.fillStyle="#168c4a";
 ctx.beginPath();
 
-if(typeof ctx.roundRect==="function")ctx.roundRect(260,buttonY,560,95,22);
-else ctx.rect(260,buttonY,560,95);
+if(typeof ctx.roundRect==="function")ctx.roundRect(260,buttonY,560,85,22);
+else ctx.rect(260,buttonY,560,85);
 
 ctx.fill();
 
 ctx.fillStyle="#ffffff";
-ctx.font="bold 35px Arial";
-ctx.fillText("OPEN SHOW INVITATION",540,buttonY+59);
+ctx.font="bold 32px Arial";
+ctx.fillText("OPEN SHOW INVITATION",540,buttonY+54);
 
 ctx.fillStyle="#ffffff";
 ctx.font="21px Arial";
-ctx.fillText("Share the public show link with everyone",540,buttonY+135);
+ctx.fillText("Share the public show link with everyone",540,buttonY+120);
 
 ctx.fillStyle="#e9c56f";
 ctx.font="bold 27px Arial";
@@ -1198,7 +1267,8 @@ const shareText=
 "Join "+show.title+" at Melody Magic Digital Auditorium.\n\n"+
 "Date: "+formatDate(show.date)+"\n"+
 "Time: "+(show.time||"")+"\n"+
-"Entry: "+(isPaidShow(show)?"₹"+Number(show.entryFee||0):"FREE")+
+"Performer Entry: "+(isPaidPerformer(show)?"₹"+getPerformerFee(show):"FREE")+"\n"+
+"Audience Entry: "+(isPaidAudience(show)?"₹"+getAudienceFee(show):"FREE")+
 "\n\nPublic show invitation link:\n"+publicLink;
 
 if(mode==="share"&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
