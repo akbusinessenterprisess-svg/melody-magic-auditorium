@@ -1,6 +1,8 @@
 
 export class VirtualAudioEffects {
   constructor() {
+    this.monitorLevel = 0.35;
+    this.monitorEnabled = false;
     this.context = null;
     this.source = null;
     this.destination = null;
