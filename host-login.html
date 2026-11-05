@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Host Login | Melody Magic</title>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -30,29 +31,47 @@ button{
   width:100%;padding:14px;margin-top:14px;
   border:0;border-radius:8px;background:#d5ad50;
   color:#17120a;font-size:16px;font-weight:bold;
+  cursor:pointer;
 }
 button:disabled{opacity:.6}
 #message{margin-top:18px;overflow-wrap:anywhere}
-a{color:#e5bd60}
+a{color:#e5bd60;text-decoration:none}
+a:hover{text-decoration:underline}
+.signup{
+  margin-top:22px;padding-top:18px;
+  border-top:1px solid #514326;
+}
+.signup a{font-weight:bold;font-size:15px}
 </style>
 </head>
-<body>
 
+<body>
 <div class="login">
+
   <div class="brand">MELODY MAGIC</div>
   <h2>Host Login</h2>
+
   <p>Sign in with your registered email and password.</p>
 
   <form id="loginForm">
     <input type="email" id="email"
       placeholder="Email address" autocomplete="username" required>
+
     <input type="password" id="password"
       placeholder="Password" autocomplete="current-password" required>
+
     <button type="submit" id="loginButton">Sign In</button>
   </form>
 
   <p id="message" role="status"></p>
-  <p><a href="host-dashboard.html">Back to Host Dashboard</a></p>
+
+  <div class="signup">
+    <p>Not registered as a host yet?</p>
+    <a href="host-signup.html">✨ SIGN UP FOR HOST</a>
+  </div>
+
+  <p><a href="index.html">Back to Home</a></p>
+
 </div>
 
 <script type="module">
@@ -75,6 +94,7 @@ form.addEventListener("submit", async (event) => {
 
   try {
     const user = await hostLogin(email, password);
+
     const snapshot = await get(
       ref(db, "hostApplications/" + user.uid)
     );
