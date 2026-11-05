@@ -55,7 +55,7 @@ Contact the host using the button below to confirm payment details. After making
 </p>
 <a id="hostContact" class="contact-link hidden" target="_blank" rel="noopener">CONTACT HOST ON WHATSAPP</a>
 <p class="location-note">
-Your application will remain pending until the host verifies your payment and approves your entry. Submitting a transaction reference does not itself confirm payment.
+Your application remains pending until the host verifies your payment and approves your entry. Submitting a transaction reference does not confirm payment.
 </p>
 </div>
 
@@ -73,13 +73,13 @@ Click the button and allow location permission. You can also fill in the fields 
 </div>
 
 <label for="audienceArea">Area / Locality</label>
-<input id="audienceArea" type="text" placeholder="Example: Sector 11, New Panvel" maxlength="100" autocomplete="address-level3" required>
+<input id="audienceArea" type="text" placeholder="Example: Sector 11, New Panvel" maxlength="100" required>
 
 <label for="audienceCity">City / Town</label>
-<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100" autocomplete="address-level2" required>
+<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100" required>
 
 <label for="audienceState">State</label>
-<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100" autocomplete="address-level1" required>
+<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100" required>
 
 <div id="paymentReferenceArea" class="hidden">
 <label for="paymentReference">Payment Transaction ID / UTR Number</label>
@@ -122,7 +122,7 @@ Your location is used for audience registration. Automatic detection requires yo
 import {db,auth} from "./firebase.js";
 
 import {
- ref,get,push,update
+ ref,get,push,update,query,orderByChild,equalTo
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 import {
@@ -346,21 +346,27 @@ async function loadShow(){
  }
 }
 
-// CHECK EXISTING REGISTRATION FOR THIS USER
+// CHECK ONLY THIS USER'S APPLICATIONS
 async function findExistingRegistration(uid){
- const snapshot=await get(ref(db,"audienceEntryRequests/"+showId));
+ const requestsQuery=query(
+  ref(db,"audienceEntryRequests/"+showId),
+  orderByChild("audienceUid"),
+  equalTo(uid)
+ );
+
+ const snapshot=await get(requestsQuery);
 
  if(!snapshot.exists()) return null;
 
  const requests=snapshot.val();
 
  for(const [requestId,request] of Object.entries(requests)){
-  if(request && request.audienceUid===uid){
-   const status=String(request.status||"").toLowerCase();
+  if(!request) continue;
 
-   if(status==="approved"||status==="pending"){
-    return {requestId,request};
-   }
+  const status=String(request.status||"").toLowerCase();
+
+  if(status==="approved"||status==="pending"){
+   return {requestId,request};
   }
  }
 
@@ -411,7 +417,7 @@ form.addEventListener("submit",async(event)=>{
    user=result.user;
   }
 
-  // CHECK WHETHER THIS AUDIENCE MEMBER IS BLOCKED
+  // CHECK BLOCK STATUS
   const blockSnapshot=await get(
    ref(db,"audienceBlocks/"+showId+"/"+user.uid)
   );
@@ -420,7 +426,7 @@ form.addEventListener("submit",async(event)=>{
    throw new Error("You are blocked from entering this show. Please contact the host if you think this is a mistake.");
   }
 
-  // RECHECK SHOW STATUS AND ENTRY TYPE
+  // RECHECK SHOW
   const latestShowSnapshot=await get(ref(db,"shows/"+showId));
 
   if(!latestShowSnapshot.exists()||
@@ -435,17 +441,17 @@ form.addEventListener("submit",async(event)=>{
    throw new Error("The show entry type has changed. Please refresh this page and try again.");
   }
 
-  // CHECK FOR AN EXISTING PENDING OR APPROVED APPLICATION
+  // CHECK EXISTING APPLICATIONS PRIVATELY
   const existing=await findExistingRegistration(user.uid);
 
   if(existing){
-   const existingStatus=String(existing.request.status||"").toLowerCase();
+   const status=String(existing.request.status||"").toLowerCase();
 
-   if(existingStatus==="approved"){
-    throw new Error("You are already registered and approved for this show. Please use your existing entry.");
+   if(status==="approved"){
+    throw new Error("You are already registered and approved for this show.");
    }
 
-   if(existingStatus==="pending"){
+   if(status==="pending"){
     throw new Error("Your application is already pending with the host. Please wait for the host to review it.");
    }
   }
@@ -477,7 +483,7 @@ form.addEventListener("submit",async(event)=>{
    registration.paymentStatus="Submitted for host verification";
   }
 
-  // WRITE THE REGISTRATION AND FREE ACCESS MARKER TOGETHER
+  // ATOMIC REGISTRATION + FREE ACCESS
   const updates={};
 
   updates["audienceEntryRequests/"+showId+"/"+requestId]=registration;
