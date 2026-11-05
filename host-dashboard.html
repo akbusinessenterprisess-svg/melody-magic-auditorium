@@ -823,21 +823,21 @@ async function generateShowPoster(show, mode = "download") {
   }
 
   const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1350;
+canvas.width = 1080;
+canvas.height = 1350;
 
-  const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
-  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-  gradient.addColorStop(0, "#080808");
-  gradient.addColorStop(1, "#242016);
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1080, 1350);
+const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+gradient.addColorStop(0, "#080808");
+gradient.addColorStop(1, "#242016");
 
-  ctx.strokeStyle = "#d6ad55";
-  ctx.lineWidth = 10;
-  ctx.strokeRect(35, 35, 1010, 1280);
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, 1080, 1350);
 
+ctx.strokeStyle = "#d6ad55";
+ctx.lineWidth = 10;
+ctx.strokeRect(35, 35, 1010, 1280);
   ctx.strokeStyle = "#8e6c2d";
   ctx.lineWidth = 2;
   ctx.strokeRect(55, 55, 970, 1240);
