@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melody Magic - Audience Entry</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#090807;color:white;font-family:Arial,sans-serif}
+.container{max-width:600px;margin:25px auto}
+h1,h2{color:#e7bd68}
+.card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
+label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
+input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
+button,.link{display:block;width:100%;padding:14px;margin-top:20px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+.muted{color:#c2b7a6;line-height:1.6}
+.success{color:#8ee29a}
+.error{color:#ff9999}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>MELODY MAGIC</h1>
+<p class="muted">DIGITAL AUDITORIUM</p>
+
+<div class="card">
+<h2>Selected Show</h2>
+<div id="showDetails" class="muted">Loading show details...</div>
+</div>
+
+<div class="card">
+<h2>Audience Entry Request</h2>
+<p class="muted">Submit your details to request entry. The host will review your request.</p>
+
+<form id="entryForm">
+<label>Full Name</label>
+<input id="audienceName" type="text" placeholder="Enter your name" required>
+
+<label>Mobile Number</label>
+<input id="mobile" type="tel" placeholder="Enter mobile number"
+pattern="[0-9+ -]{8,15}" required>
+
+<button id="submitButton" type="submit">REQUEST AUDIENCE ENTRY</button>
+</form>
+
+<div id="message" aria-live="polite"></div>
+<div id="paymentArea"></div>
+</div>
+</div>
+
+<script type="module">
+import {db,auth} from "./firebase.js";
+import {ref,get,push,set}
+from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import {signInAnonymously}
+from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+const showId=new URLSearchParams(location.search).get("showId");
+const showDetails=document.getElementById("showDetails");
+const form=document.getElementById("entryForm");
+const message=document.getElementById("message");
+const button=document.getElementById("submitButton");
+const paymentArea=document.getElementById("paymentArea");
+
+let selectedShow=null;
+
+function showMessage(text,type){
+ message.textContent=text;
+ message.className=type;
+}
+
+function cleanPhone(value){
+ return String(value||"").replace(/\D/g,"");
+}
+
+async function loadShow(){
+ try{
+  if(!showId) throw new Error("No show selected. Please return to the homepage.");
+
+  const snapshot=await get(ref(db,"shows/"+showId));
+  if(!snapshot.exists()) throw new Error("This show could not be found.");
+
+  selectedShow=snapshot.val();
+
+  if(selectedShow.status!=="Published")
+   throw new Error("This show is not currently available.");
+
+  const title=document.createElement("h3");
+  title.textContent=selectedShow.title||"Live Show";
+
+  const date=document.createElement("p");
+  date.textContent="Date: "+(selectedShow.date||"To be announced");
+
+  const time=document.createElement("p");
+  time.textContent="Time: "+(selectedShow.time||"To be announced");
+
+  const host=document.createElement("p");
+  host.textContent="Host: "+(selectedShow.hostName||"Host");
+
+  const fee=document.createElement("p");
+  const paid=String(selectedShow.entryType||"Free").toLowerCase()==="paid";
+  fee.textContent=paid
+   ?"Entry Fee: ₹"+(selectedShow.entryFee||0)
+   :"Entry: FREE";
+
+  showDetails.replaceChildren(title,date,time,host,fee);
+
+  const phone=cleanPhone(
+   selectedShow.hostMobile||
+   selectedShow.hostWhatsApp||
+   selectedShow.hostWhatsapp||
+   selectedShow.mobile
+  );
+
+  if(phone){
+   const link=document.createElement("a");
+   link.className="link";
+   link.target="_blank";
+   link.rel="noopener";
+   link.href="https://wa.me/"+(phone.length===10?"91"+phone:phone);
+   link.textContent=paid?"CONTACT HOST FOR PAYMENT":"CONTACT HOST ON WHATSAPP";
+   paymentArea.appendChild(link);
+  }
+
+ }catch(error){
+  showDetails.textContent=error.message;
+  showDetails.className="error";
+  form.style.display="none";
+  console.error(error);
+ }
+}
+
+form.addEventListener("submit",async(event)=>{
+ event.preventDefault();
+
+ if(!selectedShow){
+  showMessage("Show details are not available.","error");
+  return;
+ }
+
+ const name=document.getElementById("audienceName").value.trim();
+ const mobile=document.getElementById("mobile").value.trim();
+
+ if(!name||!mobile){
+  showMessage("Please complete all fields.","error");
+  return;
+ }
+
+ button.disabled=true;
+ button.textContent="PLEASE WAIT...";
+ showMessage("Submitting your entry request...","muted");
+
+ try{
+  let user=auth.currentUser;
+  if(!user){
+   const result=await signInAnonymously(auth);
+   user=result.user;
+  }
+
+  const requestRef=push(ref(db,"audienceEntryRequests/"+showId));
+
+  await set(requestRef,{
+   audienceUid:user.uid,
+   name,
+   mobile,
+   showId,
+   showTitle:selectedShow.title||"",
+   hostUid:selectedShow.hostUid||"",
+   entryType:selectedShow.entryType||"Free",
+   entryFee:selectedShow.entryFee||0,
+   status:"Pending",
+   createdAt:Date.now()
+  });
+
+  showMessage(
+   "Your entry request has been submitted. Please wait for the host to approve your entry.",
+   "success"
+  );
+
+  form.reset();
+
+ }catch(error){
+  console.error("Audience entry error:",error);
+  showMessage("Request failed: "+error.message,"error");
+ }finally{
+  button.disabled=false;
+  button.textContent="REQUEST AUDIENCE ENTRY";
+ }
+});
+
+loadShow();
+</script>
+</body>
+</html>
