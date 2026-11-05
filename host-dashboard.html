@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Host Dashboard | Melody Magic Digital Auditorium</title>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}
@@ -39,7 +38,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -51,7 +49,6 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
   <div id="message" class="status">Checking host account...</div>
 
   <section id="activeDashboard" class="hidden">
-
     <div class="card">
       <h2>Host Account</h2>
       <p><strong>Host:</strong> <span id="hostName">—</span></p>
@@ -63,7 +60,6 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
 
     <div class="card">
       <h2>Create a New Show</h2>
-
       <form id="createShowForm">
         <label>Show name</label>
         <input id="showTitle" type="text" placeholder="Example: Bollywood Retro Night" required>
@@ -95,7 +91,6 @@ footer{text-align:center;padding:25px;color:#888;font-size:12px}
 
         <button id="publishButton" type="submit">Publish Show</button>
       </form>
-
       <div id="createMessage" class="small"></div>
     </div>
 
@@ -129,6 +124,7 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
 const MAX_POSTER_DATA_LENGTH = 850000;
 
 const messageBox = document.getElementById("message");
@@ -153,37 +149,46 @@ function formatDate(value) {
   if (!value) return "Not specified";
   const date = new Date(value + "T00:00:00");
   if (Number.isNaN(date.getTime())) return value;
+
   return date.toLocaleDateString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric"
+    day:"2-digit",
+    month:"short",
+    year:"numeric"
   });
 }
 
 function formatTimestamp(value) {
   if (!value) return "Not available";
+
   let number = Number(value);
   if (number > 0 && number < 100000000000) number *= 1000;
+
   const date = new Date(number);
   if (Number.isNaN(date.getTime())) return "Not available";
+
   return date.toLocaleDateString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric"
+    day:"2-digit",
+    month:"short",
+    year:"numeric"
   });
 }
 
 function getHostName(data, user) {
   return data.name || data.fullName || data.hostName ||
-         user.displayName || "Host";
+    user.displayName || "Host";
 }
 
 function getHostMobile(data, user) {
   return data.mobile || data.phone || data.phoneNumber ||
-         data.contactNumber || user.phoneNumber || "";
+    data.contactNumber || user.phoneNumber || "";
 }
 
 function getWhatsAppLink(show) {
   let number = String(show.hostMobile || "").replace(/\D/g, "");
 
-  if (number.length === 10) number = "91" + number;
-  else if (number.length === 11 && number.startsWith("0")) {
+  if (number.length === 10) {
+    number = "91" + number;
+  } else if (number.length === 11 && number.startsWith("0")) {
     number = "91" + number.substring(1);
   }
 
@@ -202,17 +207,22 @@ function getWhatsAppLink(show) {
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     showMessage("Please log in with your host account.");
-    setTimeout(() => window.location.href = "host-login.html", 1500);
+    setTimeout(() => {
+      window.location.href = "host-login.html";
+    }, 1500);
     return;
   }
 
   currentUser = user;
+  showMessage("Checking host account...");
 
   try {
-    const hostSnapshot = await get(ref(db, "hostApplications/" + user.uid));
+    const hostSnapshot = await get(
+      ref(db, "hostApplications/" + user.uid)
+    );
 
     if (!hostSnapshot.exists()) {
-      showMessage("Host application not found.");
+      showMessage("Host application not found. Please contact the administrator.");
       return;
     }
 
@@ -227,7 +237,7 @@ onAuthStateChanged(auth, async (user) => {
     const endAt = Number(currentHost.subscriptionEndAt || 0);
     const now = Date.now();
 
-    if (!startAt || !endAt || now < startAt || now > endAt) {
+    if (!startAt || !endAt || now < startAt || now >= endAt) {
       showMessage("Your host subscription is not currently active. Please contact the administrator.");
       return;
     }
@@ -245,6 +255,7 @@ onAuthStateChanged(auth, async (user) => {
       formatTimestamp(endAt);
 
     const mobile = getHostMobile(currentHost, user);
+
     document.getElementById("hostMobileDisplay").textContent =
       mobile || "Not provided";
 
@@ -256,8 +267,11 @@ onAuthStateChanged(auth, async (user) => {
     await loadHostShows(user.uid);
 
   } catch (error) {
-    console.error(error);
-    showMessage("Unable to verify your host account. Please try again.");
+    console.error("Host account check failed:", error);
+    showMessage(
+      "Unable to verify your host account: " +
+      (error.message || "Please check your internet connection and Firebase rules.")
+    );
   }
 });
 
@@ -272,6 +286,7 @@ document.getElementById("entryType").addEventListener("change", () => {
 
 createForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+
   if (!currentUser || !currentHost) return;
 
   const title = document.getElementById("showTitle").value.trim();
@@ -280,6 +295,7 @@ createForm.addEventListener("submit", async (event) => {
   const description = document.getElementById("showDescription").value.trim();
   const hostMobile = document.getElementById("hostMobile").value.trim();
   const entryType = document.getElementById("entryType").value;
+
   const entryFee = entryType === "paid"
     ? Number(document.getElementById("entryFee").value || 0)
     : 0;
@@ -295,6 +311,7 @@ createForm.addEventListener("submit", async (event) => {
   }
 
   const mobileDigits = hostMobile.replace(/\D/g, "");
+
   if (mobileDigits.length < 10 || mobileDigits.length > 15) {
     createMessage.textContent = "Please enter a valid WhatsApp number.";
     return;
@@ -308,14 +325,19 @@ createForm.addEventListener("submit", async (event) => {
     const newShowRef = push(ref(db, "shows"));
 
     const showData = {
-      showId: newShowRef.key,
-      title, date, time, description,
-      entryType, entryFee, hostMobile,
-      hostUid: currentUser.uid,
-      hostName: getHostName(currentHost, currentUser),
-      hostEmail: currentUser.email || "",
-      status: "Published",
-      createdAt: Date.now()
+      showId:newShowRef.key,
+      title,
+      date,
+      time,
+      description,
+      entryType,
+      entryFee,
+      hostMobile,
+      hostUid:currentUser.uid,
+      hostName:getHostName(currentHost, currentUser),
+      hostEmail:currentUser.email || "",
+      status:"Published",
+      createdAt:Date.now()
     };
 
     await set(newShowRef, showData);
@@ -329,8 +351,9 @@ createForm.addEventListener("submit", async (event) => {
     await loadHostShows(currentUser.uid);
 
   } catch (error) {
-    console.error(error);
-    createMessage.textContent = "Could not publish your show. Please try again.";
+    console.error("Show publishing failed:", error);
+    createMessage.textContent =
+      "Could not publish show: " + (error.message || "Please try again.");
   } finally {
     button.disabled = false;
     button.textContent = "Publish Show";
@@ -365,8 +388,8 @@ async function loadHostShows(hostUid) {
     }
 
   } catch (error) {
-    console.error(error);
-    myShows.textContent = "Unable to load your shows.";
+    console.error("Loading shows failed:", error);
+    myShows.textContent = "Unable to load your shows: " + error.message;
   }
 }
 
@@ -394,11 +417,15 @@ async function renderShowCard(show) {
 
   const downloadButton = document.createElement("button");
   downloadButton.textContent = "Download Poster PNG";
-  downloadButton.addEventListener("click", () => generateShowPoster(show, "download"));
+  downloadButton.addEventListener("click", () => {
+    generateShowPoster(show, "download");
+  });
 
   const shareButton = document.createElement("button");
   shareButton.textContent = "Share Poster";
-  shareButton.addEventListener("click", () => generateShowPoster(show, "share"));
+  shareButton.addEventListener("click", () => {
+    generateShowPoster(show, "share");
+  });
 
   const whatsappButton = document.createElement("a");
   whatsappButton.className = "button-link whatsapp";
@@ -437,10 +464,17 @@ async function renderShowCard(show) {
   registrationArea.textContent = "Loading registrations...";
 
   card.append(
-    title, details, entry, status,
+    title,
+    details,
+    entry,
+    status,
     document.createElement("br"),
-    downloadButton, shareButton, whatsappButton,
-    posterPanel, registrationHeading, registrationArea
+    downloadButton,
+    shareButton,
+    whatsappButton,
+    posterPanel,
+    registrationHeading,
+    registrationArea
   );
 
   myShows.appendChild(card);
@@ -507,7 +541,7 @@ function compressPoster(file) {
                 tryQuality();
               } else {
                 URL.revokeObjectURL(objectUrl);
-                reject(new Error("Image is too large even after compression. Please choose a smaller image."));
+                reject(new Error("Image is too large after compression. Please choose a smaller image."));
               }
             };
 
@@ -537,7 +571,7 @@ function compressPoster(file) {
   });
 }
 
-/* POSTER UPLOAD UI AND STATUS */
+/* POSTER UPLOAD AND STATUS */
 
 async function renderPosterUpload(show, panel, info) {
   let posterData = null;
@@ -547,11 +581,13 @@ async function renderPosterUpload(show, panel, info) {
       ref(db, "showPosters/" + show.showId)
     );
 
-    if (snapshot.exists()) posterData = snapshot.val();
+    if (snapshot.exists()) {
+      posterData = snapshot.val();
+    }
 
   } catch (error) {
-    console.error("Poster status:", error);
-    info.textContent = "Unable to check poster status. Please refresh.";
+    console.error("Poster status check failed:", error);
+    info.textContent = "Unable to check poster status. Firebase read permission may be missing.";
     return;
   }
 
@@ -568,6 +604,7 @@ async function renderPosterUpload(show, panel, info) {
     const statusValue = String(posterData.status);
 
     statusLine.textContent = "Poster status: " + statusValue;
+
     statusLine.className =
       statusValue === "Approved" ? "poster-approved" :
       statusValue === "Rejected" ? "poster-rejected" :
@@ -584,23 +621,23 @@ async function renderPosterUpload(show, panel, info) {
   }
 
   if (posterData && posterData.status === "Pending") {
-    info.textContent = "Your poster has been submitted and is waiting for administrator approval.";
+    info.textContent = "Your poster is waiting for administrator approval.";
     return;
   }
 
   if (posterData && posterData.status === "Approved") {
-    info.textContent = "Your poster has been approved. It can now be displayed publicly.";
+    info.textContent = "Your poster has been approved and can now be displayed publicly.";
     return;
   }
 
-  if (posterData && posterData.status !== "Rejected") {
+  if (posterData && posterData.status && posterData.status !== "Rejected") {
     info.textContent = "A poster record already exists. Please contact the administrator.";
     return;
   }
 
   info.textContent = posterData && posterData.status === "Rejected"
     ? "Your previous poster was rejected. You can upload a replacement."
-    : "Upload one poster for this show. Your poster will be reviewed by the administrator before public display.";
+    : "Upload one poster for this show. Your poster will be reviewed before public display.";
 
   const fileLabel = document.createElement("label");
   fileLabel.textContent = "Choose poster image (JPG, PNG or WebP)";
@@ -610,6 +647,7 @@ async function renderPosterUpload(show, panel, info) {
   fileInput.accept = "image/jpeg,image/png,image/webp";
 
   const uploadButton = document.createElement("button");
+  uploadButton.type = "button";
   uploadButton.textContent =
     posterData && posterData.status === "Rejected"
       ? "Upload Replacement Poster"
@@ -631,7 +669,6 @@ async function renderPosterUpload(show, panel, info) {
     uploadMessage.textContent = "Please wait. Preparing your poster...";
 
     try {
-      // Verify that the host still owns this show.
       const showSnapshot = await get(
         ref(db, "shows/" + show.showId)
       );
@@ -641,7 +678,6 @@ async function renderPosterUpload(show, panel, info) {
         throw new Error("You are not authorized to upload a poster for this show.");
       }
 
-      // Recheck the current poster status to prevent accidental replacement.
       const currentPosterSnapshot = await get(
         ref(db, "showPosters/" + show.showId)
       );
@@ -656,16 +692,20 @@ async function renderPosterUpload(show, panel, info) {
 
       const compressedImage = await compressPoster(file);
 
+      if (compressedImage.length > MAX_POSTER_DATA_LENGTH) {
+        throw new Error("Poster image is too large.");
+      }
+
       uploadButton.textContent = "Uploading...";
 
       const posterRecord = {
-        showId: show.showId,
-        hostUid: currentUser.uid,
-        imageData: compressedImage,
-        status: "Pending",
-        submittedAt: Date.now(),
-        fileName: file.name,
-        contentType: "image/jpeg"
+        showId:show.showId,
+        hostUid:currentUser.uid,
+        imageData:compressedImage,
+        status:"Pending",
+        submittedAt:Date.now(),
+        fileName:file.name,
+        contentType:"image/jpeg"
       };
 
       await set(
@@ -679,7 +719,7 @@ async function renderPosterUpload(show, panel, info) {
       await renderShowCardRefresh(show, panel);
 
     } catch (error) {
-      console.error(error);
+      console.error("Poster upload failed:", error);
       uploadMessage.textContent =
         error.message || "Poster upload failed. Please try again.";
     } finally {
@@ -704,7 +744,7 @@ async function renderShowCardRefresh(show, panel) {
   await renderPosterUpload(show, panel, info);
 }
 
-/* LOAD SINGER REGISTRATIONS */
+/* SINGER REGISTRATIONS */
 
 async function loadRegistrations(show, container) {
   try {
@@ -733,7 +773,7 @@ async function loadRegistrations(show, container) {
 
       const singerStatus = document.createElement("span");
       singerStatus.className = "badge";
-      singerStatus.textContent = singer.status || "Pending";
+      singerStatus.textContent = singer.status || "Waiting";
 
       row.append(singerName, singerDetails, singerStatus);
 
@@ -746,8 +786,12 @@ async function loadRegistrations(show, container) {
 
       for (const action of actions) {
         const button = document.createElement("button");
+        button.type = "button";
         button.textContent = action.label;
-        if (action.className) button.className = action.className;
+
+        if (action.className) {
+          button.className = action.className;
+        }
 
         button.addEventListener("click", async () => {
           button.disabled = true;
@@ -755,14 +799,17 @@ async function loadRegistrations(show, container) {
           try {
             await update(
               ref(db, "showRegistrations/" + show.showId + "/" + registrationId),
-              {status:action.value,updatedAt:Date.now()}
+              {
+                status:action.value,
+                updatedAt:Date.now()
+              }
             );
 
             singerStatus.textContent = action.value;
 
           } catch (error) {
-            console.error(error);
-            alert("Unable to update registration.");
+            console.error("Registration update failed:", error);
+            alert("Unable to update registration: " + error.message);
           } finally {
             button.disabled = false;
           }
@@ -775,8 +822,8 @@ async function loadRegistrations(show, container) {
     }
 
   } catch (error) {
-    console.error(error);
-    container.textContent = "Unable to load registrations.";
+    console.error("Registration loading failed:", error);
+    container.textContent = "Unable to load registrations: " + error.message;
   }
 }
 
@@ -823,21 +870,22 @@ async function generateShowPoster(show, mode = "download") {
   }
 
   const canvas = document.createElement("canvas");
-canvas.width = 1080;
-canvas.height = 1350;
+  canvas.width = 1080;
+  canvas.height = 1350;
 
-const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d");
 
-const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-gradient.addColorStop(0, "#080808");
-gradient.addColorStop(1, "#242016");
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+  gradient.addColorStop(0, "#080808");
+  gradient.addColorStop(1, "#242016");
 
-ctx.fillStyle = gradient;
-ctx.fillRect(0, 0, 1080, 1350);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1350);
 
-ctx.strokeStyle = "#d6ad55";
-ctx.lineWidth = 10;
-ctx.strokeRect(35, 35, 1010, 1280);
+  ctx.strokeStyle = "#d6ad55";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(35, 35, 1010, 1280);
+
   ctx.strokeStyle = "#8e6c2d";
   ctx.lineWidth = 2;
   ctx.strokeRect(55, 55, 970, 1240);
@@ -873,6 +921,7 @@ ctx.strokeRect(35, 35, 1010, 1280);
   if (titleLine) titleLines.push(titleLine);
 
   let titleY = 310;
+
   titleLines.slice(0, 2).forEach(line => {
     ctx.fillText(line, 540, titleY);
     titleY += 78;
@@ -882,8 +931,13 @@ ctx.strokeRect(35, 35, 1010, 1280);
   ctx.font = "27px Arial";
 
   const descriptionEndY = wrapCanvasText(
-    ctx, String(show.description || ""), 540,
-    titleY + 35, 850, 40, 3
+    ctx,
+    String(show.description || ""),
+    540,
+    titleY + 35,
+    850,
+    40,
+    3
   );
 
   const infoY = Math.max(descriptionEndY + 45, 570);
@@ -912,9 +966,10 @@ ctx.strokeRect(35, 35, 1010, 1280);
   ctx.font = "34px Arial";
   ctx.fillText(
     show.entryType === "paid"
-      ? "Entry Fee: ₹" + Number(show.entryFee || 0)
+      ? "Entry Fee: Rs. " + Number(show.entryFee || 0)
       : "FREE ENTRY",
-    540, infoY + 278
+    540,
+    infoY + 278
   );
 
   ctx.fillStyle = "#e9c56f";
@@ -929,7 +984,13 @@ ctx.strokeRect(35, 35, 1010, 1280);
 
   ctx.fillStyle = "#168c4a";
   ctx.beginPath();
-  ctx.roundRect(260, buttonY, 560, 95, 22);
+
+  if (typeof ctx.roundRect === "function") {
+    ctx.roundRect(260, buttonY, 560, 95, 22);
+  } else {
+    ctx.rect(260, buttonY, 560, 95);
+  }
+
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
@@ -946,7 +1007,7 @@ ctx.strokeRect(35, 35, 1010, 1280);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "21px Arial";
-  ctx.fillText("Sing • Connect • Celebrate", 540, 1280);
+  ctx.fillText("Sing - Connect - Celebrate", 540, 1280);
 
   canvas.toBlob(async blob => {
     if (!blob) {
@@ -986,7 +1047,6 @@ ctx.strokeRect(35, 35, 1010, 1280);
           downloadPoster(file);
         }
       }
-
     } else {
       downloadPoster(file);
 
@@ -1010,11 +1070,14 @@ ctx.strokeRect(35, 35, 1010, 1280);
 function downloadPoster(file) {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
+
   link.href = url;
   link.download = file.name;
+
   document.body.appendChild(link);
   link.click();
   link.remove();
+
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
@@ -1025,11 +1088,10 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "host-login.html";
   } catch (error) {
-    console.error(error);
+    console.error("Sign out failed:", error);
     alert("Unable to sign out. Please try again.");
   }
 });
 </script>
-
 </body>
 </html>
