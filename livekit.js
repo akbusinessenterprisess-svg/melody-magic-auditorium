@@ -662,7 +662,10 @@ async function joinAuditorium() {
           : participants.get(participant.identity)?.videoTrack
       });
     });
-
+if (track.kind === "video" &&
+    stageSingerUids.includes(participant.identity)) {
+  showMainSinger(stageSingerUids);
+}
     room.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
       track.detach().forEach(element => element.remove());
 
