@@ -15,6 +15,7 @@ h1{color:#f5bd43;margin:0}
 h2{color:#f5bd43;margin-top:0}
 input,textarea,select{width:100%;padding:12px;margin:7px 0 14px;border:1px solid #39445e;border-radius:7px;background:#0c1426;color:white}
 button{padding:12px 18px;border:0;border-radius:7px;background:#e5ad35;color:#111;font-weight:bold;cursor:pointer;margin:5px 3px}
+button:disabled{opacity:.5;cursor:not-allowed}
 button.secondary{background:#35415d;color:white}
 button.danger{background:#b83232;color:white}
 .small{color:#b9c4d8;font-size:13px}
@@ -48,16 +49,16 @@ label{display:block;color:#dbe2ef}
 <h2>Create Your Show</h2>
 
 <label>Show Name</label>
-<input id="showName" placeholder="Enter show name">
+<input id="showName" placeholder="Enter show name" required>
 
 <label>Show Description</label>
 <textarea id="showDescription" rows="3" placeholder="Describe your show"></textarea>
 
 <label>Show Date</label>
-<input id="showDate" type="date">
+<input id="showDate" type="date" required>
 
 <label>Show Time</label>
-<input id="showTime" type="time">
+<input id="showTime" type="time" required>
 
 <label>Performer Entry Fee (₹)</label>
 <input id="performerFee" type="number" min="0" value="0">
@@ -75,6 +76,7 @@ label{display:block;color:#dbe2ef}
 </select>
 
 <button id="createShowBtn">Create Show</button>
+<div id="createMessage" class="small"></div>
 </div>
 
 <div class="card">
@@ -97,14 +99,14 @@ import {
   ref,
   get,
   push,
-  set,
-  update
+  set
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const message = document.getElementById("message");
 const dashboard = document.getElementById("dashboard");
 const hostInfo = document.getElementById("hostInfo");
 const showsList = document.getElementById("showsList");
+const createMessage = document.getElementById("createMessage");
 
 let currentUser = null;
 let currentHost = null;
@@ -128,7 +130,9 @@ function withTimeout(promise, milliseconds = 12000) {
   return Promise.race([
     promise,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Request timed out. Check your Firebase connection and database rules.")), milliseconds)
+      setTimeout(() => reject(new Error(
+        "Request timed out. Check your Firebase connection and database rules."
+      )), milliseconds)
     )
   ]);
 }
@@ -200,9 +204,12 @@ async function loadShows() {
     let found = false;
 
     for (const [id, show] of Object.entries(shows)) {
-      if (show.hostId !== currentUser.uid) continue;
+
+      // IMPORTANT: Firebase rules use hostUid.
+      if (show.hostUid !== currentUser.uid) continue;
 
       found = true;
+
       const entry = document.createElement("div");
       entry.className = "show";
 
@@ -261,25 +268,33 @@ document.getElementById("createShowBtn").addEventListener("click", async () => {
   const audienceFee = Number(document.getElementById("audienceFee").value || 0);
   const type = document.getElementById("showType").value;
 
+  if (!currentUser || !currentHost) {
+    alert("Your host account is not ready. Please refresh and log in again.");
+    return;
+  }
+
   if (!name || !date || !time) {
     alert("Please enter show name, date and time.");
     return;
   }
 
-  if (performerFee < 0 || audienceFee < 0) {
-    alert("Fees cannot be negative.");
+  if (performerFee < 0 || audienceFee < 0 ||
+      !Number.isFinite(performerFee) || !Number.isFinite(audienceFee)) {
+    alert("Please enter valid, non-negative fees.");
     return;
   }
 
   const button = document.getElementById("createShowBtn");
   button.disabled = true;
   button.textContent = "Creating...";
+  createMessage.textContent = "";
 
   try {
     const newShow = push(ref(db, "shows"));
 
     await withTimeout(set(newShow, {
-      hostId: currentUser.uid,
+      // IMPORTANT: This field must match your Firebase security rule.
+      hostUid: currentUser.uid,
       hostName: currentHost.name || currentUser.email,
       name,
       description,
@@ -293,6 +308,7 @@ document.getElementById("createShowBtn").addEventListener("click", async () => {
     }));
 
     alert("Your show has been created.");
+
     document.getElementById("showName").value = "";
     document.getElementById("showDescription").value = "";
     document.getElementById("showDate").value = "";
@@ -301,7 +317,8 @@ document.getElementById("createShowBtn").addEventListener("click", async () => {
     await loadShows();
 
   } catch (error) {
-    console.error(error);
+    console.error("Show creation error:", error);
+    createMessage.textContent = "Error: " + error.message;
     alert("Could not create show: " + error.message);
   } finally {
     button.disabled = false;
@@ -377,6 +394,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 
   for (const word of words) {
     const test = line ? line + " " + word : word;
+
     if (ctx.measureText(test).width > maxWidth && line) {
       ctx.fillText(line, x, currentY);
       line = word;
@@ -385,6 +403,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
       line = test;
     }
   }
+
   if (line) ctx.fillText(line, x, currentY);
 }
 
