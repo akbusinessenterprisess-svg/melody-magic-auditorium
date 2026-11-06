@@ -14,20 +14,17 @@ h1,h2{color:#e7bd68}
 .card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
 label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
 input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
-input[readonly]{background:#17140f;color:#d8d0c1;border-color:#806b48}
 button{display:block;width:100%;padding:14px;margin-top:15px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.4;cursor:not-allowed}
-.detect{background:#273c2b;color:#d8f5dc;border:1px solid #527b58}
+button:disabled{opacity:.5;cursor:not-allowed}
 .muted{color:#c2b7a6;line-height:1.6}
 .success{color:#8ee29a;line-height:1.6}
 .error{color:#ff9999;line-height:1.6}
-.location-status{color:#c2b7a6;font-size:13px;line-height:1.5;margin-top:10px}
-.rules{background:#0d0b08;border:1px solid #57452c;border-radius:8px;padding:15px;margin-top:18px;color:#ddd;line-height:1.7}
-.check{display:flex;gap:10px;align-items:flex-start;color:#e7bd68;line-height:1.5}
-.check input{width:18px;height:18px;margin:2px 0;flex-shrink:0}
 .location-note{font-size:12px;color:#aaa;margin-top:10px;line-height:1.5}
 .payment-box{background:#0d0b08;border:1px solid #705322;border-radius:8px;padding:15px;margin-top:18px}
 .contact-link{display:block;padding:14px;margin-top:15px;background:#e7bd68;color:#171009;border-radius:7px;text-align:center;text-decoration:none;font-weight:bold}
+.rules{background:#0d0b08;border:1px solid #57452c;border-radius:8px;padding:15px;margin-top:18px;color:#ddd;line-height:1.7}
+.check{display:flex;gap:10px;align-items:flex-start;color:#e7bd68;line-height:1.5}
+.check input{width:18px;height:18px;margin:2px 0;flex-shrink:0}
 .hidden{display:none!important}
 </style>
 </head>
@@ -46,13 +43,13 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <div class="card">
 <h2 id="formHeading">Audience Registration</h2>
 <p id="formIntroduction" class="muted">
-Detect your actual location to continue with registration.
+Enter your name and location to register for this show.
 </p>
 
 <div id="paymentArea" class="payment-box hidden">
 <strong style="color:#e7bd68">PAID SHOW – PAYMENT INSTRUCTIONS</strong>
 <p class="muted">
-Contact the host using the button below to confirm payment details. After making payment, enter your UPI transaction ID / UTR number below.
+Contact the host using the button below to confirm payment details. After making payment, enter your UPI transaction ID / UTR number below and submit your application.
 </p>
 <a id="hostContact" class="contact-link hidden" target="_blank" rel="noopener">CONTACT HOST ON WHATSAPP</a>
 <p class="location-note">
@@ -65,32 +62,26 @@ Your application remains pending until the host verifies your payment and approv
 <label for="audienceName">Full Name</label>
 <input id="audienceName" type="text" placeholder="Enter your full name" maxlength="80" autocomplete="name" required>
 
-<h3 style="color:#e7bd68;margin-top:25px">Verified Device Location</h3>
+<h3 style="color:#e7bd68;margin-top:25px">Your Location</h3>
 
-<button type="button" id="detectLocation" class="detect">📍 DETECT MY LOCATION</button>
-
-<div id="locationStatus" class="location-status" aria-live="polite">
-Location verification is compulsory. Allow your browser to access your device location.
-</div>
-
-<label for="audienceArea">Area / Locality</label>
-<input id="audienceArea" type="text" placeholder="Automatically detected" readonly required>
-
-<label for="audienceCity">City / Town</label>
-<input id="audienceCity" type="text" placeholder="Automatically detected" readonly required>
+<label for="audienceCountry">Country</label>
+<input id="audienceCountry" type="text" placeholder="Example: India" maxlength="100" autocomplete="country-name" required>
 
 <label for="audienceState">State</label>
-<input id="audienceState" type="text" placeholder="Automatically detected" readonly required>
+<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100" required>
 
-<div class="location-note">
-Your area, city and state are obtained from your device's GPS coordinates. These fields cannot be manually edited. Registration is not possible without successful location detection.
-</div>
+<label for="audienceCity">City / Town</label>
+<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100" required>
+
+<p class="location-note">
+Please enter your correct country, state and city. All three details are compulsory.
+</p>
 
 <div id="paymentReferenceArea" class="hidden">
 <label for="paymentReference">Payment Transaction ID / UTR Number</label>
 <input id="paymentReference" type="text" maxlength="100" placeholder="Enter your UPI transaction ID / UTR number">
 <p class="location-note">
-Never enter your UPI PIN, password or bank details.
+Enter the reference number shown in your payment app. Never enter your UPI PIN, password or bank details.
 </p>
 </div>
 
@@ -112,7 +103,7 @@ Never enter your UPI PIN, password or bank details.
 <span>I have read and agree to follow all auditorium rules.</span>
 </label>
 
-<button id="submitButton" type="submit" disabled>VERIFY LOCATION TO CONTINUE</button>
+<button id="submitButton" type="submit">SUBMIT REGISTRATION</button>
 </form>
 
 <div id="message" aria-live="polite"></div>
@@ -140,20 +131,16 @@ const paymentArea=document.getElementById("paymentArea");
 const paymentReferenceArea=document.getElementById("paymentReferenceArea");
 const paymentReference=document.getElementById("paymentReference");
 const hostContact=document.getElementById("hostContact");
-const detectButton=document.getElementById("detectLocation");
-const locationStatus=document.getElementById("locationStatus");
 
 const nameInput=document.getElementById("audienceName");
-const areaInput=document.getElementById("audienceArea");
-const cityInput=document.getElementById("audienceCity");
+const countryInput=document.getElementById("audienceCountry");
 const stateInput=document.getElementById("audienceState");
+const cityInput=document.getElementById("audienceCity");
 const acceptRules=document.getElementById("acceptRules");
 
 let selectedShow=null;
 let isPaidShow=false;
 let submitting=false;
-let verifiedLocation=null;
-let locationVerified=false;
 
 function showMessage(text,type){
  message.textContent=text;
@@ -164,6 +151,7 @@ function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
 
+// AUDIENCE FEE COMPATIBILITY
 function getAudienceEntryFee(show){
  return Number(
   show.audienceFee??
@@ -176,189 +164,6 @@ function getAudienceEntryFee(show){
 function getAudienceEntryType(show){
  return getAudienceEntryFee(show)>0?"paid":"free";
 }
-
-function setLocationStatus(text,type="normal"){
- locationStatus.textContent=text;
- locationStatus.style.color=
-  type==="success" ? "#8ee29a" :
-  type==="error" ? "#ff9999" : "#c2b7a6";
-}
-
-function updateSubmitButton(){
- if(submitting) return;
-
- if(!locationVerified){
-  button.disabled=true;
-  button.textContent="VERIFY LOCATION TO CONTINUE";
- }else{
-  button.disabled=false;
-  button.textContent=isPaidShow
-   ?"SUBMIT PAID SHOW APPLICATION"
-   :"JOIN FREE SHOW";
- }
-}
-
-function clearVerifiedLocation(){
- locationVerified=false;
- verifiedLocation=null;
- areaInput.value="";
- cityInput.value="";
- stateInput.value="";
- updateSubmitButton();
-}
-
-// GPS LOCATION
-function getDevicePosition(){
- return new Promise((resolve,reject)=>{
-  if(!navigator.geolocation){
-   reject(new Error("Your browser does not support GPS location detection."));
-   return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-   resolve,
-   error=>{
-    if(error.code===1){
-     reject(new Error("Location permission denied. Allow location access in your browser settings to register."));
-    }else if(error.code===2){
-     reject(new Error("Your device location is unavailable. Please enable GPS and try again."));
-    }else if(error.code===3){
-     reject(new Error("Location detection timed out. Please try again."));
-    }else{
-     reject(new Error("Unable to detect your device location."));
-    }
-   },
-   {
-    enableHighAccuracy:true,
-    timeout:25000,
-    maximumAge:0
-   }
-  );
- });
-}
-
-// GPS COORDINATES TO CITY AND STATE
-async function reverseGeocode(latitude,longitude){
- const url="https://nominatim.openstreetmap.org/reverse"+
-  "?format=jsonv2"+
-  "&lat="+encodeURIComponent(latitude)+
-  "&lon="+encodeURIComponent(longitude)+
-  "&zoom=18"+
-  "&addressdetails=1";
-
- const response=await fetch(url,{
-  headers:{"Accept":"application/json"}
- });
-
- if(!response.ok){
-  throw new Error("Location verification service is unavailable. Please try again.");
- }
-
- const result=await response.json();
- const address=result.address||{};
-
- const area=
-  address.neighbourhood||
-  address.suburb||
-  address.residential||
-  address.quarter||
-  address.city_district||
-  address.village||
-  address.hamlet||
-  address.town||
-  "";
-
- const city=
-  address.city||
-  address.town||
-  address.village||
-  address.municipality||
-  address.county||
-  "";
-
- const state=address.state||"";
-
- if(!city||!state){
-  throw new Error("We could not verify your city and state from your device location. Registration is blocked.");
- }
-
- return {
-  area:area||city,
-  city,
-  state,
-  country:address.country||"",
-  countryCode:address.country_code||"",
-  latitude,
-  longitude
- };
-}
-
-// DETECT AND VERIFY LOCATION
-async function detectAndVerifyLocation(){
- clearVerifiedLocation();
-
- detectButton.disabled=true;
- detectButton.textContent="VERIFYING LOCATION...";
- setLocationStatus("Requesting GPS permission. Please allow location access...");
-
- try{
-  const position=await getDevicePosition();
-
-  const latitude=position.coords.latitude;
-  const longitude=position.coords.longitude;
-  const accuracy=position.coords.accuracy;
-
-  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){
-   throw new Error("Invalid GPS coordinates. Please try again.");
-  }
-
-  // Reject extremely inaccurate location readings.
-  if(!Number.isFinite(accuracy)||accuracy>10000){
-   throw new Error("Your GPS location is not accurate enough. Please enable device location services and try again outdoors or near a window.");
-  }
-
-  setLocationStatus("GPS received. Verifying your city and state...");
-
-  const address=await reverseGeocode(latitude,longitude);
-
-  verifiedLocation={
-   ...address,
-   accuracy,
-   verifiedAt:Date.now()
-  };
-
-  areaInput.value=address.area;
-  cityInput.value=address.city;
-  stateInput.value=address.state;
-
-  locationVerified=true;
-
-  setLocationStatus(
-   "Location verified: "+address.city+", "+address.state+
-   ". GPS accuracy: approximately "+Math.round(accuracy)+" metres.",
-   "success"
-  );
-
- }catch(error){
-  clearVerifiedLocation();
-  setLocationStatus(error.message,"error");
-  throw error;
- }finally{
-  detectButton.disabled=false;
-  detectButton.textContent="📍 DETECT MY LOCATION";
-  updateSubmitButton();
- }
-}
-
-detectButton.addEventListener("click",async()=>{
- showMessage("","");
-
- try{
-  await detectAndVerifyLocation();
- }catch(error){
-  console.error("Location verification:",error);
- }
-});
 
 // LOAD SELECTED SHOW
 async function loadShow(){
@@ -402,13 +207,15 @@ async function loadShow(){
 
   if(isPaidShow){
    document.getElementById("formHeading").textContent="Paid Audience Registration";
+
    document.getElementById("formIntroduction").textContent=
-    "Complete your details and verify your device location to apply for audience entry.";
+    "Complete your details and payment reference to apply for audience entry.";
 
    paymentArea.classList.remove("hidden");
    paymentReferenceArea.classList.remove("hidden");
    paymentReference.required=true;
-   button.textContent="VERIFY LOCATION TO CONTINUE";
+
+   button.textContent="SUBMIT PAID SHOW APPLICATION";
 
    const phone=cleanPhone(
     selectedShow.hostMobile||
@@ -432,12 +239,12 @@ async function loadShow(){
 
   }else{
    document.getElementById("formHeading").textContent="Free Audience Entry";
-   document.getElementById("formIntroduction").textContent=
-    "Verify your device location to register for this free show. Location verification is compulsory.";
-   button.textContent="VERIFY LOCATION TO CONTINUE";
-  }
 
-  updateSubmitButton();
+   document.getElementById("formIntroduction").textContent=
+    "Enter your name, country, state and city to join this free show. Registration is automatically approved.";
+
+   button.textContent="JOIN FREE SHOW";
+  }
 
  }catch(error){
   showDetails.textContent=error.message;
@@ -447,7 +254,7 @@ async function loadShow(){
  }
 }
 
-// CHECK THIS USER'S APPLICATIONS
+// CHECK EXISTING REGISTRATION
 async function findExistingRegistration(uid){
  const requestsQuery=query(
   ref(db,"audienceEntryRequests/"+showId),
@@ -474,7 +281,7 @@ async function findExistingRegistration(uid){
  return null;
 }
 
-// REGISTRATION
+// AUDIENCE REGISTRATION
 form.addEventListener("submit",async(event)=>{
  event.preventDefault();
 
@@ -485,18 +292,15 @@ form.addEventListener("submit",async(event)=>{
   return;
  }
 
- if(!locationVerified||!verifiedLocation){
-  showMessage("GPS location verification is compulsory. Detect your location before registration.","error");
-  updateSubmitButton();
-  return;
- }
-
  const name=nameInput.value.trim();
+ const country=countryInput.value.trim();
+ const state=stateInput.value.trim();
+ const city=cityInput.value.trim();
  const accepted=acceptRules.checked;
  const reference=paymentReference.value.trim();
 
- if(!name||!accepted){
-  showMessage("Please enter your name and accept the auditorium rules.","error");
+ if(!name||!country||!state||!city||!accepted){
+  showMessage("Please enter your full name, country, state and city, and accept the auditorium rules.","error");
   return;
  }
 
@@ -507,36 +311,10 @@ form.addEventListener("submit",async(event)=>{
 
  submitting=true;
  button.disabled=true;
- button.textContent="RECHECKING GPS LOCATION...";
- detectButton.disabled=true;
- showMessage("Rechecking your GPS location before registration...","muted");
+ button.textContent="PLEASE WAIT...";
+ showMessage("Checking your registration...","muted");
 
  try{
-  // GET A FRESH GPS POSITION AT SUBMISSION
-  const freshPosition=await getDevicePosition();
-
-  const freshAccuracy=freshPosition.coords.accuracy;
-
-  if(!Number.isFinite(freshAccuracy)||freshAccuracy>10000){
-   throw new Error("Your GPS accuracy is insufficient. Registration is blocked. Please try again with a better GPS signal.");
-  }
-
-  const freshAddress=await reverseGeocode(
-   freshPosition.coords.latitude,
-   freshPosition.coords.longitude
-  );
-
-  // USE THE FRESHLY VERIFIED ADDRESS
-  verifiedLocation={
-   ...freshAddress,
-   accuracy:freshAccuracy,
-   verifiedAt:Date.now()
-  };
-
-  areaInput.value=freshAddress.area;
-  cityInput.value=freshAddress.city;
-  stateInput.value=freshAddress.state;
-
   let user=auth.currentUser;
 
   if(!user){
@@ -550,7 +328,7 @@ form.addEventListener("submit",async(event)=>{
   );
 
   if(blockSnapshot.exists()&&blockSnapshot.val()?.blocked===true){
-   throw new Error("You are blocked from entering this show. Please contact the host.");
+   throw new Error("You are blocked from entering this show. Please contact the host if you think this is a mistake.");
   }
 
   // RECHECK SHOW
@@ -562,15 +340,16 @@ form.addEventListener("submit",async(event)=>{
   }
 
   const latestShow=latestShowSnapshot.val();
+
   const latestIsPaid=getAudienceEntryType(latestShow)==="paid";
 
   if(latestIsPaid!==isPaidShow){
-   throw new Error("The audience entry type has changed. Please refresh this page.");
+   throw new Error("The audience entry type has changed. Please refresh this page and try again.");
   }
 
   const latestAudienceFee=getAudienceEntryFee(latestShow);
 
-  // CHECK EXISTING APPLICATION
+  // CHECK EXISTING APPLICATIONS
   const existing=await findExistingRegistration(user.uid);
 
   if(existing){
@@ -581,7 +360,7 @@ form.addEventListener("submit",async(event)=>{
    }
 
    if(status==="pending"){
-    throw new Error("Your application is already pending with the host.");
+    throw new Error("Your application is already pending with the host. Please wait for the host to review it.");
    }
   }
 
@@ -589,29 +368,16 @@ form.addEventListener("submit",async(event)=>{
   const requestId=requestRef.key;
   const now=Date.now();
 
-  const locationName=[
-   freshAddress.area,
-   freshAddress.city,
-   freshAddress.state,
-   freshAddress.country
-  ].filter(Boolean).join(", ");
+  const locationName=[city,state,country].join(", ");
 
   const registration={
    audienceUid:user.uid,
    name:name,
 
+   country:country,
+   state:state,
+   city:city,
    location:locationName,
-   area:freshAddress.area,
-   city:freshAddress.city,
-   state:freshAddress.state,
-   country:freshAddress.country,
-
-   locationLatitude:freshAddress.latitude,
-   locationLongitude:freshAddress.longitude,
-   locationAccuracy:freshAccuracy,
-   locationSource:"Device GPS",
-   locationVerified:true,
-   locationVerifiedAt:now,
 
    showId:showId,
    showTitle:latestShow.name||latestShow.title||"",
@@ -652,7 +418,7 @@ form.addEventListener("submit",async(event)=>{
    );
   }else{
    showMessage(
-    "Your location-verified free audience registration is confirmed! Your entry is automatically approved.",
+    "Your free audience registration is confirmed! Your entry is automatically approved. Please enter the auditorium when the show starts.",
     "success"
    );
   }
@@ -665,10 +431,12 @@ form.addEventListener("submit",async(event)=>{
   showMessage("Registration failed: "+error.message,"error");
  }finally{
   submitting=false;
-  detectButton.disabled=false;
 
   if(form.style.display!=="none"){
-   updateSubmitButton();
+   button.disabled=false;
+   button.textContent=isPaidShow
+    ?"SUBMIT PAID SHOW APPLICATION"
+    :"JOIN FREE SHOW";
   }
  }
 });
