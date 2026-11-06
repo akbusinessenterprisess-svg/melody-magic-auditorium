@@ -59,7 +59,21 @@ function listenToSingers(callback) {
   });
 }
 
-async function registerHost(name, email, mobile, plan, password) {
+// HOST REGISTRATION WITH GPS LOCATION
+async function registerHost(name, email, mobile, plan, password, locationData) {
+
+  if (
+    !locationData ||
+    locationData.locationDetected !== true ||
+    typeof locationData.latitude !== "number" ||
+    typeof locationData.longitude !== "number" ||
+    !locationData.country ||
+    !locationData.state ||
+    !locationData.city
+  ) {
+    throw new Error("GPS location detection and Country, State and City are compulsory.");
+  }
+
   const result = await createUserWithEmailAndPassword(auth, email, password);
   const user = result.user;
 
@@ -68,6 +82,25 @@ async function registerHost(name, email, mobile, plan, password) {
     email,
     mobile,
     plan,
+
+    country: locationData.country,
+    state: locationData.state,
+    city: locationData.city,
+
+    location: [
+      locationData.city,
+      locationData.state,
+      locationData.country
+    ].join(", "),
+
+    latitude: locationData.latitude,
+    longitude: locationData.longitude,
+    accuracy: locationData.accuracy || null,
+
+    locationDetected: true,
+    locationDetectionMethod: "Browser GPS",
+    locationCapturedAt: Date.now(),
+
     status: "Pending",
     createdAt: Date.now()
   });
