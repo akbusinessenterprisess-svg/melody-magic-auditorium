@@ -153,7 +153,6 @@ footer a{color:var(--gold);text-decoration:none}
  <p class="section-intro">Whether you love singing, enjoy listening or want to host your own show, there is a place for you at Melody Magic.</p>
 
  <div class="role-grid">
-
   <div class="role-card performer">
    <div class="role-content">
     <div class="role-number">01 • SING YOUR HEART OUT</div>
@@ -180,7 +179,6 @@ footer a{color:var(--gold);text-decoration:none}
     <a class="btn" href="host-signup.html">SIGN UP FOR HOST</a>
    </div>
   </div>
-
  </div>
 </section>
 
@@ -213,35 +211,18 @@ footer a{color:var(--gold);text-decoration:none}
 
  <p class="about">
   Melody Magic Digital Auditorium is an online platform created to bring singers, performers, music lovers and hosts together in one virtual auditorium.
-
   Our vision is to make music accessible to everyone, everywhere, without any language, regional or cultural limitations. Whether you sing in Hindi, Marathi, English, Tamil, Telugu, Bengali, Gujarati, Punjabi or any other language, you are welcome here.
-
   Performers can discover singing shows, register and showcase their talent. Audiences can join available events, enjoy performances, interact through reactions and support their favourite artists. Approved hosts can create and manage their own digital shows, connect with performers and build their musical communities.
-
   From Bollywood retro, regional music and karaoke to classical, devotional, independent music, folk, fusion and open-mic sessions, every genre and every voice has a place here.
-
   No language barriers. No boundaries. Just music, talent and togetherness.
-
   Join us to share your talent, enjoy music and connect with a growing global musical community. Every voice deserves a stage!
  </p>
 
  <div class="about-grid">
-  <div class="about-item">
-   <h3>🎤 For Performers</h3>
-   <p>Discover upcoming singing shows and register to perform your favourite songs in any language or musical style.</p>
-  </div>
-  <div class="about-item">
-   <h3>🎧 For Audiences</h3>
-   <p>Explore musical events, enjoy performances from different cultures and join available free or paid audience sessions.</p>
-  </div>
-  <div class="about-item">
-   <h3>🎙️ For Hosts</h3>
-   <p>Apply for host access and, once approved, create and manage your own digital shows for performers and audiences.</p>
-  </div>
-  <div class="about-item">
-   <h3>🌟 Our Mission</h3>
-   <p>Build an inclusive musical community without language or regional boundaries, where everyone can share their passion for music.</p>
-  </div>
+  <div class="about-item"><h3>🎤 For Performers</h3><p>Discover upcoming singing shows and register to perform your favourite songs in any language or musical style.</p></div>
+  <div class="about-item"><h3>🎧 For Audiences</h3><p>Explore musical events, enjoy performances from different cultures and join available free or paid audience sessions.</p></div>
+  <div class="about-item"><h3>🎙️ For Hosts</h3><p>Apply for host access and, once approved, create and manage your own digital shows for performers and audiences.</p></div>
+  <div class="about-item"><h3>🌟 Our Mission</h3><p>Build an inclusive musical community without language or regional boundaries, where everyone can share their passion for music.</p></div>
  </div>
 
  <p class="about">
@@ -319,6 +300,18 @@ function getHostWhatsApp(show){
  );
 }
 
+function safePosterUrl(url){
+ if(typeof url!=="string")return "";
+ try{
+  const parsed=new URL(url);
+  if(parsed.protocol==="https:" &&
+     parsed.hostname==="res.cloudinary.com"){
+   return url;
+  }
+ }catch(error){}
+ return "";
+}
+
 function makeShowCard(show,showId){
  const card=document.createElement("article");
  card.className="show-card";
@@ -326,27 +319,31 @@ function makeShowCard(show,showId){
  const poster=approvedPosters[showId];
  const image=document.createElement("img");
  image.className="show-image";
- image.alt=(show.title||"Singing show")+" poster";
+ image.alt=(show.name||"Singing show")+" poster";
  image.loading="lazy";
 
- image.src=(poster&&poster.imageData)||show.posterUrl||
+ const approvedImage=safePosterUrl(poster&&poster.imageUrl);
+
+ image.src=approvedImage||
   "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=85";
 
  image.onerror=()=>{
+  image.onerror=null;
   image.src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80";
  };
 
  const info=document.createElement("div");
  info.className="show-info";
 
- const paid=String(show.entryType||"Free").toLowerCase()==="paid";
+ const audienceFee=Number(show.audienceFee||0);
+ const paid=Number.isFinite(audienceFee)&&audienceFee>0;
 
  const label=document.createElement("span");
  label.className="show-label";
  label.textContent=paid?"PAID ENTRY SHOW":"FREE ENTRY SHOW";
 
  const title=document.createElement("h3");
- title.textContent=show.title||"Untitled Show";
+ title.textContent=show.name||show.title||"Untitled Show";
 
  const host=document.createElement("p");
  host.textContent="Host: "+(show.hostName||"Approved Host");
@@ -361,7 +358,7 @@ function makeShowCard(show,showId){
  const entry=document.createElement("p");
  entry.className="show-entry";
  entry.textContent=paid
-  ?"Audience Entry Fee: ₹"+Number(show.entryFee||0)
+  ?"Audience Entry Fee: ₹"+audienceFee
   :"Audience Entry: FREE";
 
  const performerButton=document.createElement("a");
@@ -382,7 +379,7 @@ function makeShowCard(show,showId){
    audienceButton.textContent="PAY & JOIN SHOW";
 
    const message="Hello, I want to join your paid show: "+
-    (show.title||"Singing Show")+
+    (show.name||show.title||"Singing Show")+
     ". Please share payment details and audience entry instructions.";
 
    audienceButton.href="https://wa.me/"+hostNumber+
@@ -391,7 +388,7 @@ function makeShowCard(show,showId){
    audienceButton.target="_blank";
    audienceButton.rel="noopener noreferrer";
   }else{
-   audienceButton.textContent="HOST WHATSAPP NOT AVAILABLE";
+   audienceButton.textContent="CONTACT HOST FOR ENTRY";
    audienceButton.classList.add("disabled");
    audienceButton.removeAttribute("href");
   }
@@ -437,7 +434,7 @@ onValue(ref(db,"shows"),snapshot=>{
  renderShows();
 },error=>{
  console.error("Show loading error:",error);
- showsContainer.textContent="Unable to load shows. Please refresh the page.";
+ showsContainer.textContent="Unable to load shows: "+error.message;
 });
 
 onValue(ref(db,"approvedPosters"),snapshot=>{
