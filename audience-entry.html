@@ -43,7 +43,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <div class="card">
 <h2 id="formHeading">Audience Registration</h2>
 <p id="formIntroduction" class="muted">
-Enter your name and location to register for this show.
+Enter your name to register for this show.
 </p>
 
 <div id="paymentArea" class="payment-box hidden">
@@ -62,19 +62,19 @@ Your application remains pending until the host verifies your payment and approv
 <label for="audienceName">Full Name</label>
 <input id="audienceName" type="text" placeholder="Enter your full name" maxlength="80" autocomplete="name" required>
 
-<h3 style="color:#e7bd68;margin-top:25px">Your Location</h3>
+<h3 style="color:#e7bd68;margin-top:25px">Your Location <span style="color:#aaa;font-size:12px;font-weight:normal">(Optional)</span></h3>
 
-<label for="audienceCountry">Country</label>
-<input id="audienceCountry" type="text" placeholder="Example: India" maxlength="100" autocomplete="country-name" required>
+<label for="audienceCountry">Country (Optional)</label>
+<input id="audienceCountry" type="text" placeholder="Example: India" maxlength="100" autocomplete="country-name">
 
-<label for="audienceState">State</label>
-<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100" required>
+<label for="audienceState">State (Optional)</label>
+<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100">
 
-<label for="audienceCity">City / Town</label>
-<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100" required>
+<label for="audienceCity">City / Town (Optional)</label>
+<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100">
 
 <p class="location-note">
-Please enter your correct country, state and city. All three details are compulsory.
+Location details are optional. You can leave these fields blank. GPS permission and location verification are not required to register.
 </p>
 
 <div id="paymentReferenceArea" class="hidden">
@@ -151,7 +151,6 @@ function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
 
-// AUDIENCE FEE COMPATIBILITY
 function getAudienceEntryFee(show){
  return Number(
   show.audienceFee??
@@ -241,7 +240,7 @@ async function loadShow(){
    document.getElementById("formHeading").textContent="Free Audience Entry";
 
    document.getElementById("formIntroduction").textContent=
-    "Enter your name, country, state and city to join this free show. Registration is automatically approved.";
+    "Enter your name to join this free show. Location details are optional. Registration is automatically approved.";
 
    button.textContent="JOIN FREE SHOW";
   }
@@ -299,8 +298,9 @@ form.addEventListener("submit",async(event)=>{
  const accepted=acceptRules.checked;
  const reference=paymentReference.value.trim();
 
- if(!name||!country||!state||!city||!accepted){
-  showMessage("Please enter your full name, country, state and city, and accept the auditorium rules.","error");
+ // Only name and rules acceptance are compulsory.
+ if(!name||!accepted){
+  showMessage("Please enter your full name and accept the auditorium rules.","error");
   return;
  }
 
@@ -340,7 +340,6 @@ form.addEventListener("submit",async(event)=>{
   }
 
   const latestShow=latestShowSnapshot.val();
-
   const latestIsPaid=getAudienceEntryType(latestShow)==="paid";
 
   if(latestIsPaid!==isPaidShow){
@@ -368,7 +367,13 @@ form.addEventListener("submit",async(event)=>{
   const requestId=requestRef.key;
   const now=Date.now();
 
-  const locationName=[city,state,country].join(", ");
+  // Save entered location if supplied.
+  // If all location fields are blank, save "Not provided"
+  // to maintain compatibility with the existing database rules.
+  const locationParts=[city,state,country].filter(Boolean);
+  const locationName=locationParts.length
+   ?locationParts.join(", ")
+   :"Not provided";
 
   const registration={
    audienceUid:user.uid,
