@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!-- Melody Magic Digital Auditorium - Updated Homepage -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Melody Magic Digital Auditorium</title>
@@ -18,7 +17,11 @@ header{padding:19px 15px;text-align:center;border-bottom:1px solid #705726;backg
 .logo{color:var(--gold);font-size:27px;font-weight:900;letter-spacing:3px}
 .tagline{color:#c9b98f;font-size:12px;margin-top:7px;letter-spacing:2px}
 
-nav{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:22px;padding:15px;background:#111;position:sticky;top:0;z-index:20;border-bottom:1px solid #493a20}
+nav{
+ display:flex;justify-content:center;align-items:center;
+ flex-wrap:wrap;gap:18px;padding:15px;background:#111;
+ position:sticky;top:0;z-index:20;border-bottom:1px solid #493a20
+}
 nav a{color:var(--gold);text-decoration:none;font-size:13px}
 nav a:hover{color:white}
 
@@ -29,7 +32,7 @@ nav a:hover{color:white}
  linear-gradient(90deg,rgba(0,0,0,.91),rgba(0,0,0,.55),rgba(0,0,0,.88)),
  url("https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1800&q=85");
  background-size:cover;background-position:center;
- border-bottom:1px solid #80612b;
+ border-bottom:1px solid #80612b
 }
 .hero-content{max-width:850px}
 .hero-tag{color:var(--gold);letter-spacing:4px;font-size:12px;margin-bottom:18px;font-weight:bold}
@@ -40,7 +43,7 @@ nav a:hover{color:white}
  display:inline-block;background:linear-gradient(135deg,#f3d78c,#bd8c36);
  color:#171006;padding:14px 22px;border-radius:7px;
  text-decoration:none;font-weight:bold;margin:6px;
- transition:.2s;border:1px solid #e8c36c;
+ transition:.2s;border:1px solid #e8c36c
 }
 .btn:hover{transform:translateY(-3px);box-shadow:0 7px 20px #9c792e55}
 .btn.outline{background:transparent;color:var(--gold)}
@@ -56,7 +59,7 @@ h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
  position:relative;overflow:hidden;border:1px solid #765a29;
  border-radius:14px;min-height:300px;text-align:left;
  display:flex;align-items:flex-end;background-size:cover;
- background-position:center;transition:.25s;
+ background-position:center;transition:.25s
 }
 .role-card:hover{transform:translateY(-5px);border-color:#f1d28a}
 .role-card:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.15))}
@@ -83,12 +86,11 @@ h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
  display:block;text-align:center;
  background:linear-gradient(135deg,#f3d78c,#bd8c36);
  color:#171006;padding:12px 10px;border-radius:6px;
- text-decoration:none;font-weight:bold;margin-top:11px;font-size:12px;
+ text-decoration:none;font-weight:bold;margin-top:11px;font-size:12px
 }
 .show-button.secondary{background:transparent;border:1px solid var(--gold);color:var(--gold)}
 .show-button.disabled{opacity:.55;pointer-events:none}
 .show-message{color:#c9c2b4;line-height:1.7;padding:25px}
-.show-error{color:#ffaaaa}
 
 .features{background:#100e0a}
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));max-width:1000px;margin:30px auto;gap:15px}
@@ -98,6 +100,11 @@ h2{color:var(--gold);font-size:clamp(24px,4vw,34px);margin:12px 0}
 .feature p{color:var(--muted);font-size:13px;line-height:1.6}
 
 .about{max-width:850px;margin:auto;color:var(--muted);line-height:1.9;font-size:15px}
+.about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;max-width:1000px;margin:30px auto}
+.about-item{background:#191714;border:1px solid #493a20;border-radius:10px;padding:20px}
+.about-item h3{color:var(--gold);font-size:16px}
+.about-item p{color:var(--muted);font-size:13px;line-height:1.7}
+
 .contact-strip{background:linear-gradient(120deg,#30220d,#100e0a);border-top:1px solid #765a29;border-bottom:1px solid #765a29}
 footer{text-align:center;padding:27px 15px;color:#aaa;border-top:1px solid #493a20;font-size:12px;line-height:2}
 footer a{color:var(--gold);text-decoration:none}
@@ -122,10 +129,11 @@ footer a{color:var(--gold);text-decoration:none}
 
 <nav>
  <a href="#home">HOME</a>
-  <a href="#about">ABOUT US</a>
+ <a href="#about">ABOUT US</a>
  <a href="#join">JOIN US</a>
  <a href="#shows">UPCOMING LIVE SHOWS</a>
  <a href="host-login.html">HOST LOGIN</a>
+ <a href="host-signup.html">HOST SIGN UP</a>
  <a href="admin-poster-review.html" id="adminLink" style="display:none">ADMIN PANEL</a>
 </nav>
 
@@ -168,8 +176,8 @@ footer a{color:var(--gold);text-decoration:none}
    <div class="role-content">
     <div class="role-number">03 • CREATE YOUR EVENT</div>
     <h3>JOIN AS HOST</h3>
-    <p>Create your own digital auditorium, organise shows and bring performers together.</p>
-    <a class="btn" href="https://wa.me/919920360237?text=Hello%2C%20I%20want%20to%20become%20a%20host%20on%20Melody%20Magic%20Digital%20Auditorium.">CONTACT ADMIN</a>
+    <p>Apply to become a host, create your own digital auditorium, organise shows and bring performers together.</p>
+    <a class="btn" href="host-signup.html">SIGN UP FOR HOST</a>
    </div>
   </div>
 
@@ -201,21 +209,58 @@ footer a{color:var(--gold);text-decoration:none}
 
 <section id="about">
  <div class="section-tag">OUR MUSICAL COMMUNITY</div>
- <h2>ABOUT MELODY MAGIC</h2>
- <p class="about">Melody Magic Digital Auditorium brings singers, hosts and music lovers together through online singing events. Discover performances, share your talent, meet music lovers and create unforgettable musical experiences. Every voice deserves a stage!</p>
+ <h2>ABOUT MELODY MAGIC DIGITAL AUDITORIUM</h2>
+
+ <p class="about">
+  Melody Magic Digital Auditorium is an online platform created to bring singers, music lovers, performers and music hosts together in one virtual auditorium.
+  Our mission is to make musical participation accessible from anywhere. Performers can discover and register for published singing shows, audiences can join available events, and approved hosts can organise and manage their own digital shows.
+  From Bollywood retro and Hindi melodies to Marathi music, karaoke and open-mic sessions, we want to give every voice an opportunity to be heard.
+  Join us to share your talent, enjoy music and connect with a growing musical community. Every voice deserves a stage!
+ </p>
+
+ <div class="about-grid">
+  <div class="about-item">
+   <h3>🎤 For Performers</h3>
+   <p>Discover upcoming singing shows and register to perform your favourite songs.</p>
+  </div>
+  <div class="about-item">
+   <h3>🎧 For Audiences</h3>
+   <p>Explore musical events and join available free or paid audience sessions.</p>
+  </div>
+  <div class="about-item">
+   <h3>🎙️ For Hosts</h3>
+   <p>Apply for host access and, once approved, create and manage your own digital shows.</p>
+  </div>
+  <div class="about-item">
+   <h3>🌟 Our Mission</h3>
+   <p>Build a welcoming online musical community where people can share their passion for music.</p>
+  </div>
+ </div>
+
+ <p class="about"><strong style="color:var(--gold)">Created by Amol Kamble</strong><br>Melody Magic Music Studio</p>
 </section>
 
-<section class="contact-strip">
- <div class="section-tag">WANT TO BECOME A HOST?</div>
- <h2>START YOUR OWN DIGITAL SHOW</h2>
- <p class="section-intro">Contact our administrator to apply for host access.</p>
- <a class="btn" href="https://wa.me/919920360237?text=Hello%2C%20I%20want%20to%20become%20a%20host%20on%20Melody%20Magic%20Digital%20Auditorium.">CONTACT ADMIN ON WHATSAPP</a>
+<section class="contact-strip" id="contact">
+ <div class="section-tag">WE ARE HERE TO HELP</div>
+ <h2>CONTACT MELODY MAGIC</h2>
+ <p class="section-intro">For general enquiries, technical support or questions about hosting, contact our administrator directly on WhatsApp.</p>
+
+ <a class="btn" href="https://wa.me/919920360237?text=Hello%2C%20I%20have%20an%20enquiry%20about%20Melody%20Magic%20Digital%20Auditorium." target="_blank" rel="noopener noreferrer">
+  CONTACT US ON WHATSAPP
+ </a>
+
+ <p class="section-intro" style="margin-top:18px">
+  Want to become a host?
+  <a href="host-signup.html" style="color:var(--gold)">Apply for Host Sign Up</a>
+ </p>
 </section>
 
 <footer>
  © 2026 Melody Magic Digital Auditorium<br>
  Sing Together. Shine Together.<br>
- <a href="host-login.html">Host Login</a>
+ <a href="#contact">Contact Us</a> |
+ <a href="host-login.html">Host Login</a> |
+ <a href="host-signup.html">Host Sign Up</a>
 </footer>
 
 <script type="module">
@@ -318,11 +363,9 @@ function makeShowCard(show,showId){
  audienceButton.className="show-button secondary";
 
  if(!paid){
-  // FREE SHOW: DIRECT AUDIENCE REGISTRATION
   audienceButton.textContent="JOIN FREE AS AUDIENCE";
   audienceButton.href="audience-entry.html?showId="+encodeURIComponent(showId);
  }else{
-  // PAID SHOW: CONTACT HOST THROUGH WHATSAPP
   const hostNumber=getHostWhatsApp(show);
 
   if(hostNumber){
