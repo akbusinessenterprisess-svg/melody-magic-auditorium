@@ -27,6 +27,7 @@ const firebaseConfig = {
   messagingSenderId: "458186749712",
   appId: "1:458186749712:web:311ecbed0c87367022d795"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
@@ -53,7 +54,7 @@ async function registerSinger(name, song, language, sessionId, performance) {
 }
 
 function listenToSingers(callback) {
-  onValue(ref(db, "registrations"), (snapshot) => {
+  onValue(ref(db, "registrations"), snapshot => {
     callback(snapshot.val() || {});
   });
 }
