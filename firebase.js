@@ -1,30 +1,23 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 
 import {
   getDatabase,
   ref,
   set,
-  push,
   onValue
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 import {
   getAuth,
-  signInAnonymously,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+  signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
+// Replace these example values with your Firebase web configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDpdxSCppxHTjzE1sNMHHGQ2DbZm-Mq-lk",
   authDomain: "melody-magic-auditorium.firebaseapp.com",
   databaseURL: "https://melody-magic-auditorium-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "melody-magic-auditorium",
-  storageBucket: "melody-magic-auditorium.firebasestorage.app",
-  messagingSenderId: "458186749712",
   appId: "1:458186749712:web:311ecbed0c87367022d795"
 };
 
@@ -37,15 +30,13 @@ async function connectAuditorium() {
   return result.user;
 }
 
-async function registerSinger(name, song, language, sessionId, performance) {
+async function registerSinger(name, song, language) {
   const user = await connectAuditorium();
 
-  await set(push(ref(db, "registrations/" + user.uid)), {
+  await set(ref(db, "registrations/" + user.uid), {
     name,
     song,
     language,
-    sessionId,
-    performance,
     status: "Waiting",
     createdAt: Date.now()
   });
@@ -54,48 +45,29 @@ async function registerSinger(name, song, language, sessionId, performance) {
 }
 
 function listenToSingers(callback) {
-  onValue(ref(db, "registrations"), snapshot => {
+  onValue(ref(db, "registrations"), (snapshot) => {
     callback(snapshot.val() || {});
   });
 }
 
-async function registerHost(name, email, mobile, plan, password) {
-  const result = await createUserWithEmailAndPassword(auth, email, password);
-  const user = result.user;
-
-  await set(ref(db, "hostApplications/" + user.uid), {
-    name,
-    email,
-    mobile,
-    plan,
-    status: "Pending",
-    createdAt: Date.now()
-  });
-
-  return user;
-}
-
-async function hostLogin(email, password) {
-  const result = await signInWithEmailAndPassword(auth, email, password);
-  return result.user;
-}
-
-async function hostLogout() {
-  await signOut(auth);
-}
-
-function checkLogin(callback) {
-  return onAuthStateChanged(auth, callback);
-}
-
 export {
-  db,
-  auth,
   registerSinger,
-  registerHost,
   listenToSingers,
-  connectAuditorium,
-  hostLogin,
-  hostLogout,
-  checkLogin
+  connectAuditorium
 };
+connectAuditorium()
+  .then((user) => {
+    const status = document.createElement("div");
+    status.textContent =
+      "Connected to Melody Magic! User ID: " + user.uid;
+
+    status.style.cssText =
+      "position:fixed;bottom:10px;left:10px;right:10px;" +
+      "background:#176b36;color:white;padding:15px;" +
+      "z-index:99999;border-radius:10px;text-align:center;";
+
+    document.body.appendChild(status);
+  })
+  .catch((error) => {
+    alert("Firebase connection error: " + error.message);
+  });
