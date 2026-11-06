@@ -4,13 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Host Login | Melody Magic Digital Auditorium</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -42,9 +39,7 @@ body {
   letter-spacing: 1px;
 }
 
-h2 {
-  color: #e5bd60;
-}
+h2 { color: #e5bd60; }
 
 p {
   color: #c8c3b6;
@@ -63,9 +58,7 @@ input {
   font-size: 16px;
 }
 
-input:focus {
-  outline: 1px solid #e5bd60;
-}
+input:focus { outline: 1px solid #e5bd60; }
 
 button {
   width: 100%;
@@ -95,9 +88,7 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
 .signup {
   margin-top: 22px;
@@ -109,24 +100,18 @@ a:hover {
   font-weight: bold;
   font-size: 15px;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="login">
-
   <div class="brand">MELODY MAGIC</div>
-
   <h2>Host Login</h2>
 
-  <p>
-    Sign in with your registered email and password.
-  </p>
+  <p>Sign in with your registered email and password.</p>
 
   <form id="loginForm">
-
     <input
       type="email"
       id="email"
@@ -143,52 +128,52 @@ a:hover {
       required
     >
 
-    <button type="submit" id="loginButton">
-      Sign In
-    </button>
-
+    <button type="submit" id="loginButton">Sign In</button>
   </form>
 
   <p id="message" role="status" aria-live="polite"></p>
 
   <div class="signup">
-
     <p>Not registered as a host yet?</p>
-
-    <a href="host-signup.html">
-      ✨ SIGN UP FOR HOST
-    </a>
-
+    <a href="host-signup.html">✨ SIGN UP FOR HOST</a>
   </div>
 
-  <p>
-    <a href="index.html">Back to Home</a>
-  </p>
-
+  <p><a href="index.html">Back to Home</a></p>
 </div>
 
 <script type="module">
 
-import { auth, db, hostLogin, checkLogin } from "./firebase-host.js";
+import {
+  db,
+  hostLogin
+} from "./firebase-host.js";
+
 import {
   ref,
   get
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-
 const form = document.getElementById("loginForm");
 const message = document.getElementById("message");
 const button = document.getElementById("loginButton");
-
 
 function showMessage(text, color = "#ff9999") {
   message.textContent = text;
   message.style.color = color;
 }
 
+function readHostApplication(applicationRef) {
+  return Promise.race([
+    get(applicationRef),
+    new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error("Database read timed out after 12 seconds"));
+      }, 12000);
+    })
+  ]);
+}
 
 form.addEventListener("submit", async (event) => {
-
   event.preventDefault();
 
   const email = document.getElementById("email").value.trim();
@@ -201,13 +186,13 @@ form.addEventListener("submit", async (event) => {
 
   button.disabled = true;
   button.textContent = "Signing in...";
-
-  showMessage("Checking your account...", "#e5bd60");
+  showMessage("Signing in...", "#e5bd60");
 
   try {
-
-    // Step 1: Firebase authentication
+    // Step 1: Authenticate host
     const user = await hostLogin(email, password);
+
+    showMessage("Login successful. Checking host account...", "#e5bd60");
 
     // Step 2: Read host application
     const applicationRef = ref(
@@ -215,30 +200,29 @@ form.addEventListener("submit", async (event) => {
       "hostApplications/" + user.uid
     );
 
-    const snapshot = await get(applicationRef);
+    const snapshot = await readHostApplication(applicationRef);
+
+    console.log("Host application found:", snapshot.exists());
+    console.log("Host application data:", snapshot.val());
 
     if (!snapshot.exists()) {
-
       showMessage(
         "Host application not found. Please contact the administrator."
       );
-
       return;
     }
 
     const application = snapshot.val();
 
-    // Step 3: Check approval
+    // Step 3: Approval check
     if (application.status !== "Approved") {
-
       showMessage(
         "Your host application is not approved yet."
       );
-
       return;
     }
 
-    // Step 4: Check subscription
+    // Step 4: Subscription check
     const start = Number(application.subscriptionStartAt);
     const end = Number(application.subscriptionEndAt);
     const now = Date.now();
@@ -251,15 +235,13 @@ form.addEventListener("submit", async (event) => {
       now < start ||
       now >= end
     ) {
-
       showMessage(
         "Your subscription is not active or has expired. Please contact the administrator."
       );
-
       return;
     }
 
-    // Step 5: Successful login
+    // Step 5: Open dashboard
     showMessage(
       "Login successful! Opening your dashboard...",
       "#9be7a5"
@@ -268,32 +250,38 @@ form.addEventListener("submit", async (event) => {
     window.location.replace("host-dashboard.html");
 
   } catch (error) {
-
     console.error("Host login error:", error);
 
-    let errorMessage = error.message;
+    let errorMessage = error.message || "Unknown error";
 
-    if (error.code === "auth/invalid-credential") {
-      errorMessage = "Incorrect email or password.";
-    }
+    switch (error.code) {
+      case "auth/invalid-credential":
+        errorMessage = "Incorrect email or password.";
+        break;
 
-    if (error.code === "auth/user-not-found") {
-      errorMessage = "No account found with this email.";
-    }
+      case "auth/user-not-found":
+        errorMessage = "No account found with this email.";
+        break;
 
-    if (error.code === "auth/too-many-requests") {
-      errorMessage = "Too many attempts. Please try again later.";
+      case "auth/too-many-requests":
+        errorMessage = "Too many attempts. Please try again later.";
+        break;
+
+      case "PERMISSION_DENIED":
+        errorMessage = "Firebase database permission denied.";
+        break;
+
+      case "NETWORK_ERROR":
+        errorMessage = "Network error. Check your internet connection.";
+        break;
     }
 
     showMessage("Login failed: " + errorMessage);
 
   } finally {
-
     button.disabled = false;
     button.textContent = "Sign In";
-
   }
-
 });
 
 </script>
