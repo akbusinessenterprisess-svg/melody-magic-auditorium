@@ -5,41 +5,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Host Registration | Melody Magic</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:20px;background:#090909;color:#f5f0df;font-family:Arial,sans-serif}
-main{max-width:440px;margin:25px auto;padding:25px;background:#171717;border:1px solid #a8863b;border-radius:15px}
-h1{text-align:center;color:#e5bd60;font-size:24px}
+
+body{
+ margin:0;
+ padding:20px;
+ background:#090909;
+ color:#f5f0df;
+ font-family:Arial,sans-serif
+}
+
+main{
+ max-width:480px;
+ margin:25px auto;
+ padding:25px;
+ background:#171717;
+ border:1px solid #a8863b;
+ border-radius:15px
+}
+
+h1{
+ text-align:center;
+ color:#e5bd60;
+ font-size:24px
+}
+
 h2{color:#e5bd60}
-p{color:#c8c3b6;line-height:1.5;font-size:14px}
-label{display:block;margin-top:15px;color:#e5bd60;font-size:14px}
-input,select{width:100%;padding:13px;margin-top:7px;background:#090909;color:white;border:1px solid #66532c;border-radius:7px;font-size:15px}
-button{width:100%;padding:14px;margin-top:22px;background:#d5ad50;color:#17120a;border:0;border-radius:8px;font-weight:bold;font-size:16px}
-button:disabled{opacity:.6}
-.note{background:#211b0e;padding:12px;border-radius:8px;margin-top:18px}
+
+p{
+ color:#c8c3b6;
+ line-height:1.5;
+ font-size:14px
+}
+
+label{
+ display:block;
+ margin-top:15px;
+ color:#e5bd60;
+ font-size:14px
+}
+
+input,select{
+ width:100%;
+ padding:13px;
+ margin-top:7px;
+ background:#090909;
+ color:white;
+ border:1px solid #66532c;
+ border-radius:7px;
+ font-size:15px
+}
+
+select:disabled{
+ opacity:.5
+}
+
+button{
+ width:100%;
+ padding:14px;
+ margin-top:18px;
+ background:#d5ad50;
+ color:#17120a;
+ border:0;
+ border-radius:8px;
+ font-weight:bold;
+ font-size:16px;
+ cursor:pointer
+}
+
+button:disabled{
+ opacity:.6;
+ cursor:not-allowed
+}
+
+.note{
+ background:#211b0e;
+ padding:12px;
+ border-radius:8px;
+ margin-top:18px
+}
+
+.location-box{
+ background:#211b0e;
+ border:1px solid #66532c;
+ padding:15px;
+ border-radius:9px;
+ margin-top:18px
+}
+
+.location-status{
+ font-size:13px;
+ line-height:1.5;
+ overflow-wrap:anywhere
+}
+
+.success{color:#8ee29a!important}
+.error{color:#ff9999!important}
+.warning{color:#e5bd60!important}
+
 #message{overflow-wrap:anywhere}
+
 a{color:#e5bd60}
 </style>
 </head>
+
 <body>
+
 <main>
+
 <h1>MELODY MAGIC</h1>
+
 <h2>Host Registration</h2>
-<p>Register to host your own live singing shows on Melody Magic Digital Auditorium.</p>
+
+<p>
+Register to host your own live singing shows on Melody Magic Digital Auditorium.
+</p>
+
+<div class="location-box">
+
+<strong style="color:#e5bd60">MANDATORY GPS LOCATION DETECTION</strong>
+
+<p>
+GPS permission is required for host registration. Your approximate Country, State and City will be detected and displayed below.
+</p>
+
+<button type="button" id="locationButton">
+DETECT MY LOCATION
+</button>
+
+<p id="locationStatus" class="location-status warning" aria-live="polite">
+Location has not been detected. Please click the button and allow location access.
+</p>
+
+</div>
 
 <form id="signupForm">
-<label>Full Name</label>
+
+<label for="name">Full Name</label>
 <input type="text" id="name" maxlength="80" required>
 
-<label>Email Address</label>
+<label for="email">Email Address</label>
 <input type="email" id="email" required>
 
-<label>Mobile Number</label>
-<input type="tel" id="mobile" inputmode="numeric"
-pattern="[0-9]{10}" maxlength="10"
-placeholder="10-digit mobile number" required>
+<label for="mobile">Mobile Number</label>
+<input
+ type="tel"
+ id="mobile"
+ inputmode="numeric"
+ pattern="[0-9]{10}"
+ maxlength="10"
+ placeholder="10-digit mobile number"
+ required
+>
 
-<label>Choose Subscription Plan</label>
+<label for="country">Detected Country</label>
+<select id="country" required disabled>
+<option value="">Detect location first</option>
+</select>
+
+<label for="state">Detected State / Province</label>
+<select id="state" required disabled>
+<option value="">Detect location first</option>
+</select>
+
+<label for="city">Detected City / Town</label>
+<select id="city" required disabled>
+<option value="">Detect location first</option>
+</select>
+
+<p style="font-size:12px;color:#aaa">
+The dropdowns show the location identified from your GPS coordinates. You must complete successful location detection before submitting your application.
+</p>
+
+<label for="plan">Choose Subscription Plan</label>
 <select id="plan" required>
 <option value="">Select a plan</option>
 <option value="daily">₹99 – 1 Day (24 hours)</option>
@@ -47,81 +187,547 @@ placeholder="10-digit mobile number" required>
 <option value="monthly">₹1,499 – 30 Days</option>
 </select>
 
-<label>Create Password</label>
-<input type="password" id="password" minlength="8"
-autocomplete="new-password" required>
+<label for="password">Create Password</label>
+<input
+ type="password"
+ id="password"
+ minlength="8"
+ autocomplete="new-password"
+ required
+>
 
-<label>Confirm Password</label>
-<input type="password" id="confirmPassword" minlength="8"
-autocomplete="new-password" required>
+<label for="confirmPassword">Confirm Password</label>
+<input
+ type="password"
+ id="confirmPassword"
+ minlength="8"
+ autocomplete="new-password"
+ required
+>
 
-<button type="submit" id="submitButton">Submit Registration</button>
+<button type="submit" id="submitButton" disabled>
+DETECT LOCATION FIRST
+</button>
+
 </form>
 
 <p id="message" role="status"></p>
 
 <div class="note">
-<p><strong>Approval process:</strong> Your application will remain Pending until the administrator verifies your subscription payment and approves your account. Your subscription starts only after approval.</p>
+<p>
+<strong>Approval process:</strong> Your application will remain Pending until the administrator verifies your subscription payment and approves your account. Your subscription starts only after approval.
+</p>
 </div>
 
 <p style="text-align:center">
 <a href="host-login.html">Already registered? Sign in</a>
 </p>
+
 </main>
 
 <script type="module">
+
 import { registerHost } from "./firebase.js";
 
-const form = document.getElementById("signupForm");
-const message = document.getElementById("message");
-const button = document.getElementById("submitButton");
+const API="https://countriesnow.space/api/v0.1";
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+const form=document.getElementById("signupForm");
+const message=document.getElementById("message");
+const button=document.getElementById("submitButton");
+const locationButton=document.getElementById("locationButton");
+const locationStatus=document.getElementById("locationStatus");
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const mobile = document.getElementById("mobile").value.trim();
-  const plan = document.getElementById("plan").value;
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
+const countrySelect=document.getElementById("country");
+const stateSelect=document.getElementById("state");
+const citySelect=document.getElementById("city");
 
-  if (password !== confirmPassword) {
-    message.textContent = "Passwords do not match.";
-    message.style.color = "#ff9999";
-    return;
+let detectedLocation=null;
+let detecting=false;
+let submitting=false;
+
+// MESSAGE
+function setMessage(text,type="warning"){
+ message.textContent=text;
+ message.className=type;
+}
+
+function setLocationStatus(text,type="warning"){
+ locationStatus.textContent=text;
+ locationStatus.className="location-status "+type;
+}
+
+// API REQUEST
+async function apiRequest(url,options={}){
+ const response=await fetch(url,options);
+
+ if(!response.ok){
+  throw new Error("Location data service is unavailable.");
+ }
+
+ const result=await response.json();
+
+ if(result.error===true){
+  throw new Error(result.msg||"Unable to load location data.");
+ }
+
+ return result.data;
+}
+
+// NORMALISE TEXT FOR MATCHING
+function normalise(value){
+ return String(value||"")
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]/g,"");
+}
+
+// SET DROPDOWN OPTIONS
+function setOptions(select,placeholder,items){
+ select.replaceChildren();
+
+ const first=document.createElement("option");
+ first.value="";
+ first.textContent=placeholder;
+ select.appendChild(first);
+
+ items.forEach(item=>{
+  const option=document.createElement("option");
+  option.value=item;
+  option.textContent=item;
+  select.appendChild(option);
+ });
+}
+
+// SELECT DETECTED VALUE
+function selectDetectedValue(select,detectedValue){
+ if(!detectedValue) return false;
+
+ const wanted=normalise(detectedValue);
+
+ let match=[...select.options].find(option=>
+  normalise(option.value)===wanted
+ );
+
+ if(!match){
+  match=[...select.options].find(option=>
+   normalise(option.value).includes(wanted)||
+   wanted.includes(normalise(option.value))
+  );
+ }
+
+ if(match){
+  select.value=match.value;
+  return true;
+ }
+
+ // Add the detected name if the data provider uses a different spelling.
+ const option=document.createElement("option");
+ option.value=detectedValue;
+ option.textContent=detectedValue;
+ select.appendChild(option);
+ select.value=detectedValue;
+
+ return true;
+}
+
+// GET GPS POSITION
+function getGPSPosition(){
+ return new Promise((resolve,reject)=>{
+
+  if(!navigator.geolocation){
+   reject(new Error("Your browser does not support GPS location detection."));
+   return;
   }
 
-  if (!/^[0-9]{10}$/.test(mobile)) {
-    message.textContent = "Enter a valid 10-digit mobile number.";
-    message.style.color = "#ff9999";
-    return;
+  navigator.geolocation.getCurrentPosition(
+   position=>resolve(position),
+   error=>{
+    let text="Unable to detect your location.";
+
+    if(error.code===1){
+     text="Location permission was denied. Please allow location access in your browser settings.";
+    }else if(error.code===2){
+     text="Your device could not determine your location. Please try again.";
+    }else if(error.code===3){
+     text="Location detection timed out. Please try again.";
+    }
+
+    reject(new Error(text));
+   },
+   {
+    enableHighAccuracy:true,
+    timeout:20000,
+    maximumAge:0
+   }
+  );
+
+ });
+}
+
+// REVERSE GEOCODE GPS COORDINATES
+async function reverseGeocode(latitude,longitude){
+
+ const url=
+  "https://api.bigdatacloud.net/data/reverse-geocode-client"+
+  "?latitude="+encodeURIComponent(latitude)+
+  "&longitude="+encodeURIComponent(longitude)+
+  "&localityLanguage=en";
+
+ const response=await fetch(url);
+
+ if(!response.ok){
+  throw new Error("Could not identify your GPS location. Please try again.");
+ }
+
+ const data=await response.json();
+
+ const country=data.countryName||"";
+ const state=data.principalSubdivision||"";
+ const city=
+  data.city||
+  data.locality||
+  data.localityInfo?.administrative?.[0]?.name||
+  "";
+
+ if(!country||!state||!city){
+  throw new Error("GPS detected, but the country, state or city could not be identified accurately. Please try again.");
+ }
+
+ return {country,state,city};
+}
+
+// LOAD COUNTRIES
+async function loadCountries(){
+ const data=await apiRequest(API+"/countries/iso");
+
+ const countries=[...new Set(
+  data.map(item=>item.name).filter(Boolean)
+ )].sort((a,b)=>a.localeCompare(b));
+
+ setOptions(countrySelect,"Select detected country",countries);
+}
+
+// LOAD STATES
+async function loadStates(country){
+ const data=await apiRequest(
+  API+"/countries/states/q?country="+encodeURIComponent(country)
+ );
+
+ const states=(data.states||[])
+  .map(item=>item.name)
+  .filter(Boolean)
+  .sort((a,b)=>a.localeCompare(b));
+
+ setOptions(stateSelect,"Select detected state",states);
+
+ return states;
+}
+
+// LOAD CITIES
+async function loadCities(country,state){
+ const data=await apiRequest(
+  API+"/countries/state/cities",
+  {
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({country,state})
+  }
+ );
+
+ const cities=[...new Set(
+  (data||[]).filter(item=>
+   typeof item==="string"&&item.trim()
+  )
+ )].sort((a,b)=>a.localeCompare(b));
+
+ setOptions(citySelect,"Select detected city",cities);
+
+ return cities;
+}
+
+// DETECT LOCATION
+async function detectLocation(){
+
+ if(detecting||submitting) return;
+
+ detecting=true;
+ detectedLocation=null;
+
+ locationButton.disabled=true;
+ locationButton.textContent="DETECTING LOCATION...";
+
+ button.disabled=true;
+ button.textContent="LOCATION REQUIRED";
+
+ countrySelect.disabled=true;
+ stateSelect.disabled=true;
+ citySelect.disabled=true;
+
+ setOptions(countrySelect,"Detecting country...",[]);
+ setOptions(stateSelect,"Waiting for country...",[]);
+ setOptions(citySelect,"Waiting for state...",[]);
+
+ setLocationStatus(
+  "Requesting GPS permission. Please allow location access.",
+  "warning"
+ );
+
+ try{
+
+  // 1. GET GPS COORDINATES
+  const position=await getGPSPosition();
+
+  const latitude=position.coords.latitude;
+  const longitude=position.coords.longitude;
+  const accuracy=position.coords.accuracy;
+
+  setLocationStatus(
+   "GPS coordinates detected. Identifying your country, state and city...",
+   "warning"
+  );
+
+  // 2. IDENTIFY LOCATION FROM COORDINATES
+  const place=await reverseGeocode(latitude,longitude);
+
+  // 3. LOAD COUNTRY DROPDOWN
+  await loadCountries();
+
+  if(!selectDetectedValue(countrySelect,place.country)){
+   throw new Error("Could not match the detected country.");
   }
 
-  button.disabled = true;
-  button.textContent = "Submitting...";
-  message.textContent = "";
+  countrySelect.disabled=false;
 
-  try {
-    await registerHost(name, email, mobile, plan, password);
+  // 4. LOAD STATE DROPDOWN
+  const states=await loadStates(place.country);
 
-    message.textContent =
-      "Your account has been created and your application submitted. Status: Pending administrator approval. Please sign in after approval.";
-
-    message.style.color = "#e5bd60";
-    form.reset();
-
-  } catch (error) {
-    message.textContent =
-      "Registration error: " + error.message +
-      ". If your account was created but the application was not saved, contact the administrator before trying again.";
-
-    message.style.color = "#ff9999";
-  } finally {
-    button.disabled = false;
-    button.textContent = "Submit Registration";
+  if(!selectDetectedValue(stateSelect,place.state)){
+   throw new Error("Could not identify your state.");
   }
+
+  stateSelect.disabled=false;
+
+  // 5. LOAD CITY DROPDOWN
+  const cities=await loadCities(
+   place.country,
+   stateSelect.value
+  );
+
+  if(!selectDetectedValue(citySelect,place.city)){
+   throw new Error("Could not identify your city.");
+  }
+
+  citySelect.disabled=false;
+
+  // 6. SAVE DETECTED LOCATION IN MEMORY FOR SUBMISSION
+  detectedLocation={
+   locationDetected:true,
+   country:countrySelect.value,
+   state:stateSelect.value,
+   city:citySelect.value,
+   latitude:latitude,
+   longitude:longitude,
+   accuracy:accuracy
+  };
+
+  button.disabled=false;
+  button.textContent="SUBMIT HOST REGISTRATION";
+
+  setLocationStatus(
+   "Location detected successfully: "+
+   detectedLocation.city+", "+
+   detectedLocation.state+", "+
+   detectedLocation.country+
+   ". GPS accuracy: approximately "+
+   Math.round(accuracy)+" metres.",
+   "success"
+  );
+
+  setMessage(
+   "Your GPS location has been detected successfully.",
+   "success"
+  );
+
+ }catch(error){
+
+  console.error("GPS detection error:",error);
+
+  detectedLocation=null;
+
+  button.disabled=true;
+  button.textContent="DETECT LOCATION FIRST";
+
+  countrySelect.disabled=true;
+  stateSelect.disabled=true;
+  citySelect.disabled=true;
+
+  setLocationStatus(
+   error.message+
+   " Registration cannot continue until location detection succeeds.",
+   "error"
+  );
+
+  setMessage(error.message,"error");
+
+ }finally{
+
+  detecting=false;
+  locationButton.disabled=false;
+  locationButton.textContent="RETRY LOCATION DETECTION";
+
+ }
+
+}
+
+// IF USER CHANGES A DETECTED DROPDOWN, REQUIRE GPS DETECTION AGAIN
+countrySelect.addEventListener("change",()=>{
+ if(!detectedLocation) return;
+
+ detectedLocation=null;
+ button.disabled=true;
+ button.textContent="DETECT LOCATION FIRST";
+
+ setLocationStatus(
+  "Location selection changed. Please detect your GPS location again.",
+  "warning"
+ );
 });
+
+stateSelect.addEventListener("change",()=>{
+ if(!detectedLocation) return;
+
+ detectedLocation=null;
+ button.disabled=true;
+ button.textContent="DETECT LOCATION FIRST";
+
+ setLocationStatus(
+  "Location selection changed. Please detect your GPS location again.",
+  "warning"
+ );
+});
+
+citySelect.addEventListener("change",()=>{
+ if(!detectedLocation) return;
+
+ detectedLocation=null;
+ button.disabled=true;
+ button.textContent="DETECT LOCATION FIRST";
+
+ setLocationStatus(
+  "Location selection changed. Please detect your GPS location again.",
+  "warning"
+ );
+});
+
+// LOCATION BUTTON
+locationButton.addEventListener("click",detectLocation);
+
+// FORM SUBMISSION
+form.addEventListener("submit",async(event)=>{
+
+ event.preventDefault();
+
+ if(submitting) return;
+
+ const name=document.getElementById("name").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const mobile=document.getElementById("mobile").value.trim();
+ const plan=document.getElementById("plan").value;
+ const password=document.getElementById("password").value;
+ const confirmPassword=document.getElementById("confirmPassword").value;
+
+ if(!detectedLocation){
+  setMessage(
+   "GPS location detection is compulsory. Please detect your location first.",
+   "error"
+  );
+  return;
+ }
+
+ if(
+  countrySelect.value!==detectedLocation.country||
+  stateSelect.value!==detectedLocation.state||
+  citySelect.value!==detectedLocation.city
+ ){
+  setMessage(
+   "Your location selection has changed. Please detect your GPS location again.",
+   "error"
+  );
+  return;
+ }
+
+ if(password!==confirmPassword){
+  setMessage("Passwords do not match.","error");
+  return;
+ }
+
+ if(!/^[0-9]{10}$/.test(mobile)){
+  setMessage("Enter a valid 10-digit mobile number.","error");
+  return;
+ }
+
+ if(!plan){
+  setMessage("Please select a subscription plan.","error");
+  return;
+ }
+
+ submitting=true;
+ button.disabled=true;
+ locationButton.disabled=true;
+ button.textContent="SUBMITTING...";
+ setMessage("Creating your host application...","warning");
+
+ try{
+
+  await registerHost(
+   name,
+   email,
+   mobile,
+   plan,
+   password,
+   detectedLocation
+  );
+
+  setMessage(
+   "Your account has been created and your application submitted successfully. Status: Pending administrator approval. Please sign in after approval.",
+   "success"
+  );
+
+  form.reset();
+  form.style.display="none";
+
+ }catch(error){
+
+  console.error("Host registration error:",error);
+
+  setMessage(
+   "Registration error: "+error.message+
+   ". If your account was created but the application was not saved, contact the administrator before trying again.",
+   "error"
+  );
+
+ }finally{
+
+  submitting=false;
+
+  if(form.style.display!=="none"){
+   button.disabled=!detectedLocation;
+   button.textContent=detectedLocation
+    ?"SUBMIT HOST REGISTRATION"
+    :"DETECT LOCATION FIRST";
+
+   locationButton.disabled=false;
+  }
+
+ }
+
+});
+
+// AUTOMATIC GPS DETECTION WHEN PAGE OPENS
+// Browser may ask for permission. User can also press the button to retry.
+detectLocation();
+
 </script>
+
 </body>
 </html>
