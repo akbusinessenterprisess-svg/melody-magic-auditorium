@@ -1,5 +1,5 @@
 
-import { ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 
 import {
   getDatabase,
@@ -54,18 +54,13 @@ async function registerSinger(name, song, language, sessionId, performance) {
 }
 
 function listenToSingers(callback) {
-  onValue(ref(db, "registrations"), snapshot => {
+  return onValue(ref(db, "registrations"), snapshot => {
     callback(snapshot.val() || {});
   });
 }
 
 async function registerHost(name, email, mobile, plan, password) {
-  const result = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
+  const result = await createUserWithEmailAndPassword(auth, email, password);
   const user = result.user;
 
   await set(ref(db, "hostApplications/" + user.uid), {
@@ -81,12 +76,7 @@ async function registerHost(name, email, mobile, plan, password) {
 }
 
 async function hostLogin(email, password) {
-  const result = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
+  const result = await signInWithEmailAndPassword(auth, email, password);
   return result.user;
 }
 
