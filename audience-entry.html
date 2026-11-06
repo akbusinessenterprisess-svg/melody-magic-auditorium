@@ -13,7 +13,8 @@ body{margin:0;padding:20px;background:#090807;color:white;font-family:Arial,sans
 h1,h2{color:#e7bd68}
 .card{background:#191510;border:1px solid #705322;border-radius:12px;padding:22px;margin:18px 0}
 label{display:block;color:#e7bd68;margin-top:15px;font-size:14px}
-input{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
+input,select{width:100%;padding:13px;margin-top:7px;background:#0d0b08;color:white;border:1px solid #57452c;border-radius:6px;font-size:16px}
+select:disabled{opacity:.5}
 button{display:block;width:100%;padding:14px;margin-top:15px;background:#e7bd68;color:#171009;border:0;border-radius:7px;font-size:16px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.5;cursor:not-allowed}
 .muted{color:#c2b7a6;line-height:1.6}
@@ -65,16 +66,22 @@ Your application remains pending until the host verifies your payment and approv
 <h3 style="color:#e7bd68;margin-top:25px">Your Location <span style="color:#aaa;font-size:12px;font-weight:normal">(Optional)</span></h3>
 
 <label for="audienceCountry">Country (Optional)</label>
-<input id="audienceCountry" type="text" placeholder="Example: India" maxlength="100" autocomplete="country-name">
+<select id="audienceCountry">
+<option value="">Loading countries...</option>
+</select>
 
-<label for="audienceState">State (Optional)</label>
-<input id="audienceState" type="text" placeholder="Example: Maharashtra" maxlength="100">
+<label for="audienceState">State / Province (Optional)</label>
+<select id="audienceState" disabled>
+<option value="">Select country first</option>
+</select>
 
 <label for="audienceCity">City / Town (Optional)</label>
-<input id="audienceCity" type="text" placeholder="Example: Panvel" maxlength="100">
+<select id="audienceCity" disabled>
+<option value="">Select state first</option>
+</select>
 
-<p class="location-note">
-Location details are optional. You can leave these fields blank. GPS permission and location verification are not required to register.
+<p id="locationStatus" class="location-note">
+Select your country, state and city if you wish. Location is optional. GPS permission is not required.
 </p>
 
 <div id="paymentReferenceArea" class="hidden">
@@ -121,6 +128,8 @@ import {
  signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
+const API="https://countriesnow.space/api/v0.1";
+
 const showId=new URLSearchParams(location.search).get("showId");
 
 const showDetails=document.getElementById("showDetails");
@@ -137,11 +146,13 @@ const countryInput=document.getElementById("audienceCountry");
 const stateInput=document.getElementById("audienceState");
 const cityInput=document.getElementById("audienceCity");
 const acceptRules=document.getElementById("acceptRules");
+const locationStatus=document.getElementById("locationStatus");
 
 let selectedShow=null;
 let isPaidShow=false;
 let submitting=false;
 
+// MESSAGE
 function showMessage(text,type){
  message.textContent=text;
  message.className=type;
@@ -151,6 +162,146 @@ function cleanPhone(value){
  return String(value||"").replace(/\D/g,"");
 }
 
+async function apiRequest(url,options={}){
+ const response=await fetch(url,options);
+
+ if(!response.ok){
+  throw new Error("Location data service is temporarily unavailable.");
+ }
+
+ const result=await response.json();
+
+ if(result.error===true){
+  throw new Error(result.msg||"Unable to load location data.");
+ }
+
+ return result.data;
+}
+
+function setOptions(select,placeholder,items){
+ select.replaceChildren();
+
+ const first=document.createElement("option");
+ first.value="";
+ first.textContent=placeholder;
+ select.appendChild(first);
+
+ items.forEach(item=>{
+  const option=document.createElement("option");
+  option.value=item;
+  option.textContent=item;
+  select.appendChild(option);
+ });
+}
+
+// LOAD COUNTRIES
+async function loadCountries(){
+ try{
+  countryInput.disabled=true;
+  countryInput.innerHTML="<option value=''>Loading countries...</option>";
+
+  const data=await apiRequest(API+"/countries/iso");
+
+  const countries=[...new Set(
+   data.map(item=>item.name).filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b));
+
+  setOptions(countryInput,"Select country (optional)",countries);
+  countryInput.disabled=false;
+
+  locationStatus.textContent=
+   "Country, state and city are optional. GPS permission is not required.";
+
+ }catch(error){
+  console.error("Country loading error:",error);
+
+  setOptions(countryInput,"Location list unavailable",[]);
+  countryInput.disabled=true;
+
+  locationStatus.textContent=
+   "Location options could not be loaded. You can still register without location.";
+ }
+}
+
+// LOAD STATES WHEN COUNTRY CHANGES
+countryInput.addEventListener("change",async()=>{
+ const country=countryInput.value;
+
+ setOptions(stateInput,"Select state / province",[]);
+ setOptions(cityInput,"Select city / town",[]);
+
+ stateInput.disabled=true;
+ cityInput.disabled=true;
+
+ if(!country) return;
+
+ locationStatus.textContent="Loading states...";
+
+ try{
+  const data=await apiRequest(
+   API+"/countries/states/q?country="+encodeURIComponent(country)
+  );
+
+  const states=(data.states||[])
+   .map(item=>item.name)
+   .filter(Boolean)
+   .sort((a,b)=>a.localeCompare(b));
+
+  setOptions(stateInput,"Select state / province",states);
+  stateInput.disabled=false;
+
+  locationStatus.textContent=states.length
+   ?"Select your state / province and then your city."
+   :"No state list available for this country. Location remains optional.";
+
+ }catch(error){
+  console.error("State loading error:",error);
+  locationStatus.textContent=
+   "Could not load states. You can continue registration without location.";
+ }
+});
+
+// LOAD CITIES WHEN STATE CHANGES
+stateInput.addEventListener("change",async()=>{
+ const country=countryInput.value;
+ const state=stateInput.value;
+
+ setOptions(cityInput,"Select city / town",[]);
+ cityInput.disabled=true;
+
+ if(!country||!state) return;
+
+ locationStatus.textContent="Loading cities...";
+
+ try{
+  const data=await apiRequest(
+   API+"/countries/state/cities",
+   {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({country:country,state:state})
+   }
+  );
+
+  const cities=[...new Set(
+   (data||[]).filter(item=>typeof item==="string"&&item.trim())
+  )].sort((a,b)=>a.localeCompare(b));
+
+  setOptions(cityInput,"Select city / town",cities);
+  cityInput.disabled=false;
+
+  locationStatus.textContent=cities.length
+   ?"Select your city / town, or leave it blank."
+   :"No city list available for this state. Location remains optional.";
+
+ }catch(error){
+  console.error("City loading error:",error);
+  locationStatus.textContent=
+   "Could not load cities. You can continue registration without location.";
+ }
+});
+
+// AUDIENCE FEE
 function getAudienceEntryFee(show){
  return Number(
   show.audienceFee??
@@ -240,7 +391,7 @@ async function loadShow(){
    document.getElementById("formHeading").textContent="Free Audience Entry";
 
    document.getElementById("formIntroduction").textContent=
-    "Enter your name to join this free show. Location details are optional. Registration is automatically approved.";
+    "Enter your name to join this free show. Location is optional. Registration is automatically approved.";
 
    button.textContent="JOIN FREE SHOW";
   }
@@ -280,7 +431,7 @@ async function findExistingRegistration(uid){
  return null;
 }
 
-// AUDIENCE REGISTRATION
+// REGISTRATION SUBMISSION
 form.addEventListener("submit",async(event)=>{
  event.preventDefault();
 
@@ -298,7 +449,7 @@ form.addEventListener("submit",async(event)=>{
  const accepted=acceptRules.checked;
  const reference=paymentReference.value.trim();
 
- // Only name and rules acceptance are compulsory.
+ // Location is optional.
  if(!name||!accepted){
   showMessage("Please enter your full name and accept the auditorium rules.","error");
   return;
@@ -367,9 +518,6 @@ form.addEventListener("submit",async(event)=>{
   const requestId=requestRef.key;
   const now=Date.now();
 
-  // Save entered location if supplied.
-  // If all location fields are blank, save "Not provided"
-  // to maintain compatibility with the existing database rules.
   const locationParts=[city,state,country].filter(Boolean);
   const locationName=locationParts.length
    ?locationParts.join(", ")
@@ -405,7 +553,6 @@ form.addEventListener("submit",async(event)=>{
    registration.paymentStatus="Submitted for host verification";
   }
 
-  // SAVE REGISTRATION AND FREE ACCESS
   const updates={};
 
   updates["audienceEntryRequests/"+showId+"/"+requestId]=registration;
@@ -446,6 +593,8 @@ form.addEventListener("submit",async(event)=>{
  }
 });
 
+// START PAGE
+loadCountries();
 loadShow();
 </script>
 </body>
