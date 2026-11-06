@@ -1,5 +1,5 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 import {
   getDatabase,
