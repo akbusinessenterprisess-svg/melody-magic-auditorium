@@ -3,1292 +3,405 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Host Dashboard | Melody Magic Digital Auditorium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melody Magic - Host Dashboard</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080808;color:#fff;font-family:Arial,sans-serif}
-header{padding:22px 15px;text-align:center;background:#111;border-bottom:1px solid #b89445}
-.brand{color:#e6c16a;font-size:25px;font-weight:bold;letter-spacing:1px}
-.subtitle{color:#ccc;margin-top:7px;font-size:13px}
-main{max-width:1050px;margin:25px auto;padding:0 15px}
-.card{background:#151515;border:1px solid #383027;border-radius:13px;padding:20px;margin-bottom:20px}
-h2,h3{color:#e6c16a;margin-top:0}
-input,textarea,select{width:100%;padding:13px;margin:7px 0 15px;border:1px solid #555;border-radius:7px;background:#090909;color:#fff;font-size:15px}
-textarea{min-height:90px;resize:vertical}
-label{display:block;color:#ddd;font-size:14px}
-button,.button-link{display:inline-block;padding:12px 17px;border:0;border-radius:7px;background:#c49b45;color:#111;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 5px 5px 0;font-size:14px}
-button:hover,.button-link:hover{opacity:.88}
-button:disabled{opacity:.5;cursor:not-allowed}
-.danger{background:#a83232;color:white}
-.secondary{background:#444;color:white}
-.success{background:#168c4a;color:white}
-.small{font-size:13px;color:#aaa;line-height:1.5}
-.status{padding:12px;border-radius:7px;background:#202020;margin:12px 0;color:#e6c16a;line-height:1.5}
-.show-card{background:#101010;border:1px solid #444;border-radius:10px;padding:16px;margin:15px 0}
-.show-card p{line-height:1.5;color:#ddd}
-.registration{border-top:1px solid #333;padding:12px 0;margin-top:10px}
-.badge{display:inline-block;background:#333;color:#e6c16a;padding:5px 9px;border-radius:20px;font-size:12px}
-.hidden{display:none!important}
-.poster-panel{border:1px solid #51452e;background:#18150f;padding:14px;border-radius:9px;margin:15px 0}
-.poster-preview{width:100%;max-width:300px;display:block;margin:12px 0;border-radius:8px;border:1px solid #555}
-.poster-pending{color:#f0c85e}
-.poster-approved{color:#60d394}
-.poster-rejected{color:#ff7777}
-.audience-panel{border:1px solid #51452e;background:#14120e;padding:14px;border-radius:9px;margin:15px 0}
-.audience-row{border-top:1px solid #383838;padding:14px 0;margin-top:8px}
-.audience-row p{margin:7px 0;color:#ddd;line-height:1.5}
-.link-panel{background:#19170f;border:1px solid #80652f;border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
-.link-text{color:#e6c16a;font-size:13px;line-height:1.6}
-.fee-box{background:#201c12;border:1px solid #594a2c;border-radius:8px;padding:14px;margin:15px 0}
-.fee-box h3{margin-bottom:8px}
-.fee-summary{background:#201c12;border:1px solid #705322;padding:12px;border-radius:8px;margin:12px 0}
-.fee-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #403725;line-height:1.5}
-.fee-line:last-child{border-bottom:0}
-.fee-value{color:#e6c16a;font-weight:bold;text-align:right}
-footer{text-align:center;padding:25px;color:#888;font-size:12px}
+body{margin:0;background:#090d18;color:#fff;font-family:Arial,sans-serif}
+header{background:#151d32;padding:20px;text-align:center;border-bottom:2px solid #e5ad35}
+h1{color:#f5bd43;margin:0}
+.container{max-width:1000px;margin:25px auto;padding:15px}
+.card{background:#151d32;padding:20px;border-radius:12px;margin-bottom:20px}
+h2{color:#f5bd43;margin-top:0}
+input,textarea,select{width:100%;padding:12px;margin:7px 0 14px;border:1px solid #39445e;border-radius:7px;background:#0c1426;color:white}
+button{padding:12px 18px;border:0;border-radius:7px;background:#e5ad35;color:#111;font-weight:bold;cursor:pointer;margin:5px 3px}
+button.secondary{background:#35415d;color:white}
+button.danger{background:#b83232;color:white}
+.small{color:#b9c4d8;font-size:13px}
+.status{padding:12px;background:#26344d;border-radius:7px;margin:10px 0;white-space:pre-wrap}
+.show{border:1px solid #39445e;padding:15px;border-radius:9px;margin:12px 0}
+a{color:#f5bd43;overflow-wrap:anywhere}
+.hidden{display:none}
+label{display:block;color:#dbe2ef}
 </style>
 </head>
 <body>
 
 <header>
-<div class="brand">MELODY MAGIC</div>
-<div class="subtitle">DIGITAL AUDITORIUM — HOST CONTROL DASHBOARD</div>
+<h1>MELODY MAGIC</h1>
+<div>DIGITAL AUDITORIUM — HOST DASHBOARD</div>
 </header>
 
-<main>
+<div class="container">
+
 <div id="message" class="status">Checking host account...</div>
 
-<section id="activeDashboard" class="hidden">
+<div id="dashboard" class="hidden">
 
 <div class="card">
 <h2>Host Account</h2>
-<p><strong>Host:</strong> <span id="hostName">—</span></p>
-<p><strong>Email:</strong> <span id="hostEmail">—</span></p>
-<p><strong>Subscription:</strong> <span id="hostPlan">—</span></p>
-<p><strong>Valid until:</strong> <span id="hostExpiry">—</span></p>
-<p><strong>WhatsApp number:</strong> <span id="hostMobileDisplay">—</span></p>
+<div id="hostInfo">Loading...</div>
+<button class="danger" id="logoutBtn">Logout</button>
 </div>
 
 <div class="card">
-<h2>Create a New Show</h2>
-<form id="createShowForm">
+<h2>Create Your Show</h2>
 
-<label>Show name</label>
-<input id="showTitle" type="text" placeholder="Example: Bollywood Retro Night" required>
+<label>Show Name</label>
+<input id="showName" placeholder="Enter show name">
 
-<label>Show date</label>
-<input id="showDate" type="date" required>
+<label>Show Description</label>
+<textarea id="showDescription" rows="3" placeholder="Describe your show"></textarea>
 
-<label>Show time</label>
-<input id="showTime" type="time" required>
+<label>Show Date</label>
+<input id="showDate" type="date">
 
-<label>Show description</label>
-<textarea id="showDescription" placeholder="Write about your show, theme, singers and special attractions..." required></textarea>
+<label>Show Time</label>
+<input id="showTime" type="time">
 
-<label>Host WhatsApp number</label>
-<input id="hostMobile" type="tel" placeholder="Mobile number" required>
-<p class="small">Singers and audience members can use this number to contact you.</p>
+<label>Performer Entry Fee (₹)</label>
+<input id="performerFee" type="number" min="0" value="0">
 
-<div class="fee-box">
-<h3>1. Performer Entry Settings</h3>
-<label>Performer entry type</label>
-<select id="performerEntryType">
-<option value="free">Free Entry for Performers</option>
-<option value="paid">Paid Entry for Performers</option>
+<label>Audience Entry Fee (₹)</label>
+<input id="audienceFee" type="number" min="0" value="0">
+
+<label>Show Type</label>
+<select id="showType">
+<option value="Karaoke">Karaoke</option>
+<option value="Live Singing">Live Singing</option>
+<option value="Music Show">Music Show</option>
+<option value="Open Mic">Open Mic</option>
+<option value="Other">Other</option>
 </select>
-<div id="performerFeeSection" class="hidden">
-<label>Performer registration fee (₹)</label>
-<input id="performerEntryFee" type="number" min="1" placeholder="Enter performer fee">
-<p class="small">This fee applies only to singers and performers registering for your show.</p>
-</div>
-</div>
 
-<div class="fee-box">
-<h3>2. Audience Entry Settings</h3>
-<label>Audience entry type</label>
-<select id="audienceEntryType">
-<option value="free">Free Entry for Audience</option>
-<option value="paid">Paid Entry for Audience</option>
-</select>
-<div id="audienceFeeSection" class="hidden">
-<label>Audience entry fee (₹)</label>
-<input id="audienceEntryFee" type="number" min="1" placeholder="Enter audience fee">
-<p class="small">This fee applies only to audience members. Verify payment before approving paid audience registrations.</p>
-</div>
-</div>
-
-<button id="publishButton" type="submit">Publish Show</button>
-</form>
-<div id="createMessage" class="small"></div>
+<button id="createShowBtn">Create Show</button>
 </div>
 
 <div class="card">
-<h2>My Published Shows</h2>
-<div id="myShows">Loading your shows...</div>
+<h2>My Shows</h2>
+<div id="showsList">Loading your shows...</div>
 </div>
 
-<button id="logoutButton" class="danger">Sign Out</button>
-</section>
-</main>
+</div>
+</div>
 
-<footer>
+<script type="module">
+import { auth, db } from "./firebase-host.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+import {
+  ref,
+  get,
+  push,
+  set,
+  update
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+const message = document.getElementById("message");
+const dashboard = document.getElementById("dashboard");
+const hostInfo = document.getElementById("hostInfo");
+const showsList = document.getElementById("showsList");
+
+let currentUser = null;
+let currentHost = null;
+
+function showMessage(text) {
+  message.textContent = text;
+  message.classList.remove("hidden");
+}
+
+function hideMessage() {
+  message.classList.add("hidden");
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function withTimeout(promise, milliseconds = 12000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out. Check your Firebase connection and database rules.")), milliseconds)
+    )
+  ]);
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    showMessage("Please log in with your host account. Redirecting...");
+    setTimeout(() => location.href = "host-login.html", 1500);
+    return;
+  }
+
+  currentUser = user;
+  showMessage("Checking host account...");
+
+  try {
+    const snapshot = await withTimeout(
+      get(ref(db, "hostApplications/" + user.uid))
+    );
+
+    if (!snapshot.exists()) {
+      showMessage("Host application not found. Please contact the administrator.");
+      return;
+    }
+
+    currentHost = snapshot.val();
+
+    if (currentHost.status !== "Approved") {
+      showMessage("Your host account is not approved yet.");
+      return;
+    }
+
+    const start = Number(currentHost.subscriptionStartAt || 0);
+    const end = Number(currentHost.subscriptionEndAt || 0);
+    const now = Date.now();
+
+    if (!start || !end || now < start || now >= end) {
+      showMessage("Your host subscription is not currently active. Please contact the administrator.");
+      return;
+    }
+
+    hostInfo.innerHTML =
+      "<strong>" + escapeHTML(currentHost.name || user.email) +
+      "</strong><br>" + escapeHTML(user.email) +
+      "<br>Subscription: Active";
+
+    dashboard.classList.remove("hidden");
+    hideMessage();
+    await loadShows();
+
+  } catch (error) {
+    console.error(error);
+    showMessage("Unable to verify host account: " + error.message);
+  }
+});
+
+async function loadShows() {
+  showsList.textContent = "Loading your shows...";
+
+  try {
+    const snapshot = await withTimeout(get(ref(db, "shows")));
+    showsList.innerHTML = "";
+
+    if (!snapshot.exists()) {
+      showsList.textContent = "You have not created any shows yet.";
+      return;
+    }
+
+    const shows = snapshot.val();
+    let found = false;
+
+    for (const [id, show] of Object.entries(shows)) {
+      if (show.hostId !== currentUser.uid) continue;
+
+      found = true;
+      const entry = document.createElement("div");
+      entry.className = "show";
+
+      const audienceLink = new URL(
+        "audience-entry.html?showId=" + encodeURIComponent(id),
+        location.href
+      ).href;
+
+      entry.innerHTML = `
+        <h3>${escapeHTML(show.name)}</h3>
+        <p>${escapeHTML(show.description || "")}</p>
+        <p>Date: ${escapeHTML(show.date || "Not set")} |
+        Time: ${escapeHTML(show.time || "Not set")}</p>
+        <p>Type: ${escapeHTML(show.type || "")}</p>
+        <p>Performer fee: ₹${escapeHTML(show.performerFee ?? 0)}</p>
+        <p>Audience fee: ₹${escapeHTML(show.audienceFee ?? 0)}</p>
+        <p>Status: ${escapeHTML(show.status || "Published")}</p>
+        <p><strong>Audience registration link:</strong><br>
+        <a href="${audienceLink}" target="_blank" rel="noopener">${audienceLink}</a></p>
+        <button class="copyBtn">Copy Audience Link</button>
+        <button class="posterBtn secondary">Create Poster</button>
+      `;
+
+      entry.querySelector(".copyBtn").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(audienceLink);
+          alert("Audience link copied.");
+        } catch {
+          prompt("Copy this audience link:", audienceLink);
+        }
+      });
+
+      entry.querySelector(".posterBtn").addEventListener("click", () => {
+        createPoster(show, audienceLink);
+      });
+
+      showsList.appendChild(entry);
+    }
+
+    if (!found) {
+      showsList.textContent = "You have not created any shows yet.";
+    }
+
+  } catch (error) {
+    console.error(error);
+    showsList.textContent = "Could not load shows: " + error.message;
+  }
+}
+
+document.getElementById("createShowBtn").addEventListener("click", async () => {
+  const name = document.getElementById("showName").value.trim();
+  const description = document.getElementById("showDescription").value.trim();
+  const date = document.getElementById("showDate").value;
+  const time = document.getElementById("showTime").value;
+  const performerFee = Number(document.getElementById("performerFee").value || 0);
+  const audienceFee = Number(document.getElementById("audienceFee").value || 0);
+  const type = document.getElementById("showType").value;
+
+  if (!name || !date || !time) {
+    alert("Please enter show name, date and time.");
+    return;
+  }
+
+  if (performerFee < 0 || audienceFee < 0) {
+    alert("Fees cannot be negative.");
+    return;
+  }
+
+  const button = document.getElementById("createShowBtn");
+  button.disabled = true;
+  button.textContent = "Creating...";
+
+  try {
+    const newShow = push(ref(db, "shows"));
+
+    await withTimeout(set(newShow, {
+      hostId: currentUser.uid,
+      hostName: currentHost.name || currentUser.email,
+      name,
+      description,
+      date,
+      time,
+      performerFee,
+      audienceFee,
+      type,
+      status: "Published",
+      createdAt: Date.now()
+    }));
+
+    alert("Your show has been created.");
+    document.getElementById("showName").value = "";
+    document.getElementById("showDescription").value = "";
+    document.getElementById("showDate").value = "";
+    document.getElementById("showTime").value = "";
+
+    await loadShows();
+
+  } catch (error) {
+    console.error(error);
+    alert("Could not create show: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Show";
+  }
+});
+
+function createPoster(show, link) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+  gradient.addColorStop(0, "#111a35");
+  gradient.addColorStop(1, "#401b45");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1350);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f5bd43";
+  ctx.font = "bold 58px Arial";
+  ctx.fillText("MELODY MAGIC", 540, 140);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 42px Arial";
+  ctx.fillText("DIGITAL AUDITORIUM", 540, 205);
+
+  ctx.fillStyle = "#f5bd43";
+  ctx.font = "bold 64px Arial";
+  wrapText(ctx, show.name || "Music Show", 540, 430, 850, 85);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "38px Arial";
+  ctx.fillText(show.date || "", 540, 680);
+  ctx.fillText(show.time || "", 540, 750);
+
+  ctx.font = "30px Arial";
+  ctx.fillText("Performer Entry: ₹" + (show.performerFee || 0), 540, 850);
+  ctx.fillText("Audience Entry: ₹" + (show.audienceFee || 0), 540, 915);
+
+  ctx.fillStyle = "#f5bd43";
+  ctx.font = "bold 34px Arial";
+  ctx.fillText("JOIN THE SHOW", 540, 1080);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "22px Arial";
+  ctx.fillText("Register using the audience link shared by your host", 540, 1140);
+
+  ctx.font = "18px Arial";
+  ctx.fillText("Melody Magic Music Studio", 540, 1270);
+
+  canvas.toBlob(blob => {
+    if (!blob) {
+      alert("Could not create poster.");
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Melody-Magic-Show-Poster.png";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = String(text).split(" ");
+  let line = "";
+  let currentY = y;
+
+  for (const word of words) {
+    const test = line ? line + " " + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, currentY);
+      line = word;
+      currentY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  if (line) ctx.fillText(line, x, currentY);
+}
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    location.href = "host-login.html";
+  } catch (error) {
+    alert("Logout failed: " + error.message);
+  }
+});
+</script>
+
+<footer style="text-align:center;padding:25px;color:#aab4c8">
 Melody Magic Digital Auditorium<br>
 Powered by Melody Magic Music Studio
 </footer>
 
-<script type="module">
-import {auth,db} from "./firebase-host.js";
-
-import {
-onAuthStateChanged,signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-ref,get,push,set,update
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const MAX_POSTER_DATA_LENGTH=850000;
-
-const messageBox=document.getElementById("message");
-const dashboard=document.getElementById("activeDashboard");
-const createForm=document.getElementById("createShowForm");
-const createMessage=document.getElementById("createMessage");
-const myShows=document.getElementById("myShows");
-
-let currentUser=null;
-let currentHost=null;
-
-function showMessage(text){
-messageBox.textContent=text;
-messageBox.classList.remove("hidden");
-}
-function hideMessage(){
-messageBox.classList.add("hidden");
-}
-function formatDate(value){
-if(!value)return "Not specified";
-const date=new Date(value+"T00:00:00");
-if(Number.isNaN(date.getTime()))return value;
-return date.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-}
-function formatTimestamp(value){
-if(!value)return "Not available";
-let number=Number(value);
-if(number>0&&number<100000000000)number*=1000;
-const date=new Date(number);
-if(Number.isNaN(date.getTime()))return "Not available";
-return date.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-}
-function getHostName(data,user){
-return data.name||data.fullName||data.hostName||user.displayName||"Host";
-}
-function getHostMobile(data,user){
-return data.mobile||data.phone||data.phoneNumber||data.contactNumber||user.phoneNumber||"";
-}
-function isPaidAudience(show){
-return String(show.audienceEntryType||show.entryType||"free").toLowerCase()==="paid";
-}
-function isPaidPerformer(show){
-return String(show.performerEntryType||"free").toLowerCase()==="paid";
-}
-function getAudienceFee(show){
-return Number(show.audienceEntryFee??show.entryFee??0);
-}
-function getPerformerFee(show){
-return Number(show.performerEntryFee??0);
-}
-function feeText(isPaid,fee){
-return isPaid?"PAID — ₹"+Number(fee||0).toLocaleString("en-IN"):"FREE";
-}
-function getPublicShowLink(show){
-const url=new URL("audience-entry.html",window.location.href);
-url.searchParams.set("showId",show.showId);
-return url.href;
-}
-
-/* SHARE PUBLIC SHOW LINK */
-async function shareShowLink(show,button){
-const link=getPublicShowLink(show);
-const shareData={
-title:show.title||"Melody Magic Show",
-text:"Join my show at Melody Magic Digital Auditorium:",
-url:link
-};
-const originalText="Share Show Link";
-
-button.disabled=true;
-button.textContent="Preparing...";
-
-try{
-if(navigator.share){
-await navigator.share(shareData);
-}else if(navigator.clipboard&&navigator.clipboard.writeText){
-await navigator.clipboard.writeText(link);
-button.textContent="Link Copied!";
-setTimeout(()=>button.textContent=originalText,2500);
-}else{
-window.prompt("Copy your public show link:",link);
-}
-}catch(error){
-if(error.name!=="AbortError"){
-try{
-await navigator.clipboard.writeText(link);
-button.textContent="Link Copied!";
-setTimeout(()=>button.textContent=originalText,2500);
-}catch(copyError){
-window.prompt("Copy your public show link:",link);
-}
-}
-}finally{
-button.disabled=false;
-if(button.textContent==="Preparing...")button.textContent=originalText;
-}
-}
-
-/* AUTHENTICATION */
-onAuthStateChanged(auth,async user=>{
-if(!user){
-showMessage("Please log in with your host account.");
-setTimeout(()=>window.location.href="host-login.html",1500);
-return;
-}
-currentUser=user;
-showMessage("Checking host account...");
-try{
-const hostSnapshot=await get(ref(db,"hostApplications/"+user.uid));
-if(!hostSnapshot.exists()){
-showMessage("Host application not found. Please contact the administrator.");
-return;
-}
-currentHost=hostSnapshot.val();
-if(currentHost.status!=="Approved"){
-showMessage("Your host account is not approved yet.");
-return;
-}
-const startAt=Number(currentHost.subscriptionStartAt||0);
-const endAt=Number(currentHost.subscriptionEndAt||0);
-const now=Date.now();
-if(!startAt||!endAt||now<startAt||now>=endAt){
-showMessage("Your host subscription is not currently active. Please contact the administrator.");
-return;
-}
-document.getElementById("hostName").textContent=getHostName(currentHost,user);
-document.getElementById("hostEmail").textContent=user.email||currentHost.email||"—";
-document.getElementById("hostPlan").textContent=currentHost.plan||currentHost.subscriptionPlan||"Active";
-document.getElementById("hostExpiry").textContent=formatTimestamp(endAt);
-const mobile=getHostMobile(currentHost,user);
-document.getElementById("hostMobileDisplay").textContent=mobile||"Not provided";
-document.getElementById("hostMobile").value=mobile;
-dashboard.classList.remove("hidden");
-hideMessage();
-await loadHostShows(user.uid);
-}catch(error){
-console.error(error);
-showMessage("Unable to verify host account: "+(error.message||"Check Firebase connection and rules."));
-}
-});
-
-/* INDEPENDENT FEE CONTROLS */
-document.getElementById("performerEntryType").addEventListener("change",()=>{
-const paid=document.getElementById("performerEntryType").value==="paid";
-document.getElementById("performerFeeSection").classList.toggle("hidden",!paid);
-document.getElementById("performerEntryFee").required=paid;
-});
-document.getElementById("audienceEntryType").addEventListener("change",()=>{
-const paid=document.getElementById("audienceEntryType").value==="paid";
-document.getElementById("audienceFeeSection").classList.toggle("hidden",!paid);
-document.getElementById("audienceEntryFee").required=paid;
-});
-
-/* CREATE SHOW */
-createForm.addEventListener("submit",async event=>{
-event.preventDefault();
-if(!currentUser||!currentHost)return;
-
-const title=document.getElementById("showTitle").value.trim();
-const date=document.getElementById("showDate").value;
-const time=document.getElementById("showTime").value;
-const description=document.getElementById("showDescription").value.trim();
-const hostMobile=document.getElementById("hostMobile").value.trim();
-const performerEntryType=document.getElementById("performerEntryType").value;
-const audienceEntryType=document.getElementById("audienceEntryType").value;
-const performerEntryFee=performerEntryType==="paid"?Number(document.getElementById("performerEntryFee").value||0):0;
-const audienceEntryFee=audienceEntryType==="paid"?Number(document.getElementById("audienceEntryFee").value||0):0;
-
-if(!title||!date||!time||!description||!hostMobile){
-createMessage.textContent="Please complete all required fields.";
-return;
-}
-if(performerEntryType==="paid"&&performerEntryFee<=0){
-createMessage.textContent="Please enter a valid performer fee.";
-return;
-}
-if(audienceEntryType==="paid"&&audienceEntryFee<=0){
-createMessage.textContent="Please enter a valid audience fee.";
-return;
-}
-const mobileDigits=hostMobile.replace(/\D/g,"");
-if(mobileDigits.length<10||mobileDigits.length>15){
-createMessage.textContent="Please enter a valid WhatsApp number.";
-return;
-}
-
-const button=document.getElementById("publishButton");
-button.disabled=true;
-button.textContent="Publishing...";
-
-try{
-const newShowRef=push(ref(db,"shows"));
-const showData={
-showId:newShowRef.key,
-title,date,time,description,
-performerEntryType,
-performerEntryFee,
-audienceEntryType,
-audienceEntryFee,
-entryType:audienceEntryType,
-entryFee:audienceEntryFee,
-hostMobile,
-hostUid:currentUser.uid,
-hostName:getHostName(currentHost,currentUser),
-hostEmail:currentUser.email||"",
-status:"Published",
-createdAt:Date.now()
-};
-await set(newShowRef,showData);
-createMessage.textContent="Show published successfully with separate performer and audience fees.";
-createForm.reset();
-document.getElementById("hostMobile").value=hostMobile;
-document.getElementById("performerFeeSection").classList.add("hidden");
-document.getElementById("audienceFeeSection").classList.add("hidden");
-document.getElementById("performerEntryFee").required=false;
-document.getElementById("audienceEntryFee").required=false;
-await loadHostShows(currentUser.uid);
-}catch(error){
-console.error(error);
-createMessage.textContent="Could not publish show: "+(error.message||"Please try again.");
-}finally{
-button.disabled=false;
-button.textContent="Publish Show";
-}
-});
-
-/* LOAD HOST SHOWS */
-async function loadHostShows(hostUid){
-myShows.textContent="Loading your shows...";
-try{
-const snapshot=await get(ref(db,"shows"));
-myShows.innerHTML="";
-if(!snapshot.exists()){
-myShows.textContent="You have not published any shows yet.";
-return;
-}
-const hostShows=Object.values(snapshot.val())
-.filter(show=>show&&show.hostUid===hostUid)
-.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-if(!hostShows.length){
-myShows.textContent="You have not published any shows yet.";
-return;
-}
-for(const show of hostShows)await renderShowCard(show);
-}catch(error){
-console.error(error);
-myShows.textContent="Unable to load your shows: "+error.message;
-}
-}
-
-/* SHOW CARD */
-async function renderShowCard(show){
-const card=document.createElement("div");
-card.className="show-card";
-
-const title=document.createElement("h3");
-title.textContent=show.title||"Untitled Show";
-
-const details=document.createElement("p");
-details.textContent="Date: "+formatDate(show.date)+" | Time: "+(show.time||"Not specified");
-
-const feeSummary=document.createElement("div");
-feeSummary.className="fee-summary";
-
-const feeTitle=document.createElement("strong");
-feeTitle.textContent="SEPARATE ENTRY FEES";
-feeTitle.style.color="#e6c16a";
-
-const performerLine=document.createElement("div");
-performerLine.className="fee-line";
-const performerLabel=document.createElement("span");
-performerLabel.textContent="Performer Entry";
-const performerValue=document.createElement("span");
-performerValue.className="fee-value";
-performerValue.textContent=feeText(isPaidPerformer(show),getPerformerFee(show));
-performerLine.append(performerLabel,performerValue);
-
-const audienceLine=document.createElement("div");
-audienceLine.className="fee-line";
-const audienceLabel=document.createElement("span");
-audienceLabel.textContent="Audience Entry";
-const audienceValue=document.createElement("span");
-audienceValue.className="fee-value";
-audienceValue.textContent=feeText(isPaidAudience(show),getAudienceFee(show));
-audienceLine.append(audienceLabel,audienceValue);
-
-feeSummary.append(feeTitle,performerLine,audienceLine);
-
-const status=document.createElement("span");
-status.className="badge";
-status.textContent=show.status||"Published";
-
-const downloadButton=document.createElement("button");
-downloadButton.textContent="Download Poster PNG";
-downloadButton.addEventListener("click",()=>generateShowPoster(show,"download"));
-
-const shareButton=document.createElement("button");
-shareButton.textContent="Share Poster";
-shareButton.addEventListener("click",()=>generateShowPoster(show,"share"));
-
-const inviteButton=document.createElement("button");
-inviteButton.className="success";
-inviteButton.textContent="Share Show Link";
-inviteButton.addEventListener("click",()=>shareShowLink(show,inviteButton));
-
-const publicLinkPanel=document.createElement("div");
-publicLinkPanel.className="link-panel";
-
-const linkHeading=document.createElement("strong");
-linkHeading.textContent="Public Invitation Link";
-
-const linkText=document.createElement("p");
-linkText.className="link-text";
-linkText.textContent=getPublicShowLink(show);
-
-const linkInfo=document.createElement("p");
-linkInfo.className="small";
-linkInfo.textContent="Anyone can share this link. People receiving it can view show details and register. Sharing does not grant entry.";
-
-publicLinkPanel.append(linkHeading,linkText,linkInfo);
-
-/* EXTERNAL POSTER */
-const posterPanel=document.createElement("div");
-posterPanel.className="poster-panel";
-
-const posterHeading=document.createElement("h3");
-posterHeading.textContent="External Show Poster";
-
-const posterInfo=document.createElement("p");
-posterInfo.className="small";
-
-posterPanel.append(posterHeading,posterInfo);
-await renderPosterUpload(show,posterPanel,posterInfo);
-
-/* PERFORMER REGISTRATIONS */
-const registrationHeading=document.createElement("h3");
-registrationHeading.textContent="Performer Registrations";
-
-const performerFeeInfo=document.createElement("p");
-performerFeeInfo.className="small";
-performerFeeInfo.textContent="Performer entry fee for this show: "+feeText(isPaidPerformer(show),getPerformerFee(show));
-
-const registrationArea=document.createElement("div");
-registrationArea.className="small";
-registrationArea.textContent="Loading registrations...";
-
-/* AUDIENCE MANAGEMENT */
-const audiencePanel=document.createElement("div");
-audiencePanel.className="audience-panel";
-
-const audienceHeading=document.createElement("h3");
-audienceHeading.textContent="Audience Management";
-
-const audienceInfo=document.createElement("p");
-audienceInfo.className="small";
-audienceInfo.textContent=isPaidAudience(show)
-?"Paid audience entry fee: ₹"+getAudienceFee(show)+". Verify payment and approve or reject applicants."
-:"Free audience entry. Registration is automatically approved. You can remove and block participants who break the rules.";
-
-const audienceArea=document.createElement("div");
-audienceArea.className="small";
-audienceArea.textContent="Loading audience requests...";
-
-audiencePanel.append(audienceHeading,audienceInfo,audienceArea);
-
-card.append(
-title,details,feeSummary,status,
-document.createElement("br"),
-inviteButton,downloadButton,shareButton,
-publicLinkPanel,posterPanel,
-registrationHeading,performerFeeInfo,registrationArea,audiencePanel
-);
-
-myShows.appendChild(card);
-
-await loadRegistrations(show,registrationArea);
-await loadAudienceRequests(show,audienceArea);
-}
-
-/* IMAGE COMPRESSION */
-function compressPoster(file){
-return new Promise((resolve,reject)=>{
-if(!file||!file.type.startsWith("image/")){
-reject(new Error("Please select a valid image."));
-return;
-}
-if(file.size>12*1024*1024){
-reject(new Error("Please select an image smaller than 12 MB."));
-return;
-}
-const image=new Image();
-const objectUrl=URL.createObjectURL(file);
-
-image.onload=()=>{
-try{
-const maxDimension=1400;
-const scale=Math.min(1,maxDimension/Math.max(image.width,image.height));
-const canvas=document.createElement("canvas");
-canvas.width=Math.max(1,Math.round(image.width*scale));
-canvas.height=Math.max(1,Math.round(image.height*scale));
-
-const ctx=canvas.getContext("2d");
-ctx.fillStyle="#ffffff";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.drawImage(image,0,0,canvas.width,canvas.height);
-
-let quality=0.75;
-
-function tryQuality(){
-canvas.toBlob(blob=>{
-if(!blob){
-URL.revokeObjectURL(objectUrl);
-reject(new Error("Image compression failed."));
-return;
-}
-const reader=new FileReader();
-reader.onload=()=>{
-const dataUrl=reader.result;
-if(dataUrl.length<=MAX_POSTER_DATA_LENGTH){
-URL.revokeObjectURL(objectUrl);
-resolve(dataUrl);
-return;
-}
-if(quality>0.35){
-quality-=0.10;
-tryQuality();
-}else{
-URL.revokeObjectURL(objectUrl);
-reject(new Error("Image is too large after compression. Please choose a smaller image."));
-}
-};
-reader.onerror=()=>{
-URL.revokeObjectURL(objectUrl);
-reject(new Error("Unable to read compressed image."));
-};
-reader.readAsDataURL(blob);
-},"image/jpeg",quality);
-}
-tryQuality();
-}catch(error){
-URL.revokeObjectURL(objectUrl);
-reject(error);
-}
-};
-
-image.onerror=()=>{
-URL.revokeObjectURL(objectUrl);
-reject(new Error("Unable to open this image."));
-};
-image.src=objectUrl;
-});
-}
-
-/* POSTER UPLOAD AND STATUS */
-async function renderPosterUpload(show,panel,info){
-let posterData=null;
-try{
-const snapshot=await get(ref(db,"showPosters/"+show.showId));
-if(snapshot.exists())posterData=snapshot.val();
-}catch(error){
-console.error(error);
-info.textContent="Unable to check poster status. Check Firebase read permissions.";
-return;
-}
-
-if(posterData&&posterData.imageData){
-const preview=document.createElement("img");
-preview.className="poster-preview";
-preview.src=posterData.imageData;
-preview.alt="Uploaded show poster";
-panel.appendChild(preview);
-}
-
-if(posterData&&posterData.status){
-const statusLine=document.createElement("p");
-const value=String(posterData.status);
-statusLine.textContent="Poster status: "+value;
-statusLine.className=value==="Approved"?"poster-approved":value==="Rejected"?"poster-rejected":"poster-pending";
-panel.appendChild(statusLine);
-
-if(value==="Rejected"&&posterData.rejectionReason){
-const reason=document.createElement("p");
-reason.className="small";
-reason.textContent="Admin feedback: "+posterData.rejectionReason;
-panel.appendChild(reason);
-}
-}
-
-if(posterData&&posterData.status==="Pending"){
-info.textContent="Your poster is waiting for administrator approval.";
-return;
-}
-if(posterData&&posterData.status==="Approved"){
-info.textContent="Your poster has been approved.";
-return;
-}
-if(posterData&&posterData.status&&posterData.status!=="Rejected"){
-info.textContent="A poster record already exists. Contact the administrator.";
-return;
-}
-
-info.textContent=posterData&&posterData.status==="Rejected"
-?"Your previous poster was rejected. You can upload a replacement."
-:"Upload one poster for this show. It will be reviewed before public display.";
-
-const fileLabel=document.createElement("label");
-fileLabel.textContent="Choose poster image (JPG, PNG or WebP)";
-
-const fileInput=document.createElement("input");
-fileInput.type="file";
-fileInput.accept="image/jpeg,image/png,image/webp";
-
-const uploadButton=document.createElement("button");
-uploadButton.type="button";
-uploadButton.textContent="Upload Poster";
-
-const uploadMessage=document.createElement("p");
-uploadMessage.className="small";
-
-uploadButton.addEventListener("click",async()=>{
-const file=fileInput.files&&fileInput.files[0];
-if(!file){
-uploadMessage.textContent="Please select a poster image first.";
-return;
-}
-
-uploadButton.disabled=true;
-uploadButton.textContent="Compressing...";
-uploadMessage.textContent="Preparing your poster...";
-
-try{
-const showSnapshot=await get(ref(db,"shows/"+show.showId));
-if(!showSnapshot.exists()||showSnapshot.val().hostUid!==currentUser.uid){
-throw new Error("You are not authorized to upload a poster for this show.");
-}
-
-const currentPosterSnapshot=await get(ref(db,"showPosters/"+show.showId));
-if(currentPosterSnapshot.exists()&&currentPosterSnapshot.val().status!=="Rejected"){
-throw new Error("A poster already exists. Only a rejected poster can be replaced.");
-}
-
-const compressedImage=await compressPoster(file);
-if(compressedImage.length>MAX_POSTER_DATA_LENGTH)throw new Error("Poster image is too large.");
-
-uploadButton.textContent="Uploading...";
-
-await set(ref(db,"showPosters/"+show.showId),{
-showId:show.showId,
-hostUid:currentUser.uid,
-imageData:compressedImage,
-status:"Pending",
-submittedAt:Date.now(),
-fileName:file.name,
-contentType:"image/jpeg"
-});
-
-uploadMessage.textContent="Poster submitted successfully! Waiting for administrator approval.";
-await renderShowCardRefresh(show,panel);
-
-}catch(error){
-console.error(error);
-uploadMessage.textContent=error.message||"Poster upload failed.";
-}finally{
-uploadButton.disabled=false;
-uploadButton.textContent="Upload Poster";
-}
-});
-
-panel.append(fileLabel,fileInput,uploadButton,uploadMessage);
-}
-
-async function renderShowCardRefresh(show,panel){
-panel.innerHTML="";
-const heading=document.createElement("h3");
-heading.textContent="External Show Poster";
-const info=document.createElement("p");
-info.className="small";
-panel.append(heading,info);
-await renderPosterUpload(show,panel,info);
-}
-
-/* PERFORMER REGISTRATIONS */
-async function loadRegistrations(show,container){
-try{
-const snapshot=await get(ref(db,"showRegistrations/"+show.showId));
-container.innerHTML="";
-
-if(!snapshot.exists()){
-container.textContent="No performer registrations yet.";
-return;
-}
-
-const registrations=Object.entries(snapshot.val());
-
-const summary=document.createElement("p");
-summary.className="small";
-summary.textContent="Total performer registrations: "+registrations.length;
-container.appendChild(summary);
-
-for(const [registrationId,singer] of registrations){
-const row=document.createElement("div");
-row.className="registration";
-
-const singerName=document.createElement("strong");
-singerName.textContent=singer.name||singer.singerName||"Performer";
-
-const singerDetails=document.createElement("p");
-singerDetails.textContent=
-"Mobile: "+(singer.mobile||singer.phone||"Not provided")+
-" | Song: "+(singer.song||"Not provided")+
-" | Language: "+(singer.language||"Not provided")+
-" | Performance: "+(singer.performance||"Not provided");
-
-const performerFee=singer.performerEntryFee!==undefined
-?Number(singer.performerEntryFee)
-:getPerformerFee(show);
-
-const paidPerformer=String(
-singer.performerEntryType||(isPaidPerformer(show)?"paid":"free")
-).toLowerCase()==="paid";
-
-const feeDetails=document.createElement("p");
-feeDetails.textContent="Performer Registration Fee: "+feeText(paidPerformer,performerFee);
-
-const paymentDetails=document.createElement("p");
-paymentDetails.textContent="Payment Reference / UTR: "+
-(singer.paymentReference||singer.utr||singer.transactionId||"Not submitted");
-
-const paymentStatus=document.createElement("p");
-paymentStatus.textContent="Payment Status: "+
-(singer.paymentStatus||(paidPerformer?"Awaiting host verification":"Not applicable"));
-
-const singerStatus=document.createElement("span");
-singerStatus.className="badge";
-singerStatus.textContent=singer.status||"Waiting";
-
-row.append(singerName,singerDetails,feeDetails);
-if(paidPerformer)row.append(paymentDetails,paymentStatus);
-row.appendChild(singerStatus);
-
-const actions=[
-{label:"Approve",value:"Approved",className:""},
-{label:"Reject",value:"Rejected",className:"danger"},
-{label:"Add to Queue",value:"Queued",className:"secondary"},
-{label:"Mark Completed",value:"Completed",className:"secondary"}
-];
-
-for(const action of actions){
-const button=document.createElement("button");
-button.type="button";
-button.textContent=action.label;
-if(action.className)button.className=action.className;
-
-button.addEventListener("click",async()=>{
-button.disabled=true;
-try{
-const updates={
-status:action.value,
-updatedAt:Date.now()
-};
-if(paidPerformer&&action.value==="Approved"){
-updates.paymentStatus="Verified by host";
-}
-await update(ref(db,"showRegistrations/"+show.showId+"/"+registrationId),updates);
-singerStatus.textContent=action.value;
-if(paidPerformer&&action.value==="Approved"){
-paymentStatus.textContent="Payment Status: Verified by host";
-}
-}catch(error){
-console.error(error);
-alert("Unable to update registration: "+error.message);
-}finally{
-button.disabled=false;
-}
-});
-
-row.appendChild(button);
-}
-container.appendChild(row);
-}
-}catch(error){
-console.error(error);
-container.textContent="Unable to load performer registrations: "+error.message;
-}
-}
-
-/* AUDIENCE MANAGEMENT */
-async function loadAudienceRequests(show,container){
-container.textContent="Loading audience requests...";
-
-try{
-const snapshot=await get(ref(db,"audienceEntryRequests/"+show.showId));
-container.innerHTML="";
-
-if(!snapshot.exists()){
-container.textContent="No audience registrations yet.";
-return;
-}
-
-const requests=Object.entries(snapshot.val()).sort((a,b)=>
-Number(b[1].createdAt||0)-Number(a[1].createdAt||0)
-);
-
-let pendingCount=0,approvedCount=0,rejectedCount=0,removedCount=0;
-
-for(const [,request] of requests){
-const status=String(request.status||"Pending");
-if(status==="Pending")pendingCount++;
-if(status==="Approved")approvedCount++;
-if(status==="Rejected")rejectedCount++;
-if(status==="Removed")removedCount++;
-}
-
-const summary=document.createElement("p");
-summary.className="small";
-summary.textContent="Total: "+requests.length+
-" | Pending: "+pendingCount+
-" | Approved: "+approvedCount+
-" | Rejected: "+rejectedCount+
-" | Removed: "+removedCount;
-container.appendChild(summary);
-
-for(const [requestId,audience] of requests){
-const row=document.createElement("div");
-row.className="audience-row";
-
-const name=document.createElement("strong");
-name.textContent=audience.name||"Audience member";
-
-const location=[
-audience.area,audience.city,audience.state
-].filter(Boolean).join(", ")||audience.location||"Not provided";
-
-const details=document.createElement("p");
-details.textContent="Location: "+location+
-" | Audience entry: "+feeText(isPaidAudience(show),getAudienceFee(show));
-
-row.append(name,details);
-
-const paymentReference=audience.paymentReference||audience.utr||audience.transactionId||"";
-const paymentNote=audience.paymentNote||audience.paymentRemark||"";
-
-if(isPaidAudience(show)){
-const payment=document.createElement("p");
-payment.textContent="Payment reference / UTR: "+(paymentReference||"Not submitted");
-row.appendChild(payment);
-
-if(paymentNote){
-const note=document.createElement("p");
-note.textContent="Payment note: "+paymentNote;
-row.appendChild(note);
-}
-
-if(audience.paymentStatus){
-const paymentStatus=document.createElement("p");
-paymentStatus.textContent="Payment status: "+audience.paymentStatus;
-row.appendChild(paymentStatus);
-}
-}
-
-const statusBadge=document.createElement("span");
-statusBadge.className="badge";
-statusBadge.textContent=audience.status||"Pending";
-row.appendChild(statusBadge);
-
-const buttons=document.createElement("div");
-const currentStatus=audience.status||"Pending";
-
-if(isPaidAudience(show)&&currentStatus==="Pending"){
-const approveButton=document.createElement("button");
-approveButton.type="button";
-approveButton.className="success";
-approveButton.textContent="Approve Payment & Entry";
-
-approveButton.addEventListener("click",async()=>{
-if(!audience.audienceUid){
-alert("Audience account UID is missing. Cannot grant access.");
-return;
-}
-const confirmed=confirm("Have you verified payment clearance for "+(audience.name||"this audience member")+"? This will grant access to this show's live stage.");
-if(!confirmed)return;
-await updateAudienceStatus(show.showId,requestId,"Approved",approveButton,container,show,audience.audienceUid);
-});
-
-const rejectButton=document.createElement("button");
-rejectButton.type="button";
-rejectButton.className="danger";
-rejectButton.textContent="Reject";
-
-rejectButton.addEventListener("click",async()=>{
-await updateAudienceStatus(show.showId,requestId,"Rejected",rejectButton,container,show,audience.audienceUid);
-});
-
-buttons.append(approveButton,rejectButton);
-}
-
-if(currentStatus==="Approved"){
-const removeButton=document.createElement("button");
-removeButton.type="button";
-removeButton.className="danger";
-removeButton.textContent="Remove & Block";
-
-removeButton.addEventListener("click",async()=>{
-const confirmed=confirm("Remove and block "+(audience.name||"this audience member")+" from this show? Their live-stage access will be revoked.");
-if(!confirmed)return;
-await removeAndBlockAudience(show,requestId,audience,removeButton,container);
-});
-
-buttons.appendChild(removeButton);
-}
-
-if(currentStatus==="Removed"){
-const note=document.createElement("p");
-note.className="small";
-note.textContent="This audience member has been removed and blocked for this show.";
-row.appendChild(note);
-}
-
-if(currentStatus==="Rejected"){
-const note=document.createElement("p");
-note.className="small";
-note.textContent="This request was rejected. No live-stage access should be granted.";
-row.appendChild(note);
-}
-
-if(!isPaidAudience(show)&&currentStatus==="Pending"){
-const note=document.createElement("p");
-note.className="small";
-note.textContent="This is a free audience show. Registration should be automatically approved by the registration page.";
-row.appendChild(note);
-}
-
-row.appendChild(buttons);
-container.appendChild(row);
-}
-
-}catch(error){
-console.error(error);
-container.textContent="Unable to load audience requests: "+error.message+". Check your Firebase audienceEntryRequests read rules.";
-}
-}
-
-/* AUDIENCE APPROVAL */
-async function updateAudienceStatus(showId,requestId,newStatus,button,container,show,audienceUid){
-button.disabled=true;
-try{
-const updates={};
-updates["audienceEntryRequests/"+showId+"/"+requestId+"/status"]=newStatus;
-updates["audienceEntryRequests/"+showId+"/"+requestId+"/updatedAt"]=Date.now();
-
-if(audienceUid){
-updates["audienceAccess/"+showId+"/"+audienceUid]=newStatus==="Approved"?true:null;
-}
-
-await update(ref(db),updates);
-await loadAudienceRequests(show,container);
-
-}catch(error){
-console.error("Audience status update failed:",error);
-alert("Unable to update audience request: "+error.message+"\n\nCheck Firebase audienceAccess update rules.");
-button.disabled=false;
-}
-}
-
-/* REMOVE AND BLOCK AUDIENCE */
-async function removeAndBlockAudience(show,requestId,audience,button,container){
-if(!currentUser||!audience.audienceUid){
-alert("Audience account information is missing. Cannot block this request.");
-return;
-}
-
-button.disabled=true;
-button.textContent="Removing...";
-
-try{
-const uid=audience.audienceUid;
-const updates={};
-
-updates["audienceBlocks/"+show.showId+"/"+uid]={
-blocked:true,
-showId:show.showId,
-audienceUid:uid,
-name:audience.name||"",
-requestId:requestId,
-blockedBy:currentUser.uid,
-blockedAt:Date.now()
-};
-
-updates["audienceEntryRequests/"+show.showId+"/"+requestId+"/status"]="Removed";
-updates["audienceEntryRequests/"+show.showId+"/"+requestId+"/updatedAt"]=Date.now();
-updates["audienceAccess/"+show.showId+"/"+uid]=null;
-
-await update(ref(db),updates);
-
-alert("Audience member removed and blocked for this show.");
-await loadAudienceRequests(show,container);
-
-}catch(error){
-console.error("Audience removal/block failed:",error);
-alert("Unable to remove and block this audience member: "+error.message);
-button.disabled=false;
-button.textContent="Remove & Block";
-}
-}
-
-/* POSTER TEXT WRAPPING */
-function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines=3){
-const words=String(text||"").split(/\s+/);
-let line="";
-let lines=0;
-
-for(const word of words){
-const test=line?line+" "+word:word;
-
-if(ctx.measureText(test).width>maxWidth&&line){
-ctx.fillText(line,x,y);
-y+=lineHeight;
-lines++;
-if(lines>=maxLines)return y;
-line=word;
-}else{
-line=test;
-}
-}
-
-if(line&&lines<maxLines){
-ctx.fillText(line,x,y);
-y+=lineHeight;
-}
-return y;
-}
-
-/* GENERATE SHOW POSTER */
-async function generateShowPoster(show,mode="download"){
-const publicLink=getPublicShowLink(show);
-const canvas=document.createElement("canvas");
-canvas.width=1080;
-canvas.height=1350;
-
-const ctx=canvas.getContext("2d");
-const gradient=ctx.createLinearGradient(0,0,1080,1350);
-gradient.addColorStop(0,"#080808");
-gradient.addColorStop(1,"#242016");
-
-ctx.fillStyle=gradient;
-ctx.fillRect(0,0,1080,1350);
-
-ctx.strokeStyle="#d6ad55";
-ctx.lineWidth=10;
-ctx.strokeRect(35,35,1010,1280);
-
-ctx.strokeStyle="#8e6c2d";
-ctx.lineWidth=2;
-ctx.strokeRect(55,55,970,1240);
-
-ctx.textAlign="center";
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 48px Arial";
-ctx.fillText("MELODY MAGIC",540,135);
-
-ctx.fillStyle="#ffffff";
-ctx.font="25px Arial";
-ctx.fillText("DIGITAL AUDITORIUM PRESENTS",540,185);
-
-ctx.fillStyle="#f4d68b";
-ctx.font="bold 64px Arial";
-
-const titleLines=[];
-const titleWords=String(show.title||"SPECIAL SHOW").split(/\s+/);
-let titleLine="";
-
-for(const word of titleWords){
-const test=titleLine?titleLine+" "+word:word;
-if(ctx.measureText(test).width>900&&titleLine){
-titleLines.push(titleLine);
-titleLine=word;
-}else{
-titleLine=test;
-}
-}
-if(titleLine)titleLines.push(titleLine);
-
-let titleY=310;
-titleLines.slice(0,2).forEach(line=>{
-ctx.fillText(line,540,titleY);
-titleY+=78;
-});
-
-ctx.fillStyle="#ffffff";
-ctx.font="27px Arial";
-const descriptionEndY=wrapCanvasText(ctx,String(show.description||""),540,titleY+35,850,40,3);
-const infoY=Math.max(descriptionEndY+30,555);
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 34px Arial";
-ctx.fillText("DATE",540,infoY);
-
-ctx.fillStyle="#ffffff";
-ctx.font="32px Arial";
-ctx.fillText(formatDate(show.date),540,infoY+43);
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 34px Arial";
-ctx.fillText("TIME",540,infoY+100);
-
-ctx.fillStyle="#ffffff";
-ctx.font="32px Arial";
-ctx.fillText(show.time||"Time to be announced",540,infoY+143);
-
-/* SEPARATE PERFORMER AND AUDIENCE FEES */
-const feeY=infoY+205;
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 30px Arial";
-ctx.fillText("PERFORMER ENTRY",540,feeY);
-
-ctx.fillStyle="#ffffff";
-ctx.font="bold 30px Arial";
-ctx.fillText(
-isPaidPerformer(show)?"PAID — ₹"+getPerformerFee(show):"FREE",
-540,feeY+42
-);
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 30px Arial";
-ctx.fillText("AUDIENCE ENTRY",540,feeY+105);
-
-ctx.fillStyle="#ffffff";
-ctx.font="bold 30px Arial";
-ctx.fillText(
-isPaidAudience(show)?"PAID — ₹"+getAudienceFee(show):"FREE",
-540,feeY+147
-);
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 26px Arial";
-ctx.fillText("HOST: "+String(show.hostName||"Melody Magic Host"),540,feeY+205);
-
-const buttonY=Math.min(feeY+255,1110);
-
-ctx.fillStyle="#168c4a";
-ctx.beginPath();
-if(typeof ctx.roundRect==="function")ctx.roundRect(260,buttonY,560,75,22);
-else ctx.rect(260,buttonY,560,75);
-ctx.fill();
-
-ctx.fillStyle="#ffffff";
-ctx.font="bold 30px Arial";
-ctx.fillText("OPEN SHOW INVITATION",540,buttonY+48);
-
-ctx.fillStyle="#ffffff";
-ctx.font="20px Arial";
-ctx.fillText("Share the public show link with everyone",540,buttonY+108);
-
-ctx.fillStyle="#e9c56f";
-ctx.font="bold 25px Arial";
-ctx.fillText("MELODY MAGIC DIGITAL AUDITORIUM",540,1245);
-
-ctx.fillStyle="#ffffff";
-ctx.font="21px Arial";
-ctx.fillText("Sing - Connect - Celebrate",540,1280);
-
-canvas.toBlob(async blob=>{
-if(!blob){
-alert("Could not generate poster.");
-return;
-}
-
-const file=new File(
-[blob],
-"Melody-Magic-"+String(show.title||"Show").replace(/[^a-z0-9]/gi,"-")+".png",
-{type:"image/png"}
-);
-
-const shareText=
-"Join "+show.title+" at Melody Magic Digital Auditorium.\n\n"+
-"Date: "+formatDate(show.date)+"\n"+
-"Time: "+(show.time||"")+"\n"+
-"PERFORMER ENTRY: "+(isPaidPerformer(show)?"₹"+getPerformerFee(show):"FREE")+"\n"+
-"AUDIENCE ENTRY: "+(isPaidAudience(show)?"₹"+getAudienceFee(show):"FREE")+
-"\n\nPublic show invitation link:\n"+publicLink;
-
-if(mode==="share"&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-try{
-await navigator.share({
-title:show.title||"Melody Magic Show",
-text:shareText,
-files:[file]
-});
-}catch(error){
-if(error.name!=="AbortError"){
-console.error(error);
-downloadPoster(file);
-}
-}
-}else{
-downloadPoster(file);
-
-if(mode==="share"&&navigator.share){
-try{
-await navigator.share({
-title:show.title||"Melody Magic Show",
-text:shareText,
-url:publicLink
-});
-}catch(error){
-if(error.name!=="AbortError")console.error(error);
-}
-}else if(mode==="share"){
-try{
-await navigator.clipboard.writeText(shareText);
-alert("Poster downloaded and invitation message copied. Share both with your audience.");
-}catch(error){
-window.prompt("Copy this invitation message:",shareText);
-}
-}
-}
-},"image/png");
-}
-
-function downloadPoster(file){
-const url=URL.createObjectURL(file);
-const link=document.createElement("a");
-link.href=url;
-link.download=file.name;
-document.body.appendChild(link);
-link.click();
-link.remove();
-setTimeout(()=>URL.revokeObjectURL(url),2000);
-}
-
-/* SIGN OUT */
-document.getElementById("logoutButton").addEventListener("click",async()=>{
-try{
-await signOut(auth);
-window.location.href="host-login.html";
-}catch(error){
-console.error(error);
-alert("Unable to sign out. Please try again.");
-}
-});
-</script>
 </body>
 </html>
