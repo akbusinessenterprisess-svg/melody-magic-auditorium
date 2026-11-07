@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Melody Magic Digital Auditorium - Host Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#090d18;color:#fff;font-family:Arial,sans-serif}
@@ -21,6 +20,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 button.secondary{background:#35415d;color:white}
 button.danger{background:#b83232;color:white}
 button.green{background:#16834a;color:white}
+button.live-button{background:#16834a;color:white}
 .small{color:#b9c4d8;font-size:13px}
 .status{padding:12px;background:#26344d;border-radius:7px;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .show{border:1px solid #39445e;padding:15px;border-radius:9px;margin:12px 0}
@@ -48,8 +48,8 @@ footer{text-align:center;padding:25px;color:#aab4c8}
 }
 </style>
 </head>
-
 <body>
+
 <header>
 <h1>MELODY MAGIC</h1>
 <div>DIGITAL AUDITORIUM — HOST DASHBOARD</div>
@@ -184,11 +184,7 @@ function hideMessage() {
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
 }
 
@@ -215,16 +211,12 @@ function validCloudinaryURL(url) {
 
 function formatTime12Hour(timeValue) {
   if (!timeValue || !/^\d{2}:\d{2}$/.test(timeValue)) return "Time not set";
-
   const [hourText, minuteText] = timeValue.split(":");
   let hour = Number(hourText);
   const minute = Number(minuteText);
-
   if (hour > 23 || minute > 59) return "Invalid time";
-
   const suffix = hour >= 12 ? "PM" : "AM";
   hour = hour % 12 || 12;
-
   return String(hour).padStart(2, "0") + ":" +
     String(minute).padStart(2, "0") + " " + suffix;
 }
@@ -238,11 +230,9 @@ function formatDate(dateValue) {
 
 function showPosterStatus(status) {
   const value = String(status || "").toLowerCase();
-
   if (value === "approved") return '<span class="badge approved">Approved</span>';
   if (value === "rejected") return '<span class="badge rejected">Rejected</span>';
   if (value === "pending") return '<span class="badge pending">Pending admin approval</span>';
-
   return '<span class="badge">No custom poster submitted</span>';
 }
 
@@ -264,6 +254,13 @@ function offlineEntryURL(showId, token) {
   return new URL(
     "offline-performers.html?showId=" + encodeURIComponent(showId) +
     "&token=" + encodeURIComponent(token),
+    location.href
+  ).href;
+}
+
+function liveStageURL(showId) {
+  return new URL(
+    "live-stage.html?showId=" + encodeURIComponent(showId),
     location.href
   ).href;
 }
@@ -348,18 +345,15 @@ async function loadShows() {
       const entry = document.createElement("div");
       entry.className = "show";
 
+      // Preserved for promotional poster QR and sharing.
       const audienceLink = new URL(
         "audience-entry.html?showId=" + encodeURIComponent(id),
         location.href
       ).href;
 
-      const performerLink = new URL(
-        "join-auditorium.html?showId=" + encodeURIComponent(id),
-        location.href
-      ).href;
+      const liveLink = liveStageURL(id);
 
       let posterRecord = null;
-
       try {
         const posterSnapshot = await withTimeout(
           get(ref(db, "showPosters/" + id))
@@ -379,21 +373,18 @@ async function loadShows() {
       entry.innerHTML = `
         <h3>${escapeHTML(show.name || "Untitled Show")}</h3>
         <p>${escapeHTML(show.description || "")}</p>
-
         <p>
           <strong>Date:</strong> ${escapeHTML(formatDate(show.date))}<br>
           <strong>Time:</strong> ${escapeHTML(formatTime12Hour(show.time))}
           <br><span class="small">India Standard Time (IST, UTC+5:30)</span>
         </p>
-
         <p>Type: ${escapeHTML(show.type || "")}</p>
         <p>Performer fee: ₹${escapeHTML(show.performerFee ?? 0)}</p>
         <p>Audience fee: ₹${escapeHTML(show.audienceFee ?? 0)}</p>
         <p>Status: ${escapeHTML(show.status || "Published")}</p>
 
         <div class="button-row">
-          <button class="performerBtn">Performer – Join Show</button>
-          <button class="audienceBtn">Audience – Join Show</button>
+          <button class="liveBtn live-button">▶ Go Live</button>
           <button class="detailsBtn secondary">Show Details</button>
           <button class="offlineManageBtn green">Offline Performers</button>
         </div>
@@ -409,7 +400,6 @@ async function loadShows() {
         </div>
 
         <hr style="border-color:#39445e;margin:18px 0">
-
         <h4>Promotional Show Poster</h4>
         <p class="small">Generate a poster with your show information and a QR code for audience registration.</p>
         <button class="posterBtn secondary">Generate Promotional Poster</button>
@@ -419,32 +409,24 @@ async function loadShows() {
           <h4>Custom Poster Upload</h4>
           <p>Upload JPG or PNG. Your custom poster will be submitted to the administrator for approval.</p>
           ${showPosterStatusHTML(posterStatus)}
-
           ${customPosterURL ? `
             <img class="poster-preview" src="${escapeHTML(customPosterURL)}" alt="Uploaded custom poster">
           ` : ""}
-
           ${posterRecord && posterStatus === "Rejected" ? `
             <p class="small">Your previous poster was rejected. You can upload a new one.</p>
           ` : ""}
-
           ${posterUploadAllowed ? `
             <input type="file" class="posterFile" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
             <button class="uploadBtn">Submit Custom Poster for Approval</button>
           ` : `
             <p class="small">A poster submission already exists. You cannot upload another until the administrator rejects the current submission.</p>
           `}
-
           <div class="upload-status"></div>
         </div>
       `;
 
-      entry.querySelector(".performerBtn").addEventListener("click", () => {
-        window.open(performerLink, "_blank", "noopener");
-      });
-
-      entry.querySelector(".audienceBtn").addEventListener("click", () => {
-        window.open(audienceLink, "_blank", "noopener");
+      entry.querySelector(".liveBtn").addEventListener("click", () => {
+        window.open(liveLink, "_blank", "noopener");
       });
 
       entry.querySelector(".offlineManageBtn").addEventListener("click", () => {
@@ -701,7 +683,6 @@ document.getElementById("generateOfflineLinkBtn").addEventListener("click", asyn
     offlineMessage.textContent = "Checking show and creating private link...";
 
     const showSnapshot = await withTimeout(get(ref(db,"shows/"+showId)));
-
     if (!showSnapshot.exists()) throw new Error("Show not found.");
 
     const show = showSnapshot.val();
@@ -880,7 +861,6 @@ async function createReplacementLink(showId,oldRecord) {
     reissuedFrom:oldRecord.token || ""
   };
 
-  // Revoke old link first, then create a new unique link.
   await withTimeout(update(
     ref(db,`offlinePerformerLinks/${showId}/${oldRecord.token}`),
     {status:"Revoked",revokedAt:Date.now()}
