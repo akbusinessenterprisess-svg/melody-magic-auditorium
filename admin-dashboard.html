@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,20 +12,22 @@ header{padding:22px;text-align:center;background:#17130b;border-bottom:1px solid
 .brand{color:#e5bd60;font-size:23px;font-weight:bold}
 main{max-width:1000px;margin:auto;padding:20px}
 h2,h3{color:#e5bd60}
-.notice,.application{background:#171717;border:1px solid #80652d;padding:16px;border-radius:10px;margin:15px 0}
+.notice,.application,.show-card{background:#171717;border:1px solid #80652d;padding:16px;border-radius:10px;margin:15px 0}
 .notice{background:#211b0e;line-height:1.5}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
 .card{background:#171717;border:1px solid #51401f;border-radius:10px;padding:18px}
 .number{font-size:27px;color:#e5bd60;font-weight:bold}
-.application p{overflow-wrap:anywhere;line-height:1.5;font-size:14px}
+.application p,.show-card p{overflow-wrap:anywhere;line-height:1.5;font-size:14px;white-space:pre-line}
 button{border:0;border-radius:7px;padding:11px 16px;margin:5px 5px 5px 0;font-weight:bold;cursor:pointer}
 .approve{background:#d5ad50;color:#17120a}
-.reject{background:#8d2929;color:white}
+.reject,.delete{background:#8d2929;color:white}
+.delete-all{background:#b52222;color:white;padding:13px 18px}
 button:disabled{opacity:.5;cursor:not-allowed}
 input[type=checkbox]{accent-color:#d5ad50}
 .status{color:#e5bd60;font-weight:bold}
 .empty{color:#aaa;padding:20px;text-align:center}
 #message{line-height:1.5;overflow-wrap:anywhere}
+.warning{color:#ffb1a8;line-height:1.5;font-size:13px}
 footer{text-align:center;color:#928b7b;padding:25px;font-size:12px}
 </style>
 </head>
@@ -34,13 +36,14 @@ footer{text-align:center;color:#928b7b;padding:25px;font-size:12px}
 <header>
   <div class="brand">MELODY MAGIC</div>
   <h2>Administrator Dashboard</h2>
-  <p>HOST APPLICATION CONTROL</p>
+  <p>HOST APPLICATION & SHOW CONTROL</p>
 </header>
 
 <main>
   <div id="message" class="notice">Checking administrator access...</div>
 
   <section id="dashboard" hidden>
+
     <h2>Host Overview</h2>
     <div class="grid">
       <div class="card"><h3>Pending</h3><div class="number" id="pendingCount">0</div></div>
@@ -54,6 +57,27 @@ footer{text-align:center;color:#928b7b;padding:25px;font-size:12px}
       <p class="empty">Loading applications...</p>
     </div>
 
+    <hr style="border-color:#51401f;margin:30px 0">
+
+    <h2>Host Show Management</h2>
+    <div class="notice">
+      Manage all host-created shows from here. You can delete individual shows or delete all host-created show records.
+      <p class="warning">
+        Deletion is permanent. Only records in the Firebase "shows" section will be deleted. Related registrations, posters, audience records, host accounts and payment records will remain untouched.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Total Host Shows: <span class="number" id="showCount">0</span></h3>
+      <button id="deleteAllShowsButton" class="delete-all" disabled>
+        DELETE ALL HOST SHOWS
+      </button>
+    </div>
+
+    <div id="hostShows">
+      <p class="empty">Loading host shows...</p>
+    </div>
+
     <button id="logoutButton" class="reject">Sign Out</button>
   </section>
 </main>
@@ -64,24 +88,38 @@ footer{text-align:center;color:#928b7b;padding:25px;font-size:12px}
 
 <script type="module">
 import { db, auth } from "./firebase.js";
-import { ref, onValue, set } from
-  "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-import { onAuthStateChanged, signOut } from
-  "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+import {
+  ref,
+  onValue,
+  set,
+  remove,
+  update
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
 
 const message = document.getElementById("message");
 const dashboard = document.getElementById("dashboard");
 const applications = document.getElementById("applications");
+const hostShows = document.getElementById("hostShows");
+const deleteAllButton = document.getElementById("deleteAllShowsButton");
 
-let stopListening = null;
+let stopApplicationsListener = null;
+let stopShowsListener = null;
+let currentShows = {};
 
 const planDays = {
   daily: 1,
   weekly: 7,
   monthly: 30
 };
+
 function showMessage(text, error = false) {
   message.textContent = text;
   message.style.color = error ? "#ff9999" : "#e5bd60";
@@ -92,6 +130,8 @@ function dateText(timestamp) {
   return new Date(timestamp).toLocaleString("en-IN");
 }
 
+/* HOST APPLICATIONS */
+
 function renderApplications(data) {
   const records = Object.entries(data || {});
   let pending = 0, approved = 0, rejected = 0, expired = 0;
@@ -100,9 +140,12 @@ function renderApplications(data) {
     if (app.status === "Pending") pending++;
     if (app.status === "Approved") approved++;
     if (app.status === "Rejected") rejected++;
-    if (app.status === "Approved" &&
-        app.subscriptionEndAt &&
-        app.subscriptionEndAt < Date.now()) expired++;
+
+    if (
+      app.status === "Approved" &&
+      app.subscriptionEndAt &&
+      app.subscriptionEndAt < Date.now()
+    ) expired++;
   });
 
   document.getElementById("pendingCount").textContent = pending;
@@ -132,19 +175,23 @@ function renderApplications(data) {
       "\nStatus: " + (app.status || "Unknown") +
       "\nApplied: " + dateText(app.createdAt);
 
-    const status = document.createElement("p");
-    status.className = "status";
-    status.textContent = "Payment must be independently verified before approval.";
-
     card.append(heading, details);
 
     if (app.status === "Pending") {
+      const status = document.createElement("p");
+      status.className = "status";
+      status.textContent = "Payment must be independently verified before approval.";
+
       const label = document.createElement("label");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      label.append(checkbox, document.createTextNode(
-        " I have independently verified the subscription payment."
-      ));
+
+      label.append(
+        checkbox,
+        document.createTextNode(
+          " I have independently verified the subscription payment."
+        )
+      );
 
       const approveButton = document.createElement("button");
       approveButton.className = "approve";
@@ -157,14 +204,17 @@ function renderApplications(data) {
 
       approveButton.addEventListener("click", async () => {
         const days = planDays[String(app.plan || "").trim().toLowerCase()];
+
         if (!days || !checkbox.checked) {
           showMessage("Verify payment and check a valid subscription plan.", true);
           return;
         }
 
         approveButton.disabled = true;
+
         try {
           const now = Date.now();
+
           await set(ref(db, "hostApplications/" + uid), {
             ...app,
             status: "Approved",
@@ -173,6 +223,7 @@ function renderApplications(data) {
             subscriptionStartAt: now,
             subscriptionEndAt: now + days * 24 * 60 * 60 * 1000
           });
+
           showMessage("Host approved and subscription activated.");
         } catch (error) {
           showMessage("Approval failed: " + error.message, true);
@@ -183,15 +234,19 @@ function renderApplications(data) {
       const rejectButton = document.createElement("button");
       rejectButton.className = "reject";
       rejectButton.textContent = "Reject";
+
       rejectButton.addEventListener("click", async () => {
         if (!confirm("Reject this host application?")) return;
+
         rejectButton.disabled = true;
+
         try {
           await set(ref(db, "hostApplications/" + uid), {
             ...app,
             status: "Rejected",
             rejectedAt: Date.now()
           });
+
           showMessage("Application rejected.");
         } catch (error) {
           showMessage("Rejection failed: " + error.message, true);
@@ -199,54 +254,22 @@ function renderApplications(data) {
         }
       });
 
-      card.append(status, label, document.createElement("br"),
-                   approveButton, rejectButton);
+      card.append(
+        status,
+        label,
+        document.createElement("br"),
+        approveButton,
+        rejectButton
+      );
     } else {
       const result = document.createElement("p");
+
       result.textContent =
         app.status === "Approved"
           ? "Subscription expires: " + dateText(app.subscriptionEndAt)
           : "Application status: " + (app.status || "Unknown");
+
       card.append(result);
     }
 
-    applications.append(card);
-  });
-}
-
-onAuthStateChanged(auth, (user) => {
-  if (stopListening) {
-    stopListening();
-    stopListening = null;
-  }
-
-  if (!user) {
-    dashboard.hidden = true;
-    showMessage("Please sign in with the administrator account first.", true);
-    return;
-  }
-
-  if (user.uid !== ADMIN_UID) {
-    dashboard.hidden = true;
-    showMessage("Access denied. This account is not an administrator.", true);
-    return;
-  }
-
-  dashboard.hidden = false;
-  showMessage("Administrator verified. Connected to Firebase.");
-
-  stopListening = onValue(
-    ref(db, "hostApplications"),
-    (snapshot) => renderApplications(snapshot.val() || {}),
-    (error) => showMessage("Could not load applications: " + error.message, true)
-  );
-});
-
-document.getElementById("logoutButton").addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "host-login.html";
-});
-</script>
-
-</body>
-</html>
+    applications
