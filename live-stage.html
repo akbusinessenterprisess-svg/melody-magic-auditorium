@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Melody Magic Digital Auditorium</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #080808;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    h2 {
+      text-align: center;
+      color: #f5c542;
+    }
+
+    #karaokeBox {
+      width: 100%;
+      max-width: 850px;
+      margin: 20px auto;
+      padding: 14px;
+      background: #171717;
+      border-radius: 12px;
+    }
+
+    #videoFrame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    #videoMessage {
+      text-align: center;
+      color: #ddd;
+      padding: 18px 8px;
+    }
+
+    #livekitArea {
+      width: 100%;
+      max-width: 850px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Melody Magic Digital Auditorium</h2>
+
+  <section id="karaokeBox">
+    <h3 id="showTitle">Karaoke Performance</h3>
+
+    <div id="videoMessage">
+      Loading the host's karaoke selection...
+    </div>
+
+    <iframe
+      id="videoFrame"
+      style="display:none"
+      title="YouTube Karaoke Player"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen>
+    </iframe>
+  </section>
+
+  <section id="livekitArea">
+    <!-- LiveKit microphone and auditorium controls -->
+  </section>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged } from
+      "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { ref, onValue } from
+      "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const showId = new URLSearchParams(window.location.search)
+      .get("showId");
+
+    const videoFrame = document.getElementById("videoFrame");
+    const videoMessage = document.getElementById("videoMessage");
+    const showTitle = document.getElementById("showTitle");
+
+    let currentVideoId = "";
+
+    function displayMessage(message) {
+      videoMessage.textContent = message;
+      videoMessage.style.display = "block";
+      videoFrame.style.display = "none";
+    }
+
+    if (!showId) {
+      displayMessage("Show ID is missing. Please open the auditorium using the show's join link.");
+    } else {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          displayMessage("Please sign in to load this show's karaoke selection.");
+          return;
+        }
+
+        const selectionRef = ref(
+          db,
+          "karaokeSelectionsByShow/" + showId
+        );
+
+        onValue(selectionRef, (snapshot) => {
+          if (!snapshot.exists()) {
+            displayMessage("The host has not selected a karaoke video yet.");
+            return;
+          }
+
+          const selection = snapshot.val();
+
+          showTitle.textContent =
+            selection.showTitle || "Karaoke Performance";
+
+          if (!selection.videoId) {
+            displayMessage("No YouTube karaoke video has been selected.");
+            return;
+          }
+
+          if (selection.videoId !== currentVideoId) {
+            currentVideoId = selection.videoId;
+
+            videoFrame.src =
+              "https://www.youtube.com/embed/" +
+              encodeURIComponent(currentVideoId) +
+              "?playsinline=1&rel=0";
+          }
+
+          videoMessage.style.display = "none";
+          videoFrame.style.display = "block";
+        }, (error) => {
+          console.error("Karaoke selection error:", error);
+          displayMessage("Unable to load the karaoke video. Please check your sign-in and show access.");
+        });
+      });
+    }
+  </script>
+
+  <script type="module" src="./livekit.js"></script>
+
+</body>
+</html>
