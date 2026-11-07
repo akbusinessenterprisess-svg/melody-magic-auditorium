@@ -19,9 +19,6 @@ button{padding:11px 16px;border:0;border-radius:7px;background:#c49b45;color:#11
 button:disabled{opacity:.5;cursor:not-allowed}
 .approve{background:#168c4a;color:white}
 .reject{background:#a83232;color:white}
-.secondary{background:#444;color:white}
-input,textarea{width:100%;padding:12px;margin:8px 0 14px;background:#090909;color:white;border:1px solid #555;border-radius:7px}
-label{display:block;color:#ddd;font-size:14px}
 .status{background:#202020;padding:12px;border-radius:7px;color:#e6c16a;line-height:1.5;margin:12px 0}
 .small{color:#aaa;font-size:13px;line-height:1.5}
 .poster-card{background:#101010;border:1px solid #444;border-radius:10px;padding:16px;margin:15px 0}
@@ -29,6 +26,8 @@ label{display:block;color:#ddd;font-size:14px}
 .badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#333;color:#e6c16a;font-size:12px}
 .hidden{display:none!important}
 .host-row{padding:13px 0;border-bottom:1px solid #333}
+textarea{width:100%;padding:12px;margin:8px 0 14px;background:#090909;color:white;border:1px solid #555;border-radius:7px}
+label{display:block;color:#ddd;font-size:14px}
 footer{text-align:center;padding:25px;color:#888;font-size:12px}
 </style>
 </head>
@@ -78,14 +77,14 @@ import { auth, db } from "./firebase.js";
 import {
   onAuthStateChanged,
   signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 import {
   ref,
   get,
   set,
   update
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const ADMIN_UID = "PI8sswS9a3ZBU001D3SBejMBJyO2";
 
@@ -93,13 +92,6 @@ const message = document.getElementById("message");
 const dashboard = document.getElementById("adminDashboard");
 const hostList = document.getElementById("hostList");
 const posterList = document.getElementById("posterList");
-
-let adminUser = null;
-
-function showMessage(text) {
-  message.textContent = text;
-  message.classList.remove("hidden");
-}
 
 function setStatus(text) {
   message.textContent = text;
@@ -131,26 +123,19 @@ function formatTime(value) {
 }
 
 function hostName(data) {
-  return data.name ||
-         data.fullName ||
-         data.hostName ||
-         "Host";
+  return data.name || data.fullName || data.hostName || "Host";
 }
 
 function hostMobile(data) {
-  return data.mobile ||
-         data.phone ||
-         data.phoneNumber ||
-         data.contactNumber ||
-         "Not provided";
+  return data.mobile || data.phone || data.phoneNumber ||
+         data.contactNumber || "Not provided";
 }
 
 /* AUTHENTICATION */
 
 onAuthStateChanged(auth, async user => {
-
   if (!user) {
-    showMessage("Please sign in with your administrator account.");
+    setStatus("Please sign in with your administrator account.");
     setTimeout(() => {
       window.location.href = "host-login.html";
     }, 1500);
@@ -158,19 +143,18 @@ onAuthStateChanged(auth, async user => {
   }
 
   if (user.uid !== ADMIN_UID) {
-    showMessage("Access denied. Administrator account required.");
+    setStatus("Access denied. Administrator account required.");
     await signOut(auth);
     return;
   }
 
-  adminUser = user;
   dashboard.classList.remove("hidden");
   message.classList.add("hidden");
 
   await loadAdminData();
 });
 
-/* LOAD ALL ADMIN DATA */
+/* LOAD ADMIN DATA */
 
 async function loadAdminData() {
   setStatus("Loading administrator dashboard...");
@@ -305,7 +289,9 @@ async function loadPosters() {
     const shows = showSnapshot.exists() ? showSnapshot.val() : {};
 
     const entries = Object.entries(posters)
-      .filter(([id, poster]) => poster && poster.imageData)
+      .filter(([id, poster]) =>
+        poster && (poster.imageUrl || poster.imageData)
+      )
       .sort((a, b) =>
         Number(b[1].submittedAt || 0) -
         Number(a[1].submittedAt || 0)
@@ -333,8 +319,10 @@ function renderPosterCard(showId, poster, show) {
   const card = document.createElement("div");
   card.className = "poster-card";
 
+  const imageUrl = poster.imageUrl || poster.imageData;
+
   const title = document.createElement("h3");
-  title.textContent = show.title || "Show: " + showId;
+  title.textContent = show.name || show.title || "Show: " + showId;
 
   const host = document.createElement("p");
   host.className = "small";
@@ -343,8 +331,7 @@ function renderPosterCard(showId, poster, show) {
 
   const date = document.createElement("p");
   date.className = "small";
-  date.textContent =
-    "Show date: " + formatDate(show.date);
+  date.textContent = "Show date: " + formatDate(show.date);
 
   const submitted = document.createElement("p");
   submitted.className = "small";
@@ -357,11 +344,17 @@ function renderPosterCard(showId, poster, show) {
 
   const image = document.createElement("img");
   image.className = "poster-image";
-  image.src = poster.imageData;
-  image.alt = "Poster for " + (show.title || "show");
+  image.src = imageUrl;
+  image.alt = "Poster for " + (show.name || show.title || "show");
+
+  image.onerror = () => {
+    image.alt = "Poster image could not be loaded";
+    image.removeAttribute("src");
+    image.insertAdjacentText("afterend", "Poster image could not be loaded.");
+  };
 
   const feedbackLabel = document.createElement("label");
-  feedbackLabel.textContent = "Rejection feedback (optional)";
+  feedbackLabel.textContent = "Rejection feedback";
 
   const feedback = document.createElement("textarea");
   feedback.placeholder = "Explain why this poster is rejected...";
@@ -376,32 +369,38 @@ function renderPosterCard(showId, poster, show) {
   rejectButton.textContent = "Reject Poster";
   rejectButton.className = "reject";
 
-  approveButton.addEventListener("click", async () => {
-    const confirmed = confirm(
-      "Approve this poster and make it available for public display?"
-    );
+  /* APPROVE POSTER */
 
-    if (!confirmed) return;
+  approveButton.addEventListener("click", async () => {
+    if (!imageUrl) {
+      alert("Poster image URL is missing.");
+      return;
+    }
+
+    if (!confirm("Approve this poster and make it available publicly?")) {
+      return;
+    }
 
     approveButton.disabled = true;
     rejectButton.disabled = true;
 
     try {
+      const now = Date.now();
+
       const approvedRecord = {
         showId,
-        hostUid: poster.hostUid,
-        title: show.title || "Show",
+        hostUid: poster.hostUid || "",
+        title: show.name || show.title || "Show",
         date: show.date || "",
         time: show.time || "",
-        imageData: poster.imageData,
-        approvedAt: Date.now()
+        imageUrl: imageUrl,
+        approvedAt: now
       };
 
-      // Update both database paths together.
       const changes = {};
 
       changes["showPosters/" + showId + "/status"] = "Approved";
-      changes["showPosters/" + showId + "/approvedAt"] = Date.now();
+      changes["showPosters/" + showId + "/approvedAt"] = now;
       changes["showPosters/" + showId + "/rejectionReason"] = null;
 
       changes["approvedPosters/" + showId] = approvedRecord;
@@ -419,6 +418,8 @@ function renderPosterCard(showId, poster, show) {
     }
   });
 
+  /* REJECT POSTER */
+
   rejectButton.addEventListener("click", async () => {
     const reason = feedback.value.trim();
 
@@ -428,9 +429,7 @@ function renderPosterCard(showId, poster, show) {
       return;
     }
 
-    const confirmed = confirm("Reject this poster?");
-
-    if (!confirmed) return;
+    if (!confirm("Reject this poster?")) return;
 
     approveButton.disabled = true;
     rejectButton.disabled = true;
@@ -442,7 +441,6 @@ function renderPosterCard(showId, poster, show) {
       changes["showPosters/" + showId + "/rejectionReason"] = reason;
       changes["showPosters/" + showId + "/reviewedAt"] = Date.now();
 
-      // Remove an old approved copy, if one exists.
       changes["approvedPosters/" + showId] = null;
 
       await update(ref(db), changes);
